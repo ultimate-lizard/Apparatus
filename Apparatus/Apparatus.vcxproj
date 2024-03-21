@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{76004302-e49f-43ad-abc1-2625b26b578d}</ProjectGuid>
+    <RootNamespace>Apparatus</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)Bin\</OutDir>
+    <IntDir>$(ProjectDir)Temp\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)-$(Configuration)</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)Bin\</OutDir>
+    <IntDir>$(ProjectDir)Temp\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)-$(Configuration)</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Apparatus\Apparatus.cpp" />
+    <ClCompile Include="Source\Apparatus\Client\Client.cpp" />
+    <ClCompile Include="Source\Apparatus\Client\Controller.cpp" />
+    <ClCompile Include="Source\Apparatus\Client\EditorController.cpp" />
+    <ClCompile Include="Source\Apparatus\Client\HumanControllerBase.cpp" />
+    <ClCompile Include="Source\Apparatus\Client\HumanPlayerController.cpp" />
+    <ClCompile Include="Source\Apparatus\Client\InputHandler.cpp" />
+    <ClCompile Include="Source\Apparatus\Client\LocalClient.cpp" />
+    <ClCompile Include="Source\Apparatus\Common\BoundingBox.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\CameraComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\CollisionComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\Component.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\DebugMovementComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\ModelComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\MovementComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\SelectableComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\TransformComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\Importer.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\Resource.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\ResourceManager.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\WindowEventHandler.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\Logger.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Camera.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Material.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\MaterialInstance.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Mesh.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Model.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\ModelImporter.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\ModelInstance.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Renderer.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Rotator.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\SceneNode.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Shader.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Texture.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Viewport.cpp" />
+    <ClCompile Include="Source\Apparatus\Server\Entity.cpp" />
+    <ClCompile Include="Source\Apparatus\Server\LocalServer.cpp" />
+    <ClCompile Include="Source\Apparatus\Server\Server.cpp" />
+    <ClCompile Include="Source\Test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\DebugPrimitive.frag" />
+    <None Include="Shaders\DebugPrimitive.vert" />
+    <None Include="Shaders\Model.frag" />
+    <None Include="Shaders\Model.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Apparatus\Apparatus.h" />
+    <ClInclude Include="Source\Apparatus\Client\Client.h" />
+    <ClInclude Include="Source\Apparatus\Client\Controller.h" />
+    <ClInclude Include="Source\Apparatus\Client\EditorController.h" />
+    <ClInclude Include="Source\Apparatus\Client\HumanControllerBase.h" />
+    <ClInclude Include="Source\Apparatus\Client\HumanPlayerController.h" />
+    <ClInclude Include="Source\Apparatus\Client\InputHandler.h" />
+    <ClInclude Include="Source\Apparatus\Client\LocalClient.h" />
+    <ClInclude Include="Source\Apparatus\Common\BoundingBox.h" />
+    <ClInclude Include="Source\Apparatus\Components\CameraComponent.h" />
+    <ClInclude Include="Source\Apparatus\Components\CollisionComponent.h" />
+    <ClInclude Include="Source\Apparatus\Components\Component.h" />
+    <ClInclude Include="Source\Apparatus\Components\DebugMovementComponent.h" />
+    <ClInclude Include="Source\Apparatus\Components\ModelComponent.h" />
+    <ClInclude Include="Source\Apparatus\Components\MovementComponent.h" />
+    <ClInclude Include="Source\Apparatus\Components\SelectableComponent.h" />
+    <ClInclude Include="Source\Apparatus\Components\TransformComponent.h" />
+    <ClInclude Include="Source\Apparatus\Core\Importer.h" />
+    <ClInclude Include="Source\Apparatus\Core\InputMap.h" />
+    <ClInclude Include="Source\Apparatus\Core\Resource.h" />
+    <ClInclude Include="Source\Apparatus\Core\ResourceManager.h" />
+    <ClInclude Include="Source\Apparatus\Core\WindowEventHandler.h" />
+    <ClInclude Include="Source\Apparatus\Core\Logger.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Camera.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Material.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\MaterialInstance.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Mesh.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Model.h" />
+    <ClInclude Include="Source\Apparatus\Core\ModelImporter.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\ModelInstance.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Renderer.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Rotator.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\SceneNode.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Shader.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Texture.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Viewport.h" />
+    <ClInclude Include="Source\Apparatus\Server\Entity.h" />
+    <ClInclude Include="Source\Apparatus\Server\LocalServer.h" />
+    <ClInclude Include="Source\Apparatus\Common\Primitives.h" />
+    <ClInclude Include="Source\Apparatus\Server\Server.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
