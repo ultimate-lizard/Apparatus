@@ -6,12 +6,12 @@
 class CameraComponent : public Component
 {
 public:
-	CameraComponent(const std::string& id);
-
-	virtual void init() override;
-	virtual void update(float dt) override;
+	CameraComponent(Entity* owner);
 
 	Camera& getCamera();
+
+protected:
+	virtual void assignDefaultObjectName() override;
 
 private:
 	Camera camera;

@@ -2,29 +2,29 @@
 
 #include <string>
 
+#include "../Core/LifecycleInterface.h"
+#include "../Core/NameProvider.h"
+
 class Entity;
 
-class Component
+class Component : public LifecycleInterface, public NameProvider
 {
 public:
-	Component(const std::string& id);
+	Component(Entity* owner);
+	Component(Entity* owner, const std::string& name);
 	virtual ~Component() = default;
 
 	Component(const Component&) = delete;
 	Component(Component&&) = delete;
 	void operator=(const Component&) = delete;
 
-	void setId(const std::string& id);
-	std::string getId() const;
+	virtual void init() override;
+	virtual void start() override {};
+	virtual void update(float dt) override {};
 
 	void setOwner(Entity* owner);
 	Entity* getOwner();
 
-	virtual void init() = 0;
-	virtual void update(float dt) = 0;
-
 protected:
-	std::string id;
-
 	Entity* owner;
 };

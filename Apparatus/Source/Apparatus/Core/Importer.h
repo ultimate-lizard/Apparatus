@@ -1,6 +1,6 @@
 #pragma once
 
-class ResourceManager;
+class AssetManager;
 
 class Importer
 {
@@ -9,7 +9,7 @@ public:
 	virtual ~Importer() = default;
 
 protected:
-	ResourceManager* resourceManager;
+	AssetManager* assetManager;
 
-	friend class ResourceManager;
+	friend class AssetManager;
 };

@@ -2,23 +2,22 @@
 
 #include "../Core/Logger.h"
 
-Entity::Entity(const std::string& id) :
-	id(id)
+Entity::Entity(const std::string& name) :
+	NameProvider(name)
 {
-	LOG("Created entity " + this->id, LogLevel::Trace);
 }
 
-void Entity::setId(const std::string& id)
+void Entity::init()
 {
-	this->id = id;
-}
-
-std::string Entity::getId() const
-{
-	return id;
+	LOG("Initialized entity '" + getObjectName() + "'", LogLevel::Info);
 }
 
 void Entity::addComponent(Component* component)
 {
 	components.push_back(component);
+}
+
+void Entity::assignDefaultObjectName()
+{
+	setObjectName("UnnamedEntity");
 }

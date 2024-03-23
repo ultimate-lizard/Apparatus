@@ -6,7 +6,7 @@
 class MovementComponent : public Component
 {
 public:
-	MovementComponent(const std::string& id);
+	MovementComponent(Entity* owner);
 
 	virtual void init() override;
 	virtual void update(float dt) override;
@@ -18,6 +18,8 @@ public:
 	void lookY(float rate);
 
 protected:
+	virtual void assignDefaultObjectName() override;
+
 	int forward;
 	int sideways;
 

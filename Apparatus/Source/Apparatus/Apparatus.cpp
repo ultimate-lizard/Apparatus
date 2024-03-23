@@ -30,7 +30,7 @@ int Apparatus::launch(int argc, char** argv)
 {
 	// TODO: Handle args
 
-	return init();
+	return initEngineInternal();
 }
 
 void Apparatus::quit()
@@ -95,9 +95,19 @@ glm::ivec2 Apparatus::getWindowSize() const
 	return { width, height };
 }
 
-ResourceManager& Apparatus::getResourceManager()
+glm::ivec2 Apparatus::getMouseCursorPosition() const
 {
-	return resourceManager;
+	int x = 0;
+	int y = 0;
+
+	SDL_GetMouseState(&x, &y);
+
+	return glm::ivec2(x, y);
+}
+
+AssetManager& Apparatus::getResourceManager()
+{
+	return assetManager;
 }
 
 void Apparatus::setCursorVisibleEnabled(bool enabled)
@@ -111,7 +121,7 @@ bool Apparatus::isCursorVisible() const
 	return result == SDL_FALSE;
 }
 
-int Apparatus::init()
+int Apparatus::initEngineInternal()
 {
 	Logger::open("../Logs/");
 
@@ -152,15 +162,10 @@ int Apparatus::init()
 		return 1;
 	}
 
-	initResources();
+	initAssets();
 
-	// Create server
-	createServer<LocalServer>(this);
+	init();
 
-	// Create local client by default unless specified otherwise by program args
-	createClient<LocalClient>(this);
-
-	// Init all
 	if (server)
 	{
 		server->init();
@@ -174,29 +179,55 @@ int Apparatus::init()
 		}
 	}
 
+	if (server)
+	{
+		server->start();
+	}
+
+	for (std::unique_ptr<Client>& client : clients)
+	{
+		if (client)
+		{
+			client->start();
+		}
+	}
+
 	startGameLoop();
 
 	return 0;
 }
 
-void Apparatus::initResources()
+void Apparatus::initAssets()
 {
-	resourceManager.init();
+	assetManager.init();
 
-	if (Shader* debugPrimitiveShader = resourceManager.createResource<Shader>("DebugPrimitive", "../Shaders/DebugPrimitive.vert", "../Shaders/DebugPrimitive.frag"))
+	if (Shader* debugPrimitiveShader = assetManager.createAsset<Shader>("Shader_DebugPrimitive", "../Shaders/DebugPrimitive.vert", "../Shaders/DebugPrimitive.frag"))
 	{
-		if (auto debugPrimitiveMaterial = resourceManager.createResource<Material>("DebugPrimitive"))
+		if (Material* debugPrimitiveMaterial = assetManager.createAsset<Material>("Material_DebugPrimitive"))
 		{
 			debugPrimitiveMaterial->setShader(debugPrimitiveShader);
 		}
 	}
 	
-	Shader* modelShader = resourceManager.createResource<Shader>("DefaultModelShader", "../Shaders/Model.vert", "../Shaders/Model.frag");
-	ModelImporter* importer = resourceManager.getImporter<ModelImporter>();
-	resourceManager.createResource(std::move(importer->import("Scene", modelShader, "C:\\Users\\mykha\\Desktop\\test\\scene.fbx")));
-	resourceManager.createResource(std::move(importer->import("Cube", modelShader, "C:\\Users\\mykha\\Desktop\\test\\cube.fbx")));
-	resourceManager.createResource(std::move(importer->import("Tree", modelShader, "C:\\Users\\mykha\\Desktop\\test\\tree.fbx")));
-	resourceManager.createResource(std::move(importer->import("Entity", modelShader, "C:\\Users\\mykha\\Desktop\\test\\entity.fbx")));
+	Shader* modelShader = assetManager.createAsset<Shader>("Shader_DefaultModel", "../Shaders/Model.vert", "../Shaders/Model.frag");
+	ModelImporter* importer = assetManager.getImporter<ModelImporter>();
+
+	if (modelShader && importer)
+	{
+		assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "C:/Users/mykha/Desktop/test/scene.fbx")));
+		assetManager.createAsset(std::move(importer->import("Model_Cube", modelShader, "C:/Users/mykha/Desktop/test/cube.fbx")));
+		assetManager.createAsset(std::move(importer->import("Model_Tree", modelShader, "C:/Users/mykha/Desktop/test/tree.fbx")));
+		assetManager.createAsset(std::move(importer->import("Model_Entity", modelShader, "C:/Users/mykha/Desktop/test/entity.fbx")));
+		// assetManager.createAsset(std::move(importer->import("Model_Gizmo", modelShader, "C:/Users/mykha/Desktop/test/Gizmo.fbx")));
+		auto gizmoModels = importer->importMultiple(modelShader, "C:/Users/mykha/Desktop/test/Gizmo.fbx");
+		for (auto& model : gizmoModels)
+		{
+			if (model)
+			{
+				assetManager.createAsset(std::move(model));
+			}
+		}
+	}
 }
 
 void Apparatus::startGameLoop()
@@ -219,7 +250,7 @@ void Apparatus::startGameLoop()
 		{
 			SDL_WarpMouseInWindow(window, 800 / 2, 600 / 2);
 		}
-
+		
 		lastFrame = currentFrame;
 		currentFrame = SDL_GetPerformanceCounter();
 

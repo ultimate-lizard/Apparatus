@@ -4,22 +4,23 @@
 
 #include <glm/glm.hpp>
 
-#include "../Core/Resource.h"
+#include "../Core/Asset.h"
 
 struct aiMesh;
 struct aiNode;
 
 struct Vertex
 {
-	glm::vec3 position;
-	glm::vec2 uv;
-	glm::vec4 color;
+	glm::vec3 position{};
+	glm::vec2 uv{};
+	glm::vec3 normal{};
+	glm::vec4 color{};
 };
 
-class Mesh : public Resource
+class Mesh : public Asset
 {
 public:
-	Mesh(const std::string& resourceName, long long bufferSize);
+	Mesh(const std::string& resourceName, size_t vertexBufferSize, size_t indexBufferSize);
 	Mesh(const std::string& resourceName, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex);
 	~Mesh();
 
@@ -39,10 +40,10 @@ public:
 	const std::vector<unsigned int>& getIndices() const;
 
 	unsigned int getMaterialIndex() const;
+	size_t getVertexBufferSize() const;
+	size_t getIndexBufferSize() const;
 
 private:
-	glm::mat4 processTransform(aiNode* node);
-
 	unsigned int vao;
 	unsigned int vbo;
 	unsigned int ebo;
@@ -50,5 +51,10 @@ private:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	unsigned int materialIndex;
-	long long bufferSize;
+
+	// How much data in bytes will be allocated for EBO and VBO for dynamic draw if no vertice and index data provided during creation of the mesh
+	size_t vertexBufferSize;
+	size_t indexBufferSize;
+
+	friend class ModelImporter;
 };

@@ -17,8 +17,13 @@ InputHandler::InputHandler()
 	keyAsAxisActionMap.emplace(InputKey::Q, AxisAction{ "RotateRoll", 1.0f });
 	keyAsAxisActionMap.emplace(InputKey::E, AxisAction{ "RotateRoll", -1.0f });
 
-	keyActionMap.emplace(InputKey::F1, "ToggleDebugMode");
-	keyActionMap.emplace(InputKey::MouseLeftButton, "Select");
+	keyActionMap.emplace(InputKey::MouseLeftButton, "Fire");
+	keyActionMap.emplace(InputKey::MouseRightButton, "AltFire");
+
+	keyActionMap.emplace(InputKey::Escape, "OpenMainMenu");
+
+	// TODO: This is only for LevelEditor project!
+	keyActionMap.emplace(InputKey::Space, "ToggleEditMode");
 
 	for (auto& pair : keyAsAxisActionMap)
 	{

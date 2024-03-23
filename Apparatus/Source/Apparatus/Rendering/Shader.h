@@ -4,9 +4,9 @@
 
 #include <glm/glm.hpp>
 
-#include "../Core/Resource.h"
+#include "../Core/Asset.h"
 
-class Shader : public Resource
+class Shader : public Asset
 {
 public:
 	Shader(const std::string& resourceName, const std::string& vertPath, const std::string& fragPath);

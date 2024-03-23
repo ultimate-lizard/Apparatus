@@ -3,15 +3,17 @@
 #include "../Rendering/Model.h"
 #include "../Server/LocalServer.h"
 
-TransformComponent::TransformComponent(const std::string& id) :
-	Component(id),
+TransformComponent::TransformComponent(Entity* owner) :
+	Component(owner),
 	debugModel(nullptr)
 {
-
+	assignDefaultObjectName();
 }
 
 void TransformComponent::init()
 {
+	Component::init();
+
 	if (debugModel)
 	{
 		debugModelInstance = debugModel->createModelInstance();
@@ -21,15 +23,6 @@ void TransformComponent::init()
 void TransformComponent::update(float dt)
 {
 	calculateTransform();
-
-	glm::vec3 forward = getForward();
-	glm::vec3 right = getRight();
-	glm::vec3 up = getUp();
-	glm::vec3 position = getDerivedPosition();
-
-	LocalServer::drawLine({ position, position + right * 3.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, 2.0f);
-	LocalServer::drawLine({ position, position + up * 3.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, 2.0f);
-	LocalServer::drawLine({ position, position + forward * 3.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, 2.0f);
 }
 
 void TransformComponent::setDebugModel(Model* model)
@@ -45,4 +38,12 @@ Model* TransformComponent::getDebugModel()
 ModelInstance* TransformComponent::getDebugModelInstance()
 {
 	return debugModelInstance.get();
+}
+
+void TransformComponent::assignDefaultObjectName()
+{
+	if (owner)
+	{
+		setObjectName(owner->getObjectName() + "_TransformComponent");
+	}
 }

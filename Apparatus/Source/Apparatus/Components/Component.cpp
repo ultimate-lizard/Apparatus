@@ -2,21 +2,21 @@
 
 #include "../Core/Logger.h"
 
-Component::Component(const std::string& id) :
-	id(id),
-	owner(nullptr)
+Component::Component(Entity* owner) :
+	owner(owner)
 {
-	LOG("Created component " + this->id, LogLevel::Trace);
+	
 }
 
-void Component::setId(const std::string& id)
+Component::Component(Entity* owner, const std::string& name) :
+	NameProvider(name),
+	owner(owner)
 {
-	this->id = id;
 }
 
-std::string Component::getId() const
+void Component::init()
 {
-	return id;
+	LOG("Initialized component '" + getObjectName() + "'", LogLevel::Info);
 }
 
 void Component::setOwner(Entity* owner)

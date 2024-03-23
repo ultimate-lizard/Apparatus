@@ -12,7 +12,7 @@ HumanControllerBase::HumanControllerBase(LocalClient* localClient) :
 
 }
 
-void HumanControllerBase::init()
+void HumanControllerBase::onActivate()
 {
 	if (localClient)
 	{

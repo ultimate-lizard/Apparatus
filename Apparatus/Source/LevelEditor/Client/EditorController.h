@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HumanControllerBase.h"
+#include <Apparatus/Client/HumanControllerBase.h>
 
 class InputHandler;
 
@@ -10,12 +10,15 @@ public:
 	EditorController(LocalClient* localClient);
 
 	virtual void onActivate() override;
+	virtual void onDeactivate() override {};
 	
 protected:
+	virtual void assignDefaultObjectName() override;
+
 	virtual void setupInput() override;
 
-	void toggleDebugMode();
 	void select();
+	void deselect();
 
 	void moveZ(float value);
 	void moveX(float value);

@@ -5,15 +5,18 @@
 #include <memory>
 
 #include "../Components/Component.h"
+#include "../Core/NameProvider.h"
+#include "../Core/LifecycleInterface.h"
 
-class Entity
+class Entity : public NameProvider, public LifecycleInterface
 {
 public:
-	Entity(const std::string& id);
-	~Entity() = default;
+	Entity(const std::string& name);
+	virtual ~Entity() = default;
 
-	void setId(const std::string& id);
-	std::string getId() const;
+	virtual void init() override;
+	virtual void start() override {};
+	virtual void update(float dt) override {};
 
 	void addComponent(Component* component);
 
@@ -63,7 +66,9 @@ public:
 		return result;
 	}
 	
+protected:
+	virtual void assignDefaultObjectName() override;
+
 private:
-	std::string id;
 	std::vector<Component*> components;
 };

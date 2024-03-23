@@ -1,7 +1,7 @@
 #include "Model.h"
 
 Model::Model(const std::string& resourceName, Shader* shader, std::vector<Mesh*>&& meshes, std::vector<Material*>&& materials) :
-	Resource("Model_" + resourceName),
+	Asset(resourceName),
 	shader(shader),
 	meshes(std::forward<std::vector<Mesh*>>(meshes)),
 	materials(std::forward<std::vector<Material*>>(materials))

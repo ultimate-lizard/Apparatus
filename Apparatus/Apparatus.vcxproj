@@ -40,13 +40,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -72,14 +72,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)Bin\</OutDir>
-    <IntDir>$(ProjectDir)Temp\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)Temp\$(ProjectName)-$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)-$(Configuration)</TargetName>
     <IncludePath>$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)Bin\</OutDir>
-    <IntDir>$(ProjectDir)Temp\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)Temp\$(ProjectName)-$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)-$(Configuration)</TargetName>
     <IncludePath>$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
@@ -148,23 +148,23 @@
     <ClCompile Include="Source\Apparatus\Apparatus.cpp" />
     <ClCompile Include="Source\Apparatus\Client\Client.cpp" />
     <ClCompile Include="Source\Apparatus\Client\Controller.cpp" />
-    <ClCompile Include="Source\Apparatus\Client\EditorController.cpp" />
     <ClCompile Include="Source\Apparatus\Client\HumanControllerBase.cpp" />
-    <ClCompile Include="Source\Apparatus\Client\HumanPlayerController.cpp" />
+    <ClCompile Include="Source\Apparatus\Client\GenericHumanController.cpp" />
     <ClCompile Include="Source\Apparatus\Client\InputHandler.cpp" />
     <ClCompile Include="Source\Apparatus\Client\LocalClient.cpp" />
-    <ClCompile Include="Source\Apparatus\Common\BoundingBox.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\MaterialParameter.cpp" />
+    <ClCompile Include="Source\Apparatus\Util\BoundingBox.cpp" />
     <ClCompile Include="Source\Apparatus\Components\CameraComponent.cpp" />
     <ClCompile Include="Source\Apparatus\Components\CollisionComponent.cpp" />
     <ClCompile Include="Source\Apparatus\Components\Component.cpp" />
     <ClCompile Include="Source\Apparatus\Components\DebugMovementComponent.cpp" />
     <ClCompile Include="Source\Apparatus\Components\ModelComponent.cpp" />
     <ClCompile Include="Source\Apparatus\Components\MovementComponent.cpp" />
-    <ClCompile Include="Source\Apparatus\Components\SelectableComponent.cpp" />
     <ClCompile Include="Source\Apparatus\Components\TransformComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\NameProvider.cpp" />
     <ClCompile Include="Source\Apparatus\Core\Importer.cpp" />
-    <ClCompile Include="Source\Apparatus\Core\Resource.cpp" />
-    <ClCompile Include="Source\Apparatus\Core\ResourceManager.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\Asset.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\AssetManager.cpp" />
     <ClCompile Include="Source\Apparatus\Core\WindowEventHandler.cpp" />
     <ClCompile Include="Source\Apparatus\Core\Logger.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Camera.cpp" />
@@ -183,7 +183,8 @@
     <ClCompile Include="Source\Apparatus\Server\Entity.cpp" />
     <ClCompile Include="Source\Apparatus\Server\LocalServer.cpp" />
     <ClCompile Include="Source\Apparatus\Server\Server.cpp" />
-    <ClCompile Include="Source\Test.cpp" />
+    <ClCompile Include="Source\Apparatus\Util\CollisionDetection.cpp" />
+    <ClCompile Include="Source\Apparatus\Util\DebugPrimitive.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\DebugPrimitive.frag" />
@@ -195,24 +196,25 @@
     <ClInclude Include="Source\Apparatus\Apparatus.h" />
     <ClInclude Include="Source\Apparatus\Client\Client.h" />
     <ClInclude Include="Source\Apparatus\Client\Controller.h" />
-    <ClInclude Include="Source\Apparatus\Client\EditorController.h" />
     <ClInclude Include="Source\Apparatus\Client\HumanControllerBase.h" />
-    <ClInclude Include="Source\Apparatus\Client\HumanPlayerController.h" />
+    <ClInclude Include="Source\Apparatus\Client\GenericHumanController.h" />
     <ClInclude Include="Source\Apparatus\Client\InputHandler.h" />
     <ClInclude Include="Source\Apparatus\Client\LocalClient.h" />
-    <ClInclude Include="Source\Apparatus\Common\BoundingBox.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\MaterialParameter.h" />
+    <ClInclude Include="Source\Apparatus\Util\BoundingBox.h" />
     <ClInclude Include="Source\Apparatus\Components\CameraComponent.h" />
     <ClInclude Include="Source\Apparatus\Components\CollisionComponent.h" />
     <ClInclude Include="Source\Apparatus\Components\Component.h" />
     <ClInclude Include="Source\Apparatus\Components\DebugMovementComponent.h" />
     <ClInclude Include="Source\Apparatus\Components\ModelComponent.h" />
     <ClInclude Include="Source\Apparatus\Components\MovementComponent.h" />
-    <ClInclude Include="Source\Apparatus\Components\SelectableComponent.h" />
     <ClInclude Include="Source\Apparatus\Components\TransformComponent.h" />
+    <ClInclude Include="Source\Apparatus\Core\NameProvider.h" />
     <ClInclude Include="Source\Apparatus\Core\Importer.h" />
     <ClInclude Include="Source\Apparatus\Core\InputMap.h" />
-    <ClInclude Include="Source\Apparatus\Core\Resource.h" />
-    <ClInclude Include="Source\Apparatus\Core\ResourceManager.h" />
+    <ClInclude Include="Source\Apparatus\Core\LifecycleInterface.h" />
+    <ClInclude Include="Source\Apparatus\Core\Asset.h" />
+    <ClInclude Include="Source\Apparatus\Core\AssetManager.h" />
     <ClInclude Include="Source\Apparatus\Core\WindowEventHandler.h" />
     <ClInclude Include="Source\Apparatus\Core\Logger.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Camera.h" />
@@ -230,8 +232,10 @@
     <ClInclude Include="Source\Apparatus\Rendering\Viewport.h" />
     <ClInclude Include="Source\Apparatus\Server\Entity.h" />
     <ClInclude Include="Source\Apparatus\Server\LocalServer.h" />
-    <ClInclude Include="Source\Apparatus\Common\Primitives.h" />
+    <ClInclude Include="Source\Apparatus\Util\CollisionDetection.h" />
+    <ClInclude Include="Source\Apparatus\Util\Primitive.h" />
     <ClInclude Include="Source\Apparatus\Server\Server.h" />
+    <ClInclude Include="Source\Apparatus\Util\DebugPrimitive.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

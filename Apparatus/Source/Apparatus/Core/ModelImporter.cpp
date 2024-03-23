@@ -11,7 +11,7 @@
 #include "../Rendering/Texture.h"
 #include "../Rendering/Material.h"
 #include "Logger.h"
-#include "ResourceManager.h"
+#include "AssetManager.h"
 
 ModelImporter::ModelImporter() :
 	shader(nullptr)
@@ -28,7 +28,7 @@ std::unique_ptr<Model> ModelImporter::import(const std::string& modelName, Shade
 
 	if (!aiScene)
 	{
-		LOG("Unable to import model Model_" + modelName + " because aiScene was NULL", LogLevel::Error);
+		LOG("Unable to import model '" + modelName + "' because aiScene was NULL", LogLevel::Error);
 		return nullptr;
 	}
 
@@ -36,6 +36,52 @@ std::unique_ptr<Model> ModelImporter::import(const std::string& modelName, Shade
 	processMaterials(aiScene);
 
 	return std::make_unique<Model>(modelName, shader, std::move(meshes), std::move(materials));
+}
+
+std::list<std::unique_ptr<Model>> ModelImporter::importMultiple(Shader* shader, const std::string& path)
+{
+	modelName.clear();
+	meshes.clear();
+	materials.clear();
+
+	std::list<std::unique_ptr<Model>> result;
+
+	Assimp::Importer import;
+	const aiScene * aiScene = import.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GlobalScale);
+
+	if (!aiScene)
+	{
+		LOG("Unable to import multiple meshes because aiScene was NULL", LogLevel::Error);
+		return result;
+	}
+
+	processNode(aiScene->mRootNode, aiScene);
+	processMaterials(aiScene);
+
+	for (Mesh* mesh : meshes)
+	{
+		if (mesh)
+		{
+			size_t materialIndex = mesh->getMaterialIndex();
+			if (materialIndex < materials.size())
+			{
+				if (Material* material = materials[materialIndex])
+				{
+					std::vector<Mesh*> meshInVector;
+					meshInVector.push_back(mesh);
+
+					std::vector<Material*> materialInVector;
+					materialInVector.push_back(material);
+
+					mesh->materialIndex = 0;
+
+					result.push_back(std::move(std::make_unique<Model>("Model_" + mesh->getAssetName(), shader, std::move(meshInVector), std::move(materialInVector))));
+				}
+			}
+		}
+	}
+
+	return result;
 }
 
 void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
@@ -69,13 +115,25 @@ void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
 
 				glm::vec4 newPosition = glm::vec4(vertex.position, 1.0f);
 				newPosition = newPosition * transform;
-				vertex.position.x = newPosition.x;
-				vertex.position.y = newPosition.y;
-				vertex.position.z = newPosition.z;
+				vertex.position = newPosition;
 
 				if (aiVector3D* aiUvArray = aiMesh->mTextureCoords[0])
 				{
 					vertex.uv = glm::vec2(aiUvArray[i].x, aiUvArray[i].y);
+				}
+
+				if (aiMesh->HasNormals() && aiMesh->mNormals)
+				{
+					aiVector3D aiNormal = aiMesh->mNormals[i];
+
+					vertex.normal.x = aiNormal.x;
+					vertex.normal.y = aiNormal.y;
+					vertex.normal.z = aiNormal.z;
+
+					glm::vec4 newNormal = glm::vec4(vertex.normal, 1.0f);
+
+					newNormal = newNormal * transform;
+					vertex.normal = glm::normalize(newNormal);
 				}
 
 				vertices.push_back(std::move(vertex));
@@ -93,7 +151,17 @@ void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
 
 			unsigned int materialIndex = aiMesh->mMaterialIndex;
 
-			if (Mesh* mesh = resourceManager->createResource<Mesh>(modelName + "_" + meshName.C_Str(), vertices, indices, materialIndex))
+			std::string assetName;
+			if (!modelName.empty())
+			{
+				assetName = "Mesh_" + modelName + "_" + meshName.C_Str();
+			}
+			else
+			{
+				assetName = "Mesh_" + std::string(meshName.C_Str());
+			}
+
+			if (Mesh* mesh = assetManager->createAsset<Mesh>(assetName, vertices, indices, materialIndex))
 			{
 				meshes.push_back(mesh);
 			}
@@ -117,19 +185,35 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 		}
 
 		aiString materialName = aiMaterial->GetName();
-		if (auto newMaterial = resourceManager->createResource<Material>(materialName.C_Str()))
+		if (auto newMaterial = assetManager->createAsset<Material>("Material_" + std::string(materialName.C_Str())))
 		{
 			newMaterial->setShader(shader);
+			newMaterial->createBoolParameter("selected", false);
+			newMaterial->createVec4Parameter("selectionColor", { 1.0f, 0.0f, 0.0f, 1.0f });
 
+			aiColor3D diff;
+			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diff);
+
+			newMaterial->createVec4Parameter("backupColor", { diff.r, diff.g, diff.b, 1.0f });
+			
 			for (unsigned int i = 0; i < aiMaterial->GetTextureCount(aiTextureType_DIFFUSE); ++i)
 			{
 				aiString texturePath;
 				aiMaterial->GetTexture(aiTextureType_DIFFUSE, i, &texturePath);
 
-				if (Texture* newTexture = resourceManager->createResource<Texture>(materialName.C_Str(), texturePath.C_Str()))
+				if (Texture* newTexture = assetManager->createAsset<Texture>("Texture_" + std::string(materialName.C_Str()), texturePath.C_Str()))
 				{
 					newMaterial->addDiffuseTexture(newTexture);
 				}
+			}
+
+			if (newMaterial->getDiffuseMaps().empty())
+			{
+				newMaterial->createBoolParameter("noTexture", true);
+			}
+			else
+			{
+				newMaterial->createBoolParameter("noTexture", false);
 			}
 
 			materials.push_back(newMaterial);

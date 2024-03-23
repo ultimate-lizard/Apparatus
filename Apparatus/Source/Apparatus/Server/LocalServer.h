@@ -9,15 +9,35 @@
 #include "../Components/Component.h"
 #include "../Rendering/Model.h"
 #include "../Rendering/Shader.h"
-#include "../Common/Primitives.h"
+#include "../Util/DebugPrimitive.h"
 
 class CollisionComponent;
+
+struct DebugPrimitiveData
+{
+	glm::vec4 color{ 0.0f };
+	float lifeTime = 0.0f;
+	unsigned int vertexCount = 1;
+};
+
+struct DebugPrimitives
+{
+	// Index: Draw Size
+	std::map<float, std::vector<std::pair<Point, DebugPrimitiveData>>> debugPoints;
+	std::map<float, std::vector<std::pair<Line, DebugPrimitiveData>>> debugLines;
+	std::map<float, std::vector<std::pair<Box, DebugPrimitiveData>>> debugBoxes;
+};
 
 struct RayTraceResult
 {
 	glm::vec3 near;
 	glm::vec3 far;
 	Entity* entity;
+};
+
+enum DetectionType
+{
+	Visibility
 };
 
 class LocalServer : public Server
@@ -31,6 +51,7 @@ public:
 	void operator=(const LocalServer&) = delete;
 
 	virtual void init() override;
+	virtual void start() override {};
 	virtual void update(float dt) override;
 
 	Entity* createEntity(const std::string& id);
@@ -38,11 +59,11 @@ public:
 	std::vector<std::unique_ptr<Entity>>& getAllEntities();
 
 	template <class ComponentType, typename ... Args>
-	ComponentType* createComponent(Entity* owner, Args ... args);
+	ComponentType* createComponent(Args&& ... args);
 
-	static void drawPoint(const glm::vec3& position, const glm::vec4& color, float drawSize = 1.0f, bool persistent = false, float lifetime = 0.0f);
-	static void drawLine(const Line& line, const glm::vec4& color, float drawSize = 1.0f, bool persistent = false, float lifetime = 0.0f);
-	static void drawRectangle(const Box& box, const glm::vec4& color, float drawSize = 1.0f, bool persistent = false, float lifetime = 0.0f);
+	static void drawDebugPoint(const glm::vec3& position, const glm::vec4& color, float drawSize = 1.0f, bool persistent = false, float lifetime = 0.0f);
+	static void drawDebugLine(const Line& line, const glm::vec4& color, float drawSize = 1.0f, bool persistent = false, float lifetime = 0.0f);
+	static void drawDebugBox(const Box& box, const glm::vec4& color, float drawSize = 1.0f, bool persistent = false, float lifetime = 0.0f);
 
 	template <typename PrimitiveType>
 	void updateDebugPrimitiveVector(std::vector<std::pair<PrimitiveType, DebugPrimitiveData>>& primitives, float dt)
@@ -68,10 +89,14 @@ public:
 
 	const DebugPrimitives& getDebugPrimitives() const;
 
-	std::vector<RayTraceResult> traceRay(const glm::vec3& direction, const glm::vec3& position, float length);
+	// Returns an unsorted vector of entities and near and far positions of the intersections
+	std::vector<RayTraceResult> traceRay(const glm::vec3& origin, const glm::vec3& direction, float length, DetectionType detectionType = DetectionType::Visibility);
+	glm::vec3 getCursorToWorldRay(const glm::mat4& view, const glm::mat4& projection);
 
 protected:
-	void createEntities();
+	virtual void assignDefaultObjectName() override;
+
+	virtual void setupEntities();
 
 	std::vector<std::unique_ptr<Entity>> entities;
 	std::vector<std::unique_ptr<Component>> components;
@@ -80,11 +105,11 @@ protected:
 };
 
 template<class ComponentType, typename ...Args>
-inline ComponentType* LocalServer::createComponent(Entity* owner, Args ...args)
+inline ComponentType* LocalServer::createComponent(Args&& ... args)
 {
-	components.push_back(std::make_unique<ComponentType>(args)...);
+	components.push_back(std::make_unique<ComponentType>(std::forward<Args>(args)...));
 	ComponentType* result = dynamic_cast<ComponentType*>(components.back().get());
-	result->setOwner(owner);
+	Entity* owner = result->getOwner();
 	owner->addComponent(result);
 	return result;
 }

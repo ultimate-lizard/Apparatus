@@ -5,14 +5,24 @@
 #include "../Rendering/Model.h"
 #include "../Rendering/Material.h"
 
-ModelComponent::ModelComponent(const std::string& id) :
-	Component(id),
+ModelComponent::ModelComponent(Entity* owner) :
+	Component(owner),
 	model(nullptr)
 {
+	assignDefaultObjectName();
+}
+
+ModelComponent::ModelComponent(Entity* owner, const std::string& name) :
+	Component(owner, name),
+	model(nullptr)
+{
+	
 }
 
 void ModelComponent::init()
 {
+	Component::init();
+
 	if (model)
 	{
 		modelInstance = std::move(model->createModelInstance());
@@ -37,5 +47,13 @@ const Model* ModelComponent::getModel() const
 ModelInstance* ModelComponent::getModelInstance()
 {
 	return modelInstance.get();
+}
+
+void ModelComponent::assignDefaultObjectName()
+{
+	if (owner)
+	{
+		setObjectName(owner->getObjectName() + "_ModelComponent");
+	}
 }
 

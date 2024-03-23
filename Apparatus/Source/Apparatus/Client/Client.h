@@ -1,11 +1,13 @@
 #pragma once
 
+#include "../Core/LifecycleInterface.h"
+#include "../Core/NameProvider.h"
 #include "../Rendering/Viewport.h"
 
 class Apparatus;
 class Camera;
 
-class Client
+class Client : public LifecycleInterface, public NameProvider
 {
 public:
 	Client(Apparatus* apparatus);
@@ -16,8 +18,10 @@ public:
 	void operator=(const Client&) = delete;
 
 	virtual void init() = 0;
-	virtual void quit();
+	virtual void start() {}
 	virtual void update(float dt) = 0;
+
+	virtual void quit();
 
 	virtual Viewport* getViewport() = 0;
 	virtual Camera* getActiveCamera() = 0;

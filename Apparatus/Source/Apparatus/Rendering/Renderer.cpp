@@ -83,9 +83,17 @@ void Renderer::render()
 							shader->setUniform("projection", command.camera->getProjection());
 						}
 
-						// Parameters
-						shader->setUniform("selectionColor", command.materialInstance->color);
-						shader->setUniform("selected", command.materialInstance->selected);
+						MaterialParameters& params = command.materialInstance->getMaterialParameters();
+
+						for (auto mapIter : params.getAllBoolParameters())
+						{
+							shader->setUniform(mapIter.first, mapIter.second);
+						}
+
+						for (auto mapIter : params.getAllVec4Parameters())
+						{
+							shader->setUniform(mapIter.first, mapIter.second);
+						}
 					}
 				}
 

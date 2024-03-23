@@ -8,27 +8,51 @@
 #include "../Components/DebugMovementComponent.h"
 #include "../Components/ModelComponent.h"
 #include "../Components/CollisionComponent.h"
-#include "../Components/SelectableComponent.h"
 #include "../Apparatus.h"
 #include "../Rendering/Material.h"
-#include "../Common/BoundingBox.h"
+#include "../Util/CollisionDetection.h"
 
 DebugPrimitives LocalServer::debugPrimitives;
 
 LocalServer::LocalServer(Apparatus* apparatus) :
 	Server(apparatus)
 {
+	assignDefaultObjectName();
 }
 
 void LocalServer::init()
 {
-	createEntities();
+	setupEntities();
 
 	for (std::unique_ptr<Component>& component : components)
 	{
 		if (component)
 		{
 			component->init();
+		}
+	}
+
+	for (std::unique_ptr<Entity>& entity : entities)
+	{
+		if (entity)
+		{
+			entity->init();
+		}
+	}
+
+	for (std::unique_ptr<Component>& component : components)
+	{
+		if (component)
+		{
+			component->start();
+		}
+	}
+
+	for (std::unique_ptr<Entity>& entity : entities)
+	{
+		if (entity)
+		{
+			entity->start();
 		}
 	}
 }
@@ -58,15 +82,46 @@ void LocalServer::update(float dt)
 		}
 	}
 
-	for (std::unique_ptr<Component>& component : components)
+	for (std::unique_ptr<Entity>& entity : entities)
 	{
-		if (auto selectable = dynamic_cast<SelectableComponent*>(component.get()))
+		if (entity)
 		{
-			if (selectable->isSelected())
+			entity->update(dt);
+		}
+	}
+}
+
+void LocalServer::assignDefaultObjectName()
+{
+	setObjectName("LocalServer");
+}
+
+void LocalServer::setupEntities()
+{
+	assert(apparatus);
+	AssetManager& resourceManager = apparatus->getResourceManager();
+
+	if (Entity* player = createEntity("Player"))
+	{
+		if (auto transformComponent = createComponent<TransformComponent>(player))
+		{
+			if (auto cameraComponent = createComponent<CameraComponent>(player))
 			{
-				const Box& box = selectable->getBoundingBox();
-				drawRectangle({ box.size, box.position }, { 1.0f, 1.0f, 0.0f, 1.0f }, 1.0f);
+				Camera& camera = cameraComponent->getCamera();
+				camera.setParent(transformComponent);
 			}
+		}
+
+		auto movementComponent = createComponent<MovementComponent>(player);
+	}
+
+	if (Entity* defaultSceneEntity = createEntity("DefaultScene"))
+	{
+		auto transformComponent = createComponent<TransformComponent>(defaultSceneEntity);
+		if (auto modelComponent = createComponent<ModelComponent>(defaultSceneEntity))
+		{
+			modelComponent->setModel(resourceManager.findAsset<Model>("Model_Scene"));
+			modelComponent->setParent(transformComponent);
 		}
 	}
 }
@@ -82,7 +137,7 @@ Entity* LocalServer::createEntity(const std::string& id)
 	return entities.back().get();
 }
 
-void LocalServer::drawPoint(const glm::vec3& position, const glm::vec4& color, float drawSize, bool persistent, float lifetime)
+void LocalServer::drawDebugPoint(const glm::vec3& position, const glm::vec4& color, float drawSize, bool persistent, float lifetime)
 {
 	Point debugPoint;
 	debugPoint.position = position;
@@ -95,7 +150,7 @@ void LocalServer::drawPoint(const glm::vec3& position, const glm::vec4& color, f
 	debugPrimitives.debugPoints[drawSize].push_back({ debugPoint, debugPrimitiveData });
 }
 
-void LocalServer::drawLine(const Line& line, const glm::vec4& color, float drawSize, bool persistent, float lifetime)
+void LocalServer::drawDebugLine(const Line& line, const glm::vec4& color, float drawSize, bool persistent, float lifetime)
 {
 	DebugPrimitiveData debugPrimitiveData;
 	debugPrimitiveData.color = color;
@@ -105,7 +160,7 @@ void LocalServer::drawLine(const Line& line, const glm::vec4& color, float drawS
 	debugPrimitives.debugLines[drawSize].push_back({ line, debugPrimitiveData });
 }
 
-void LocalServer::drawRectangle(const Box& box, const glm::vec4& color, float drawSize, bool persistent, float lifetime)
+void LocalServer::drawDebugBox(const Box& box, const glm::vec4& color, float drawSize, bool persistent, float lifetime)
 {
 	DebugPrimitiveData debugPrimitiveData;
 	debugPrimitiveData.color = color;
@@ -120,127 +175,65 @@ const DebugPrimitives& LocalServer::getDebugPrimitives() const
 	return debugPrimitives;
 }
 
-std::vector<RayTraceResult> LocalServer::traceRay(const glm::vec3& direction, const glm::vec3& position, float length)
+std::vector<RayTraceResult> LocalServer::traceRay(const glm::vec3& origin, const glm::vec3& direction, float length, DetectionType detectionType)
 {
-	//drawLine({ position, position + (direction * length) }, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 1.0f, false, 3.0f);
+	if (detectionType != DetectionType::Visibility)
+	{
+		return {};
+	}
 
-	std::vector<std::pair<Box, Entity*>> boxes;
+	std::vector<RayTraceResult> result;
 	for (std::unique_ptr<Entity>& entity : getAllEntities())
 	{
-		if (entity.get())
+		if (!entity)
 		{
-			if (auto selectableComponent = entity->findComponent<SelectableComponent>())
-			{
-				boxes.push_back({ selectableComponent->getBoundingBox(), entity.get()});
-			}
+			continue;
 		}
-	}
 
-	std::vector<RayTraceResult> resultVector;
-
-	for (const auto& pair : boxes)
-	{
-		auto castResult = rayVsAABB(position, direction * length, pair.first);
-		if (castResult.first != glm::vec3(0.0f) && castResult.second != glm::vec3(0.0f))
+		std::vector<ModelComponent*> modelComponents = entity->getAllComponentsOfClass<ModelComponent>();
+		for (ModelComponent* modelComponent : modelComponents)
 		{
-			RayTraceResult result;
-			result.near = castResult.first;
-			result.far = castResult.second;
-			result.entity = pair.second;
-
-			resultVector.push_back(result);
-		}
-	}
-
-	return resultVector;
-}
-
-void LocalServer::createEntities()
-{
-	// TODO: assert apparatus
-	ResourceManager& resourceManager = apparatus->getResourceManager();
-
-	if (Entity* player = createEntity("Player"))
-	{
-		if (auto transformComponent = createComponent<TransformComponent>(player, "Transform"))
-		{
-			if (auto cameraComponent = createComponent<CameraComponent>(player, "Camera"))
+			if (!modelComponent)
 			{
-				Camera& camera = cameraComponent->getCamera();
-				camera.setParent(transformComponent);
+				continue;
 			}
 
-			transformComponent->setPosition({ 10.0f, 10.0f, 10.0f });
-		}
-
-		auto movementComponent = createComponent<MovementComponent>(player, "Movement");
-	}
-
-	if (Entity* sceneEntity = createEntity("SceneEntity"))
-	{
-		auto transformComponent = createComponent<TransformComponent>(sceneEntity, "Transform");
-		if (auto modelComponent = createComponent<ModelComponent>(sceneEntity, "Model"))
-		{
-			modelComponent->setModel(resourceManager.findResource<Model>("Model_Scene"));
-			modelComponent->setParent(transformComponent);
-		}
-	}
-
-	if (Entity* cube = createEntity("Cube"))
-	{
-		if (auto transformComponent = createComponent<TransformComponent>(cube, "Transform"))
-		{
-			//transformComponent->setPosition({ 0.0f, 0.0f, 10.0f });
-			//transformComponent->rotate(45.0f, Euler::Yaw);
-
-			if (auto modelComponent = createComponent<ModelComponent>(cube, "Model"))
+			if (Model* model = modelComponent->getModel())
 			{
-				modelComponent->setModel(resourceManager.findResource<Model>("Model_Cube"));
-				modelComponent->setParent(transformComponent);
-			}
-		}
-
-		auto selectable = createComponent<SelectableComponent>(cube, "Selectable");
-	}
-
-	if (Entity* cube2 = createEntity("Cube2"))
-	{
-		if (auto transformComponent = createComponent<TransformComponent>(cube2, "Transform"))
-		{
-			transformComponent->setPosition({ 0.0f, 2.0f, 0.0f });
-			//transformComponent->rotate(45.0f, Euler::Yaw);
-
-			if (auto modelComponent = createComponent<ModelComponent>(cube2, "Model"))
-			{
-				modelComponent->setModel(resourceManager.findResource<Model>("Model_Cube"));
-				modelComponent->setParent(transformComponent);
-			}
-		}
-
-		auto selectable = createComponent<SelectableComponent>(cube2, "Selectable");
-	}
-
-	if (Entity* cube = findEntity("Cube"))
-	{
-		if (Entity* cube2 = findEntity("Cube2"))
-		{
-			if (auto cube2TransformComponent = cube2->findComponent<TransformComponent>())
-			{
-				if (auto cubeTransformComponent = cube->findComponent<TransformComponent>())
+				for (Mesh* mesh : model->getMeshes())
 				{
-					cube2TransformComponent->setParent(cubeTransformComponent);
-
-					if (Entity* player = findEntity("Player"))
+					auto intersections = rayVsMesh(origin, direction, length, mesh, modelComponent->getTransform());
+					for (const auto& intersectionPair : intersections)
 					{
-						if (auto playerTransform = player->findComponent<TransformComponent>())
-						{
-							playerTransform->setParent(cubeTransformComponent);
-						}
+						result.push_back({ intersectionPair.first, intersectionPair.second, entity.get() });
 					}
 				}
 			}
 		}
 	}
+
+	// Sort the results by distance to the origin
+	std::sort(result.begin(), result.end(), [&origin](RayTraceResult& a, RayTraceResult& b) {
+		return glm::distance(a.near, origin) < glm::distance(b.near, origin);
+	});
+
+	return result;
+}
+
+glm::vec3 LocalServer::getCursorToWorldRay(const glm::mat4& view, const glm::mat4& projection)
+{
+	glm::ivec2 mousePos = apparatus->getMouseCursorPosition();
+	glm::vec2 windowSize = apparatus->getWindowSize();
+
+	float normalX = (2.0f * mousePos.x) / windowSize.x - 1.0f;
+	float normalY = 1.0f - (2.0f * mousePos.y) / windowSize.y;
+
+	glm::vec4 rayClip(normalX, normalY, -1.0f, 1.0f);
+
+	glm::vec4 rayEye = glm::inverse(projection) * rayClip;
+	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+
+	return glm::normalize(glm::inverse(view) * rayEye);
 }
 
 Entity* LocalServer::findEntity(const std::string& id)
@@ -248,7 +241,7 @@ Entity* LocalServer::findEntity(const std::string& id)
 	auto iter = std::find_if(entities.begin(), entities.end(), [id](std::unique_ptr<Entity>& entityPtr) {
 		if (Entity* entity = entityPtr.get())
 		{
-			return entity->getId() == id;
+			return entity->getObjectName() == id;
 		}
 
 		return false;

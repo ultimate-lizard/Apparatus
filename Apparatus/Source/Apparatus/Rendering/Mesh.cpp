@@ -7,25 +7,28 @@
 
 #include "../Core/Logger.h"
 
-Mesh::Mesh(const std::string& resourceName, long long bufferSize) :
-	Resource("Mesh_" + resourceName),
+Mesh::Mesh(const std::string& resourceName, size_t vertexBufferSize, size_t indexBufferSize) :
+	Asset(resourceName),
 	vao(0),
 	vbo(0),
 	ebo(0),
 	materialIndex(0),
-	bufferSize(bufferSize)
+	vertexBufferSize(vertexBufferSize),
+	indexBufferSize(indexBufferSize)
 {
 
 }
 
 Mesh::Mesh(const std::string& resourceName, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex) :
-	Resource("Mesh_" + resourceName),
+	Asset(resourceName),
 	vao(0),
 	vbo(0),
 	ebo(0),
 	vertices(vertices),
 	indices(indices),
-	materialIndex(materialIndex)
+	materialIndex(materialIndex),
+	vertexBufferSize(0),
+	indexBufferSize(0)
 {
 
 }
@@ -55,7 +58,7 @@ void Mesh::init()
 	}
 	else
 	{
-		glBufferData(GL_ARRAY_BUFFER, bufferSize, nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, nullptr, GL_DYNAMIC_DRAW);
 	}
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
@@ -64,8 +67,11 @@ void Mesh::init()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(float) * 3));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(float) * 5));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(float) * 5));
 	glEnableVertexAttribArray(2);
+
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(float) * 8));
+	glEnableVertexAttribArray(3);
 
 	glCreateBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
@@ -76,7 +82,7 @@ void Mesh::init()
 	}
 	else
 	{
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, bufferSize, nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize, nullptr, GL_DYNAMIC_DRAW);
 	}
 }
 
@@ -121,33 +127,12 @@ unsigned int Mesh::getMaterialIndex() const
 	return materialIndex;
 }
 
-glm::mat4 Mesh::processTransform(aiNode* node)
+size_t Mesh::getVertexBufferSize() const
 {
-	if (node->mParent)
-	{
-		aiMatrix4x4 transformation = node->mParent->mTransformation;
+	return vertexBufferSize;
+}
 
-		glm::mat4 meshMatrix;
-		meshMatrix[0][0] = transformation.a1;
-		meshMatrix[0][1] = transformation.a2;
-		meshMatrix[0][2] = transformation.a3;
-		meshMatrix[0][3] = transformation.a4;
-
-		meshMatrix[1][0] = transformation.b1;
-		meshMatrix[1][1] = transformation.b2;
-		meshMatrix[1][2] = transformation.b3;
-		meshMatrix[1][3] = transformation.b4;
-
-		meshMatrix[2][0] = transformation.c1;
-		meshMatrix[2][1] = transformation.c2;
-		meshMatrix[2][2] = transformation.c3;
-		meshMatrix[2][3] = transformation.c4;
-
-		meshMatrix[3][0] = transformation.d1;
-		meshMatrix[3][1] = transformation.d2;
-		meshMatrix[3][2] = transformation.d3;
-		meshMatrix[3][3] = transformation.d4;
-	}
-
-	return glm::mat4(1.0f);
+size_t Mesh::getIndexBufferSize() const
+{
+	return indexBufferSize;
 }

@@ -3,12 +3,12 @@
 #include <assimp/material.h>
 
 #include "../Core/Logger.h"
-#include "../Core/ResourceManager.h"
+#include "../Core/AssetManager.h"
 #include "Shader.h"
 #include "Texture.h"
 
 Material::Material(const std::string& resourceName) :
-	Resource("Material_" + resourceName),
+	Asset(resourceName),
 	shader(nullptr)
 {
 }
@@ -39,10 +39,26 @@ void Material::addDiffuseTexture(Texture* texture)
 	diffuseMaps.push_back(texture);
 }
 
+const std::vector<Texture*>& Material::getDiffuseMaps() const
+{
+	return diffuseMaps;
+}
+
 std::unique_ptr<MaterialInstance> Material::createMaterialInstance()
 {
 	auto newInstance = std::make_unique<MaterialInstance>();
 	newInstance->material = this;
+	newInstance->parameters = parameters;
 
 	return newInstance;
+}
+
+void Material::createBoolParameter(const std::string& name, bool defaultValue)
+{
+	parameters.createBool(name, defaultValue);
+}
+
+void Material::createVec4Parameter(const std::string& name, const glm::vec4& defaultValue)
+{
+	parameters.createVec4(name, defaultValue);
 }

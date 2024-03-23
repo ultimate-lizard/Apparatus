@@ -1,8 +1,11 @@
 #pragma once
 
+#include "../Core/LifecycleInterface.h"
+#include "../Core/NameProvider.h"
+
 class Apparatus;
 
-class Server
+class Server : public LifecycleInterface, public NameProvider
 {
 public:
 	Server(Apparatus* apparatus);
@@ -12,7 +15,6 @@ public:
 	Server(Server&&) = delete;
 	void operator=(const Server&) = delete;
 
-	virtual void init() = 0;
 	virtual void update(float dt) = 0;
 	virtual void shutdown();
 

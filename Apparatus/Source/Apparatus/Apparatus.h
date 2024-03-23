@@ -4,12 +4,12 @@
 #include <memory>
 #include <vector>
 
+#include "Core/Logger.h"
+#include "Core/WindowEventHandler.h"
+#include "Core/AssetManager.h"
 #include "Rendering/Renderer.h"
 #include "Server/Server.h"
 #include "Client/Client.h"
-#include "Core/Logger.h"
-#include "Core/WindowEventHandler.h"
-#include "Core/ResourceManager.h"
 
 struct SDL_Window;
 class LocalClient;
@@ -40,17 +40,19 @@ public:
 	void onWindowResized();
 
 	glm::ivec2 getWindowSize() const;
+	glm::ivec2 getMouseCursorPosition() const;
 
-	ResourceManager& getResourceManager();
+	AssetManager& getResourceManager();
 
 	void setCursorVisibleEnabled(bool enabled);
 	bool isCursorVisible() const;
 
-protected:
-	virtual int init();
+	// A good place to create initial server and client
+	virtual void init() {}
 
 private:
-	void initResources();
+	int initEngineInternal();
+	void initAssets();
 	void startGameLoop();
 
 	std::string gameTitle;
@@ -64,7 +66,7 @@ private:
 	std::vector<std::unique_ptr<Client>> clients;
 
 	WindowEventHandler inputReader;
-	ResourceManager resourceManager;
+	AssetManager assetManager;
 };
 
 template <typename ServerType, typename ... Args>

@@ -4,16 +4,18 @@
 #include "../Rendering/Model.h"
 #include "../Rendering/Mesh.h"
 #include "../Server/Entity.h"
-#include "../Common/BoundingBox.h"
+#include "../Util/BoundingBox.h"
 
-CollisionComponent::CollisionComponent(const std::string& id) :
-	Component(id)
+CollisionComponent::CollisionComponent(Entity* owner) :
+	Component(owner)
 {
-
+	assignDefaultObjectName();
 }
 
 void CollisionComponent::init()
 {
+	Component::init();
+
 	if (!owner)
 	{
 		return;
@@ -56,5 +58,13 @@ void CollisionComponent::regenerateAABB()
 	{
 		Box newBox = generateAABB(modelComponent->getModel(), modelComponent->getDerivedPosition(), modelComponent->getDerivedOrientation());
 		cachedAABBs.push_back({ newBox, modelComponent });
+	}
+}
+
+void CollisionComponent::assignDefaultObjectName()
+{
+	if (owner)
+	{
+		setObjectName(owner->getObjectName() + "_CollisionComponent");
 	}
 }

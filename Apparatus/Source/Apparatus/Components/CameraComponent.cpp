@@ -3,22 +3,21 @@
 #include "../Server/Entity.h"
 #include "TransformComponent.h"
 
-CameraComponent::CameraComponent(const std::string& id) :
-	Component(id)
+CameraComponent::CameraComponent(Entity* owner) :
+	Component(owner)
 {
-
-}
-
-void CameraComponent::init()
-{
-
-}
-
-void CameraComponent::update(float dt)
-{
+	assignDefaultObjectName();
 }
 
 Camera& CameraComponent::getCamera()
 {
 	return camera;
+}
+
+void CameraComponent::assignDefaultObjectName()
+{
+	if (owner)
+	{
+		setObjectName(owner->getObjectName() + "_CameraComponent");
+	}
 }

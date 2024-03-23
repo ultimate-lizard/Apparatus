@@ -11,7 +11,7 @@ class HumanControllerBase : public Controller
 public:
 	HumanControllerBase(LocalClient* localClient);
 
-	virtual void init() override;
+	virtual void onActivate() override;
 	virtual void setupInput() = 0;
 	virtual void setControlEntity(Entity* entity) override;
 

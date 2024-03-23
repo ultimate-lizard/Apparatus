@@ -9,7 +9,8 @@
 class ModelComponent : public Component, public SceneNode
 {
 public:
-	ModelComponent(const std::string& id);
+	ModelComponent(Entity* owner);
+	ModelComponent(Entity* owner, const std::string& name);
 
 	virtual void init() override;
 	virtual void update(float dt) override {}
@@ -21,6 +22,8 @@ public:
 	ModelInstance* getModelInstance();
 
 protected:
+	virtual void assignDefaultObjectName() override;
+
 	Model* model;
 	std::unique_ptr<ModelInstance> modelInstance;
 };

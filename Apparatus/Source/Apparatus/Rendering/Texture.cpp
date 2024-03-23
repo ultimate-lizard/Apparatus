@@ -6,7 +6,7 @@
 #include "../Core/Logger.h"
 
 Texture::Texture(const std::string& resourceName, const std::string& texturePath) :
-	Resource("Texture_" + resourceName),
+	Asset(resourceName),
 	texturePath(texturePath),
 	id(0)
 {

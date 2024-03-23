@@ -10,12 +10,13 @@
 #include "../Rendering/Renderer.h"
 #include "../Rendering/Mesh.h"
 #include "../Rendering/Material.h"
-#include "../Common/Primitives.h"
+#include "../Util/Primitive.h"
 #include "InputHandler.h"
 #include "Controller.h"
 
 class Entity;
 class LocalServer;
+class GenericHumanController;
 
 class LocalClient : public Client
 {
@@ -33,16 +34,28 @@ public:
 	virtual Viewport* getViewport() override;
 	virtual Camera* getActiveCamera() override;
 
-	void setControlledEntity(Entity* entity);
+	template <class ControllerType>
+	ControllerType* createController();
+
+	template <class ControllerType>
+	ControllerType* findController(const std::string& name);
+
+	Controller* getDefaultController();
+
+	void setActiveEntity(Entity* entity);
+	Entity* getActiveEntity();
 
 	InputHandler& getInputHandler();
 
-	bool isDebugModeEnabled() const;
-	void setDebugModeEnabled(bool enabled);
-
 	void setActiveController(Controller* controller);
+	Controller* getActiveController();
+
+	virtual void onActiveControllerChanged() {};
 
 protected:
+	virtual void assignDefaultObjectName() override;
+
+	// DEBUG STUFF
 	void composeDebugPrimitiveData();
 	void renderDebugPrimitives(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, std::map<float, Mesh*>& debugMeshCache, const std::string& assetNamePrefix, RenderMode renderMode, float drawSize);
 
@@ -52,15 +65,47 @@ protected:
 
 	std::unique_ptr<MaterialInstance> debugPrimitiveMaterialInstance;
 
+	size_t debugMeshBufferSize;
+	//////////////
+
 	LocalServer* localServer;
 
-	Entity* controlEntity;
-	InputHandler inputHandler;
-
+private:
+	// All possible controllers that the client would need should be stored here
 	std::vector<std::unique_ptr<Controller>> controllers;
+
 	Controller* activeController;
 
-	Viewport viewport;
+	GenericHumanController* defaultController;
 
-	bool debugModeEnabled;
+	Entity* activeEntity;
+
+	InputHandler inputHandler;
+
+	Viewport viewport;
 };
+
+template<class ControllerType>
+inline ControllerType* LocalClient::createController()
+{
+	controllers.push_back(std::make_unique<ControllerType>(this));
+	ControllerType* newController = dynamic_cast<ControllerType*>(controllers.back().get());
+
+	return newController;
+}
+
+template <class ControllerType>
+inline ControllerType* LocalClient::findController(const std::string& name)
+{
+	auto iter = std::find_if(controllers.begin(), controllers.end(), [&name](const std::unique_ptr<Controller>& controller) {
+		return controller.get() != nullptr && dynamic_cast<ControllerType*>(controller.get()) != nullptr && controller.get()->getObjectName() == name;
+	});
+
+	// TODO: TOO MANY CASTS. BAD. FIX IT
+	if (iter != controllers.end())
+	{
+		return dynamic_cast<ControllerType*>(iter->get());
+	}
+
+	return nullptr;
+}

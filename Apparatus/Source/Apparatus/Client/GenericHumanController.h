@@ -2,12 +2,13 @@
 
 #include "HumanControllerBase.h"
 
-class HumanPlayerController : public HumanControllerBase
+class GenericHumanController : public HumanControllerBase
 {
 public:
-	HumanPlayerController(LocalClient* localClient);
+	GenericHumanController(LocalClient* localClient);
 
 	virtual void onActivate() override;
+	virtual void onDeactivate() override;
 	virtual void setupInput() override;
 
 	void moveZ(float rate);
@@ -17,5 +18,5 @@ public:
 	void lookY(float value);
 
 protected:
-	void toggleDebugMode();
+	virtual void assignDefaultObjectName() override;
 };

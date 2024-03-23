@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <list>
 
 #include <glm/glm.hpp>
 
@@ -23,7 +24,11 @@ public:
 	ModelImporter(ModelImporter&&) = delete;
 	void operator=(const ModelImporter&) = delete;
 
+	// Imports multiple meshes from a single fbx file as a single model
 	std::unique_ptr<Model> import(const std::string& modelName, Shader* shader, const std::string& path);
+
+	// Imports multiple meshes from a single fbx file as multiple models. The name automatically assigns from meshes' name
+	std::list<std::unique_ptr<Model>> importMultiple(Shader* shader, const std::string& path);
 
 private:
 	void processNode(const aiNode* aiNode, const aiScene* aiScene);

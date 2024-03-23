@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 
 Shader::Shader(const std::string& resourceName, const std::string& vertPath, const std::string& fragPath) :
-	Resource("Shader_" + resourceName),
+	Asset(resourceName),
 	vertPath(vertPath),
 	fragPath(fragPath),
 	program(0)

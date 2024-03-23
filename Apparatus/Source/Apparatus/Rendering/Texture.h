@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "../Core/Resource.h"
+#include "../Core/Asset.h"
 
-class Texture : public Resource
+class Texture : public Asset
 {
 public:
 	Texture(const std::string& resourceName, const std::string& texturePath);

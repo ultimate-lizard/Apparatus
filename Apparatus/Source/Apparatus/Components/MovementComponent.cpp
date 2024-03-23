@@ -6,15 +6,18 @@
 #include "../Server/LocalServer.h"
 #include "../Core/Logger.h"
 
-MovementComponent::MovementComponent(const std::string& id) :
-	Component(id),
+MovementComponent::MovementComponent(Entity* owner) :
+	Component(owner),
 	forward(0),
 	sideways(0)
 {
+	assignDefaultObjectName();
 }
 
 void MovementComponent::init()
 {
+	Component::init();
+
 	if (!owner)
 	{
 		return;
@@ -88,4 +91,12 @@ void MovementComponent::lookY(float rate)
 
 	headRotator.rotate(rate * sensitivity, Euler::Pitch);
 	headRotator.clamp(90.0f, 270.0f, Euler::Pitch);
+}
+
+void MovementComponent::assignDefaultObjectName()
+{
+	if (owner)
+	{
+		setObjectName(owner->getObjectName() + "_MovementComponent");
+	}
 }

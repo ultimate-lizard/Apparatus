@@ -6,6 +6,13 @@ Controller::Controller() :
 
 }
 
+Controller::Controller(const std::string& name) :
+	NameProvider(name),
+	controlledEntity(nullptr)
+{
+
+}
+
 void Controller::setControlEntity(Entity* entity)
 {
 	controlledEntity = entity;

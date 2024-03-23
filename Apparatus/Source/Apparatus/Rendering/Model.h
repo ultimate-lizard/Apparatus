@@ -4,13 +4,13 @@
 #include <vector>
 #include <memory>
 
-#include "../Core/Resource.h"
+#include "../Core/Asset.h"
 #include "ModelInstance.h"
 
 class Shader;
 class Mesh;
 
-class Model : public Resource
+class Model : public Asset
 {
 public:
 	Model(const std::string& resourceName, Shader* shader, std::vector<Mesh*>&& meshes, std::vector<Material*>&& materials);
