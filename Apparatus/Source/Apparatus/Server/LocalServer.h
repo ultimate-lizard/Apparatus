@@ -12,6 +12,7 @@
 #include "../Util/DebugPrimitive.h"
 
 class CollisionComponent;
+class ModelComponent;
 
 struct DebugPrimitiveData
 {
@@ -33,6 +34,7 @@ struct RayTraceResult
 	glm::vec3 near;
 	glm::vec3 far;
 	Entity* entity;
+	ModelComponent* modelComponent;
 };
 
 enum DetectionType
@@ -66,26 +68,7 @@ public:
 	static void drawDebugBox(const Box& box, const glm::vec4& color, float drawSize = 1.0f, bool persistent = false, float lifetime = 0.0f);
 
 	template <typename PrimitiveType>
-	void updateDebugPrimitiveVector(std::vector<std::pair<PrimitiveType, DebugPrimitiveData>>& primitives, float dt)
-	{
-		for (auto iter = primitives.begin(); iter != primitives.end();)
-		{
-			if (iter->second.lifeTime == -1.0f)
-			{
-				++iter;
-				continue;
-			}
-			else if (iter->second.lifeTime <= 0.0f)
-			{
-				iter = primitives.erase(iter);
-			}
-			else
-			{
-				iter->second.lifeTime -= dt;
-				++iter;
-			}
-		}
-	}
+	void updateDebugPrimitiveVector(std::vector<std::pair<PrimitiveType, DebugPrimitiveData>>& primitives, float dt);
 
 	const DebugPrimitives& getDebugPrimitives() const;
 
@@ -112,4 +95,26 @@ inline ComponentType* LocalServer::createComponent(Args&& ... args)
 	Entity* owner = result->getOwner();
 	owner->addComponent(result);
 	return result;
+}
+
+template <typename PrimitiveType>
+inline void LocalServer::updateDebugPrimitiveVector(std::vector<std::pair<PrimitiveType, DebugPrimitiveData>>& primitives, float dt)
+{
+	for (auto iter = primitives.begin(); iter != primitives.end();)
+	{
+		if (iter->second.lifeTime == -1.0f)
+		{
+			++iter;
+			continue;
+		}
+		else if (iter->second.lifeTime <= 0.0f)
+		{
+			iter = primitives.erase(iter);
+		}
+		else
+		{
+			iter->second.lifeTime -= dt;
+			++iter;
+		}
+	}
 }

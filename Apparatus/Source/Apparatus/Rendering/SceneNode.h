@@ -34,6 +34,9 @@ public:
 
 	void setParent(SceneNode* parent);
 	SceneNode* getParent();
+	void detachChild(SceneNode* child);
+
+	void setInheritRotation(bool inheritRotation);
 
 	glm::vec3 getForward() const;
 	glm::vec3 getUp() const;
@@ -52,4 +55,6 @@ protected:
 
 	SceneNode* parent;
 	std::vector<SceneNode*> children;
+
+	bool inheritRotation;
 };

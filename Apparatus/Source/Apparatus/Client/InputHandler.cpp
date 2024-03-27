@@ -20,6 +20,9 @@ InputHandler::InputHandler()
 	keyActionMap.emplace(InputKey::MouseLeftButton, "Fire");
 	keyActionMap.emplace(InputKey::MouseRightButton, "AltFire");
 
+	keyActionMap.emplace(InputKey::G, "EnableTranslationMode");
+	keyActionMap.emplace(InputKey::R, "EnableRotationMode");
+
 	keyActionMap.emplace(InputKey::Escape, "OpenMainMenu");
 
 	// TODO: This is only for LevelEditor project!
@@ -39,9 +42,14 @@ void InputHandler::handleKey(InputKey key, KeyEventType type)
 		auto foundBinding = keyBindingsMap.find(foundActionPair->second);
 		if (foundBinding != keyBindingsMap.end())
 		{
-			if (foundBinding->second.type == type)
+			const std::vector<KeyBinding>& bindings = foundBinding->second;
+			auto bindingSearchResult = std::find_if(bindings.cbegin(), bindings.cend(), [type](const KeyBinding& b) {
+				return b.type == type;
+			});
+
+			if (bindingSearchResult != bindings.cend())
 			{
-				foundBinding->second.function();
+				bindingSearchResult->function();
 			}
 		}
 	}
@@ -76,7 +84,7 @@ void InputHandler::handleAxis(InputKey key, float value)
 void InputHandler::bindKeyAction(const std::string& action, KeyEventType eventType, std::function<void()> function)
 {
 	KeyBinding binding { eventType, function };
-	keyBindingsMap.emplace(action, std::move(binding));
+	keyBindingsMap[action].push_back(std::move(binding));
 }
 
 void InputHandler::bindAxisAction(const std::string& action, std::function<void(float)> function)

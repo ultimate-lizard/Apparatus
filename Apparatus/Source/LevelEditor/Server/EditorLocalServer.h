@@ -14,4 +14,6 @@ protected:
 	virtual void assignDefaultObjectName() override;
 
 	virtual void setupEntities() override;
+
+	void setupGizmoEntity();
 };

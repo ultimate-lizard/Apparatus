@@ -190,10 +190,14 @@ std::vector<RayTraceResult> LocalServer::traceRay(const glm::vec3& origin, const
 			continue;
 		}
 
-		std::vector<ModelComponent*> modelComponents = entity->getAllComponentsOfClass<ModelComponent>();
-		for (ModelComponent* modelComponent : modelComponents)
+		for (ModelComponent* modelComponent : entity->getAllComponentsOfClass<ModelComponent>())
 		{
 			if (!modelComponent)
+			{
+				continue;
+			}
+
+			if (!modelComponent->isVisible())
 			{
 				continue;
 			}
@@ -205,7 +209,13 @@ std::vector<RayTraceResult> LocalServer::traceRay(const glm::vec3& origin, const
 					auto intersections = rayVsMesh(origin, direction, length, mesh, modelComponent->getTransform());
 					for (const auto& intersectionPair : intersections)
 					{
-						result.push_back({ intersectionPair.first, intersectionPair.second, entity.get() });
+						RayTraceResult traceResult;
+						traceResult.near = intersectionPair.first;
+						traceResult.far = intersectionPair.second;
+						traceResult.entity = entity.get();
+						traceResult.modelComponent = modelComponent;
+
+						result.push_back(std::move(traceResult));
 					}
 				}
 			}

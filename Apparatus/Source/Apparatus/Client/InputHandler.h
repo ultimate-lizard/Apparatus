@@ -40,7 +40,7 @@ private:
 	std::map<InputAxis, AxisAction> axisActionMap;
 	std::map<InputKey, AxisAction> keyAsAxisActionMap;
 
-	std::map<std::string, KeyBinding> keyBindingsMap;
+	std::map<std::string, std::vector<KeyBinding>> keyBindingsMap;
 	std::map<std::string, std::function<void(float)>> axisBindingsMap;
 
 	std::vector<InputKey> registeredKeyAxis;

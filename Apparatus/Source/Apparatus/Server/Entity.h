@@ -25,7 +25,7 @@ public:
 	{
 		for (Component* component : components)
 		{
-			if (component->getId() == id)
+			if (component->getObjectName() == id)
 			{
 				if (ComponentType* foundComponent = dynamic_cast<ComponentType*>(component))
 				{

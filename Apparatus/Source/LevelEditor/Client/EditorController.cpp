@@ -9,12 +9,15 @@
 #include <Apparatus/Server/Entity.h>
 #include <Apparatus/Server/LocalServer.h>
 #include <Apparatus/Util/DebugPrimitive.h>
+#include <Apparatus/Util/CollisionDetection.h>
 
-#include "../Components/SelectableComponent.h"
+#include "EditorLocalClient.h"
 
-EditorController::EditorController(LocalClient* localClient) :
-	HumanControllerBase(localClient),
-	selectedEntity(nullptr)
+EditorController::EditorController(EditorLocalClient* editorLocalClient) :
+	HumanControllerBase(editorLocalClient),
+	editorLocalClient(editorLocalClient),
+	gizmoPressed(false),
+	selectedGizmoModel(nullptr)
 {
 	assignDefaultObjectName();
 }
@@ -41,176 +44,258 @@ void EditorController::setupInput()
 {
 	if (inputHandler)
 	{
-		inputHandler->bindKeyAction("Fire", KeyEventType::Press, std::bind(&EditorController::select, this));
-		inputHandler->bindKeyAction("AltFire", KeyEventType::Press, std::bind(&EditorController::deselect, this));
-		inputHandler->bindKeyAction("OpenMainMenu", KeyEventType::Press, std::bind(&EditorController::deselect, this));
+		inputHandler->bindKeyAction("Fire", KeyEventType::Press, std::bind(&EditorController::pressSelect, this));
+		inputHandler->bindKeyAction("Fire", KeyEventType::Release, std::bind(&EditorController::releasePrimaryMouseButton, this));
 
-		inputHandler->bindAxisAction("MoveZ", std::bind(&EditorController::moveZ, this, std::placeholders::_1));
-		inputHandler->bindAxisAction("MoveX", std::bind(&EditorController::moveX, this, std::placeholders::_1));
+		inputHandler->bindKeyAction("AltFire", KeyEventType::Press, std::bind(&EditorController::releaseSelect, this));
+		inputHandler->bindKeyAction("OpenMainMenu", KeyEventType::Press, std::bind(&EditorController::releaseSelect, this));
 
-		inputHandler->bindAxisAction("RotateRoll", std::bind(&EditorController::rotateRoll, this, std::placeholders::_1));
+		inputHandler->bindKeyAction("EnableTranslationMode", KeyEventType::Press, std::bind(&EditorController::enableTranslationMode, this));
+		inputHandler->bindKeyAction("EnableRotationMode", KeyEventType::Press, std::bind(&EditorController::enableRotationMode, this));
+
+		inputHandler->bindAxisAction("LookY", std::bind(&EditorController::cursorMoveY, this, std::placeholders::_1));
+		inputHandler->bindAxisAction("LookX", std::bind(&EditorController::cursorMoveX, this, std::placeholders::_1));
 	}
 }
 
-void EditorController::select()
+void EditorController::pressSelect()
 {
-	if (!localClient || !controlledEntity)
+	if (!editorLocalClient)
 	{
 		return;
 	}
 
-	if (Apparatus* apparatus = localClient->getApparatus())
-	{
-		if (LocalServer* localServer = apparatus->getServer<LocalServer>())
-		{
-			if (CameraComponent* cameraComponent = controlledEntity->findComponent<CameraComponent>())
-			{
-				Camera& camera = cameraComponent->getCamera();
-
-				glm::vec3 rayWorld = localServer->getCursorToWorldRay(camera.getView(), camera.getProjection());
-				glm::vec3 start = camera.getDerivedPosition();
-
-				std::vector<RayTraceResult> traceResult = localServer->traceRay(start, rayWorld, 50.0f, DetectionType::Visibility);
-				if (traceResult.size())
-				{
-					selectEntity(traceResult[0].entity);
-				}
-				else
-				{
-					selectEntity(nullptr);
-				}
-			}
-		}
-	}
-}
-
-void EditorController::deselect()
-{
-	selectEntity(nullptr);
-}
-
-void EditorController::moveZ(float value)
-{
-	if (selectedEntity)
-	{
-		if (auto transformComponent = selectedEntity->findComponent<TransformComponent>())
-		{
-			glm::vec3 forward = transformComponent->getLocalForward();
-			glm::vec3 offset = forward * value * 0.0025f;
-			transformComponent->offsetPosition(offset);
-
-			LocalServer::drawDebugLine({ transformComponent->getDerivedPosition(), transformComponent->getDerivedPosition() + (forward * 100000.0f) }, { 1.0f, 0.0f, 1.0f, 1.0f }, 5.0f);
-			std::string str = std::to_string(transformComponent->getPosition().x) + " " + std::to_string(transformComponent->getPosition().z);
-		}
-	}
-}
-
-void EditorController::moveX(float value)
-{
-	if (selectedEntity)
-	{
-		if (auto transformComponent = selectedEntity->findComponent<TransformComponent>())
-		{
-			glm::vec3 right = transformComponent->getLocalRight();
-			glm::vec3 offset = right * value * 0.0025f;
-			transformComponent->offsetPosition(offset);
-
-			LocalServer::drawDebugLine({ transformComponent->getDerivedPosition(), transformComponent->getDerivedPosition() + (offset * 100000.0f) }, { 1.0f, 0.0f, 1.0f, 1.0f }, 5.0f);
-			std::string str = std::to_string(transformComponent->getPosition().x) + " " + std::to_string(transformComponent->getPosition().z);
-		}
-	}
-}
-
-void EditorController::rotateRoll(float value)
-{
-	if (selectedEntity)
-	{
-		if (auto transformComponent = selectedEntity->findComponent<TransformComponent>())
-		{
-			transformComponent->rotate(value * 0.025f, Euler::Yaw);
-		}
-	}
-}
-
-// TODO: Refactor
-void EditorController::selectEntity(Entity* entity)
-{
-	if (entity == selectedEntity)
+	Apparatus* apparatus = editorLocalClient->getApparatus();
+	if (!apparatus)
 	{
 		return;
 	}
 
-	if (selectedEntity)
+	LocalServer* localServer = apparatus->getServer<LocalServer>();
+	if (!localServer)
 	{
-		std::vector<ModelComponent*> modelComponents = selectedEntity->getAllComponentsOfClass<ModelComponent>();
-		
-		for (ModelComponent* modelComponent : modelComponents)
+		return;
+	}
+
+	Camera* camera = editorLocalClient->getActiveCamera();
+	if (!camera)
+	{
+		return;
+	}
+
+	glm::vec3 direction = localServer->getCursorToWorldRay(camera->getView(), camera->getProjection());
+	glm::vec3 origin = camera->getDerivedPosition();
+
+	const float selectRayLength = 50'000.0f;
+	std::vector<RayTraceResult> traceResults = localServer->traceRay(origin, direction, selectRayLength, DetectionType::Visibility);
+
+	bool gizmoTraced = false;
+	for (const RayTraceResult& result : traceResults)
+	{
+		if (result.entity->getObjectName() == "Gizmo")
 		{
-			if (!modelComponent)
+			gizmoTraced = true;
+
+			selectedGizmoModel = result.modelComponent;
+			if (selectedGizmoModel)
 			{
-				continue;
+				clickOffset = result.near - selectedGizmoModel->getDerivedPosition();
 			}
 
-			if (ModelInstance* modelInstance = modelComponent->getModelInstance())
-			{
-				if (Model* model = modelInstance->getModel())
-				{
-					const size_t materialsNum = model->getMaterials().size();
-					for (size_t i = 0; i < materialsNum; ++i)
-					{
-						if (MaterialInstance* materialInstance = modelInstance->getMaterialInstance(i))
-						{
-							MaterialParameters& params = materialInstance->getMaterialParameters();
-
-							params.setVec4("selectionColor", { 1.0f, 0.0f, 0.0f, 1.0f });
-							params.setBool("selected", false);
-						}
-					}
-				}
-			}
-		}
-
-		if (auto selectableComponent = selectedEntity->findComponent<SelectableComponent>())
-		{
-			selectableComponent->setSelected(false);
+			break;
 		}
 	}
 
-	selectedEntity = entity;
-
-	if (selectedEntity)
+	if (gizmoTraced)
 	{
-		std::vector<ModelComponent*> modelComponents = selectedEntity->getAllComponentsOfClass<ModelComponent>();
+		gizmoPressed = true;
 
-		for (ModelComponent* modelComponent : modelComponents)
+		if (selectedGizmoModel)
 		{
-			if (!modelComponent)
-			{
-				continue;
-			}
-
-			if (ModelInstance* modelInstance = modelComponent->getModelInstance())
-			{
-				if (Model* model = modelInstance->getModel())
-				{
-					const size_t materialsNum = model->getMaterials().size();
-					for (size_t i = 0; i < materialsNum; ++i)
-					{
-						if (MaterialInstance* materialInstance = modelInstance->getMaterialInstance(i))
-						{
-							MaterialParameters& params = materialInstance->getMaterialParameters();
-
-							params.setVec4("selectionColor", { 1.0f, 0.0f, 0.0f, 1.0f });
-							params.setBool("selected", true);
-						}
-					}
-				}
-			}
+			gizmoSelectOrigin = selectedGizmoModel->getDerivedPosition();
 		}
+	}
+	else
+	{
+		// Select the closest entity to the ray origin. Index 0 is the closest
+		editorLocalClient->selectEntity(!traceResults.empty() ? traceResults[0].entity : nullptr);
+	}
+}
 
-		if (auto selectableComponent = selectedEntity->findComponent<SelectableComponent>())
+void EditorController::releaseSelect()
+{
+	if (editorLocalClient)
+	{
+		editorLocalClient->selectEntity(nullptr);
+	}
+}
+
+void EditorController::enableTranslationMode()
+{
+	if (editorLocalClient)
+	{
+		editorLocalClient->setInteractionMode(InteractionMode::Translation);
+	}
+}
+
+void EditorController::enableRotationMode()
+{
+	if (editorLocalClient)
+	{
+		editorLocalClient->setInteractionMode(InteractionMode::Rotation);
+	}
+}
+
+void EditorController::releasePrimaryMouseButton()
+{
+	gizmoPressed = false;
+}
+
+void EditorController::cursorMoveY(float value)
+{
+	cursorMove(0.0f, value);
+}
+
+void EditorController::cursorMoveX(float value)
+{
+	cursorMove(value, 0.0f);
+}
+
+void EditorController::cursorMove(float mouseInputX, float mouseInputY)
+{
+	if (!gizmoPressed || !editorLocalClient)
+	{
+		return;
+	}
+
+	const InteractionMode mode = editorLocalClient->getInteractionMode();
+	if (mode == InteractionMode::Translation)
+	{
+		handleGizmoTranslation();
+	}
+	else if (mode == InteractionMode::Rotation)
+	{
+		handleGizmoRotation(mouseInputX, mouseInputY);
+	}
+}
+
+void EditorController::handleGizmoTranslation()
+{
+	if (!selectedGizmoModel || !editorLocalClient)
+	{
+		return;
+	}
+
+	Camera* camera = editorLocalClient->getActiveCamera();
+	if (!camera)
+	{
+		return;
+	}
+
+	const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
+
+	glm::vec3 planeNormal(0.0f);
+
+	const glm::vec3 rayOrigin = camera->getDerivedPosition();
+	const glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
+	const glm::vec3 gizmoOrigin = selectedGizmoModel->getDerivedPosition();
+
+	planeNormal = glm::normalize(gizmoOrigin - rayOrigin);
+	if (selectedGizmoName == "GizmoX")
+	{
+		planeNormal.x = 0.0f;
+	}
+	else if (selectedGizmoName == "GizmoXY")
+	{
+		planeNormal.y = 0.0f;
+		planeNormal.x = 0.0f;
+	}
+	else if (selectedGizmoName == "GizmoXZ")
+	{
+		planeNormal.z = 0.0f;
+		planeNormal.x = 0.0f;
+	}
+	else if (selectedGizmoName == "GizmoY")
+	{
+		planeNormal.y = 0.0f;
+	}
+	else if (selectedGizmoName == "GizmoYZ")
+	{
+		planeNormal.y = 0.0f;
+		planeNormal.z = 0.0f;
+	}
+	else if (selectedGizmoName == "GizmoZ")
+	{
+		planeNormal.z = 0.0f;
+	}
+
+	glm::vec3 newPosition = rayVsPlane(gizmoSelectOrigin, planeNormal, rayOrigin, rayDirection);
+	newPosition -= clickOffset;
+
+	if (selectedGizmoName == "GizmoX")
+	{
+		newPosition.y = gizmoOrigin.y;
+		newPosition.z = gizmoOrigin.z;
+	}
+	else if (selectedGizmoName == "GizmoXY")
+	{
+		newPosition.z = gizmoOrigin.z;
+	}
+	else if (selectedGizmoName == "GizmoXZ")
+	{
+		newPosition.y = gizmoOrigin.y;
+	}
+	else if (selectedGizmoName == "GizmoY")
+	{
+		newPosition.x = gizmoOrigin.x;
+		newPosition.z = gizmoOrigin.z;
+	}
+	else if (selectedGizmoName == "GizmoYZ")
+	{
+		newPosition.x = gizmoOrigin.x;
+	}
+	else if (selectedGizmoName == "GizmoZ")
+	{
+		newPosition.x = gizmoOrigin.x;
+		newPosition.y = gizmoOrigin.y;
+	}
+
+	if (Entity* selection = editorLocalClient->getSelectedEntity())
+	{
+		if (auto transformComponent = selection->findComponent<TransformComponent>())
 		{
-			selectableComponent->setSelected(true);
+			transformComponent->setPosition(newPosition);
+		}
+	}
+}
+
+void EditorController::handleGizmoRotation(float mouseInputX, float mouseInputY)
+{
+	if (!selectedGizmoModel)
+	{
+		return;
+	}
+
+	if (Entity* selection = editorLocalClient->getSelectedEntity())
+	{
+		if (auto transformComponent = selection->findComponent<TransformComponent>())
+		{
+			const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
+			if (selectedGizmoName == "Pitch")
+			{
+				transformComponent->rotate(mouseInputX, Euler::Pitch);
+				selectedGizmoModel->rotate(mouseInputX, Euler::Pitch);
+			}
+			else if (selectedGizmoName == "Yaw")
+			{
+				transformComponent->rotate(mouseInputX + mouseInputY, Euler::Yaw);
+				selectedGizmoModel->rotate(mouseInputX + mouseInputY, Euler::Yaw);
+			}
+			else if (selectedGizmoName == "Roll")
+			{
+				transformComponent->rotate(mouseInputX, Euler::Roll);
+				selectedGizmoModel->rotate(mouseInputX, Euler::Roll);
+			}
 		}
 	}
 }

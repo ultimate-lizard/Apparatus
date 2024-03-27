@@ -53,11 +53,13 @@ void CollisionComponent::regenerateAABB()
 {
 	cachedAABBs.clear();
 
-	std::vector<ModelComponent*> modelComponents = owner->getAllComponentsOfClass<ModelComponent>();
-	for (ModelComponent* modelComponent : modelComponents)
+	if (owner)
 	{
-		Box newBox = generateAABB(modelComponent->getModel(), modelComponent->getDerivedPosition(), modelComponent->getDerivedOrientation());
-		cachedAABBs.push_back({ newBox, modelComponent });
+		for (ModelComponent* modelComponent : owner->getAllComponentsOfClass<ModelComponent>())
+		{
+			Box newBox = generateAABB(modelComponent->getModel(), modelComponent->getDerivedPosition(), modelComponent->getDerivedOrientation());
+			cachedAABBs.push_back({ newBox, modelComponent });
+		}
 	}
 }
 

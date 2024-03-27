@@ -29,7 +29,7 @@ void LocalClient::init()
 	WindowEventHandler& inputReader = apparatus->getInputReader();
 	inputReader.addInputHandler(&inputHandler);
 
-	defaultController = createController<GenericHumanController>();
+	defaultController = createController<GenericHumanController>(this);
 
 	localServer = apparatus->getServer<LocalServer>();
 	if (!localServer)
@@ -58,48 +58,22 @@ void LocalClient::init()
 
 void LocalClient::update(float dt)
 {
-	Renderer* renderer = nullptr;
-
-	if (apparatus)
-	{
-		renderer = apparatus->getRenderer();
-	}
-
-	if (!renderer || !activeEntity || !localServer)
+	if (!activeEntity || !localServer)
 	{
 		return;
 	}
 
 	inputHandler.update();
 
-	// Render entities
-	for (const std::unique_ptr<Entity>& entity : localServer->getAllEntities())
-	{
-		if (!entity)
-		{
-			continue;
-		}
-
-		if (entity.get() != activeEntity)
-		{
-			if (TransformComponent* transformComponent = entity->findComponent<TransformComponent>())
-			{
-				if (CameraComponent* cameraComponent = activeEntity->findComponent<CameraComponent>())
-				{
-					std::vector<ModelComponent*> modelComponents = entity->getAllComponentsOfClass<ModelComponent>();
-					for (ModelComponent* modelComponent : modelComponents)
-					{
-						// TODO: Frustum check. Probably need to put all the visible to the client entities into a separate
-						// vector inside the client
-						renderer->push(modelComponent->getModelInstance(), &cameraComponent->getCamera(), modelComponent->getTransform());
-					}
-				}
-			}
-		}
-	}
+	renderEntities();
 
 	// Render debug primitives
 	composeDebugPrimitiveData();
+}
+
+LocalServer* LocalClient::getLocalServer()
+{
+	return localServer;
 }
 
 Viewport* LocalClient::getViewport()
@@ -394,5 +368,50 @@ void LocalClient::renderDebugPrimitives(const std::vector<Vertex>& vertices, con
 		}
 
 		renderer->push(mesh, debugPrimitiveMaterialInstance.get(), &cameraComponent->getCamera(), glm::mat4(1.0f), renderMode, drawSize);
+	}
+}
+
+void LocalClient::renderEntities()
+{
+	Renderer* renderer = nullptr;
+
+	if (apparatus)
+	{
+		renderer = apparatus->getRenderer();
+	}
+
+	if (!renderer)
+	{
+		return;
+	}
+
+	// Render entities
+	for (const std::unique_ptr<Entity>& entity : localServer->getAllEntities())
+	{
+		if (!entity)
+		{
+			continue;
+		}
+
+		if (entity.get() == activeEntity)
+		{
+			continue;
+		}
+
+		if (TransformComponent* transformComponent = entity->findComponent<TransformComponent>())
+		{
+			if (CameraComponent* cameraComponent = activeEntity->findComponent<CameraComponent>())
+			{
+				for (ModelComponent* modelComponent : entity->getAllComponentsOfClass<ModelComponent>())
+				{
+					if (modelComponent->isVisible())
+					{
+						// TODO: Frustum check. Probably need to put all the visible to the client entities into a separate
+						// vector inside the client
+						renderer->push(modelComponent->getModelInstance(), &cameraComponent->getCamera(), modelComponent->getTransform());
+					}
+				}
+			}
+		}
 	}
 }

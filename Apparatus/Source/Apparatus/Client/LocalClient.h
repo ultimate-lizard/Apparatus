@@ -31,11 +31,13 @@ public:
 	virtual void init() override;
 	virtual void update(float dt) override;
 
+	LocalServer* getLocalServer();
+
 	virtual Viewport* getViewport() override;
 	virtual Camera* getActiveCamera() override;
 
-	template <class ControllerType>
-	ControllerType* createController();
+	template <class ControllerType, typename ... Args>
+	ControllerType* createController(Args&& ... args);
 
 	template <class ControllerType>
 	ControllerType* findController(const std::string& name);
@@ -68,6 +70,8 @@ protected:
 	size_t debugMeshBufferSize;
 	//////////////
 
+	void renderEntities();
+
 	LocalServer* localServer;
 
 private:
@@ -85,10 +89,10 @@ private:
 	Viewport viewport;
 };
 
-template<class ControllerType>
-inline ControllerType* LocalClient::createController()
+template<class ControllerType, typename ... Args>
+inline ControllerType* LocalClient::createController(Args&& ... args)
 {
-	controllers.push_back(std::make_unique<ControllerType>(this));
+	controllers.push_back(std::make_unique<ControllerType>(std::forward<Args>(args)...));
 	ControllerType* newController = dynamic_cast<ControllerType*>(controllers.back().get());
 
 	return newController;

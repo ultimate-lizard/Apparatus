@@ -21,9 +21,14 @@ public:
 
 	ModelInstance* getModelInstance();
 
+	void setVisibility(bool enabled);
+	bool isVisible() const;
+
 protected:
 	virtual void assignDefaultObjectName() override;
 
 	Model* model;
 	std::unique_ptr<ModelInstance> modelInstance;
+
+	bool visible;
 };

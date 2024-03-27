@@ -216,7 +216,7 @@ void Apparatus::initAssets()
 	{
 		assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "C:/Users/mykha/Desktop/test/scene.fbx")));
 		assetManager.createAsset(std::move(importer->import("Model_Cube", modelShader, "C:/Users/mykha/Desktop/test/cube.fbx")));
-		assetManager.createAsset(std::move(importer->import("Model_Tree", modelShader, "C:/Users/mykha/Desktop/test/tree.fbx")));
+		assetManager.createAsset(std::move(importer->import("Model_Makarov", modelShader, "C:/Users/mykha/Desktop/test/makarov.fbx")));
 		assetManager.createAsset(std::move(importer->import("Model_Entity", modelShader, "C:/Users/mykha/Desktop/test/entity.fbx")));
 		// assetManager.createAsset(std::move(importer->import("Model_Gizmo", modelShader, "C:/Users/mykha/Desktop/test/Gizmo.fbx")));
 		auto gizmoModels = importer->importMultiple(modelShader, "C:/Users/mykha/Desktop/test/Gizmo.fbx");

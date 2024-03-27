@@ -7,14 +7,16 @@
 
 ModelComponent::ModelComponent(Entity* owner) :
 	Component(owner),
-	model(nullptr)
+	model(nullptr),
+	visible(true)
 {
 	assignDefaultObjectName();
 }
 
 ModelComponent::ModelComponent(Entity* owner, const std::string& name) :
 	Component(owner, name),
-	model(nullptr)
+	model(nullptr),
+	visible(true)
 {
 	
 }
@@ -47,6 +49,16 @@ const Model* ModelComponent::getModel() const
 ModelInstance* ModelComponent::getModelInstance()
 {
 	return modelInstance.get();
+}
+
+void ModelComponent::setVisibility(bool enabled)
+{
+	this->visible = enabled;
+}
+
+bool ModelComponent::isVisible() const
+{
+	return visible == true;
 }
 
 void ModelComponent::assignDefaultObjectName()

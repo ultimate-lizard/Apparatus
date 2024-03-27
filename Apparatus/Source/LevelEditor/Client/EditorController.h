@@ -1,13 +1,20 @@
 #pragma once
 
+#include <vector>
+
+#include <glm/glm.hpp>
+
 #include <Apparatus/Client/HumanControllerBase.h>
 
 class InputHandler;
+class EditorLocalClient;
+class ModelComponent;
+struct RayTraceResult;
 
 class EditorController : public HumanControllerBase
 {
 public:
-	EditorController(LocalClient* localClient);
+	EditorController(EditorLocalClient* editorLocalClient);
 
 	virtual void onActivate() override;
 	virtual void onDeactivate() override {};
@@ -17,14 +24,25 @@ protected:
 
 	virtual void setupInput() override;
 
-	void select();
-	void deselect();
+	void pressSelect();
+	void releaseSelect();
 
-	void moveZ(float value);
-	void moveX(float value);
-	void rotateRoll(float value);
+	void enableTranslationMode();
+	void enableRotationMode();
 
-	void selectEntity(Entity* entity);
+	void releasePrimaryMouseButton();
 
-	Entity* selectedEntity;
+	void cursorMoveY(float value);
+	void cursorMoveX(float value);
+	void cursorMove(float mouseInputX, float mouseInputY);
+
+	void handleGizmoTranslation();
+	void handleGizmoRotation(float mouseInputX, float mouseInputY);
+
+	EditorLocalClient* editorLocalClient;
+
+	bool gizmoPressed;
+	ModelComponent* selectedGizmoModel;
+	glm::vec3 gizmoSelectOrigin;
+	glm::vec3 clickOffset;
 };

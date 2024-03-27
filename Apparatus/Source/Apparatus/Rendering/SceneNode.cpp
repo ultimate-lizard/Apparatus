@@ -4,7 +4,8 @@ SceneNode::SceneNode() :
 	transform(1.0f),
 	position(0.0f),
 	scale(1.0f),
-	parent(nullptr)
+	parent(nullptr),
+	inheritRotation(true)
 {
 
 }
@@ -12,20 +13,11 @@ SceneNode::SceneNode() :
 void SceneNode::calculateTransform()
 {
 	glm::vec3 derivedPosition = getDerivedPosition();
-	glm::quat derivedRotation = getDerivedOrientation();
+	glm::quat derivedRotation = inheritRotation ? getDerivedOrientation() : rotator.asQuat();
 	// newTransform = glm::scale(newTransform, scale);
 
 	glm::mat4 newTransform = glm::translate(glm::mat4(1.0f), derivedPosition);
 	newTransform *= glm::mat4(derivedRotation);
-
-	//if (parent)
-	//{
-	//	transform = parent->transform * localTransform;
-	//}
-	//else
-	//{
-	//	transform = localTransform;
-	//}
 
 	transform = newTransform;
 
@@ -95,7 +87,7 @@ glm::vec3 SceneNode::getDerivedPosition() const
 
 glm::quat SceneNode::getDerivedOrientation() const
 {
-	if (parent)
+	if (parent && inheritRotation)
 	{
 		return glm::normalize(parent->getDerivedOrientation() * rotator.asQuat());
 	}
@@ -115,6 +107,12 @@ glm::mat4 SceneNode::getTransform() const
 
 void SceneNode::setParent(SceneNode* parent)
 {
+	if (this->parent)
+	{
+		this->parent->detachChild(this);
+		this->parent = parent;
+	}
+
 	if (!parent)
 	{
 		return;
@@ -127,6 +125,20 @@ void SceneNode::setParent(SceneNode* parent)
 SceneNode* SceneNode::getParent()
 {
 	return parent;
+}
+
+void SceneNode::detachChild(SceneNode* child)
+{
+	auto iter = std::find(children.begin(), children.end(), child);
+	if (iter != children.end())
+	{
+		children.erase(iter);
+	}
+}
+
+void SceneNode::setInheritRotation(bool inheritRotation)
+{
+	this->inheritRotation = inheritRotation;
 }
 
 glm::vec3 SceneNode::getForward() const

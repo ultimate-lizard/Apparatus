@@ -121,3 +121,9 @@ glm::vec3 rayVsPolygon(const glm::vec3& origin, const glm::vec3& direction, cons
 	
 	return glm::vec3(origin + (direction * intersect));
 }
+
+glm::vec3 rayVsPlane(const glm::vec3& planeOrigin, const glm::vec3& planeNormal, const glm::vec3& rayOrigin, const glm::vec3& rayDirection)
+{
+	const float t = glm::dot((planeOrigin - rayOrigin), planeNormal) / glm::dot(rayDirection, planeNormal);
+	return rayOrigin + (rayDirection * t);
+}
