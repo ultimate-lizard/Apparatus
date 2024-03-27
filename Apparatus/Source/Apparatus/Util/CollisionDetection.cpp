@@ -2,6 +2,9 @@
 
 #include <algorithm>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 #include "../Rendering/Mesh.h"
 #include "../Util/DebugPrimitive.h"
 #include "../Core/Logger.h"
@@ -31,7 +34,7 @@ std::pair<glm::vec3, glm::vec3> rayVsAABB(const glm::vec3& position, const glm::
 	return { position + (direction * nearT), position + (direction * farT) };
 }
 
-std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, const glm::vec3& direction, float length, const Mesh* mesh, const glm::mat4& meshTransform)
+std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, const glm::vec3& direction, const Mesh* mesh, const glm::mat4& meshTransform)
 {
 	std::vector<std::pair<glm::vec3, glm::vec3>> result;
 
@@ -51,9 +54,13 @@ std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, 
 		const Vertex& b = vertices[indices[i + 1]];
 		const Vertex& c = vertices[indices[i + 2]];
 
-		const glm::vec3 aNewPosition = a.position + glm::vec3(meshTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-		const glm::vec3 bNewPosition = b.position + glm::vec3(meshTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-		const glm::vec3 cNewPosition = c.position + glm::vec3(meshTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		const glm::vec4 aNewPosition = meshTransform * glm::vec4(a.position, 1.0f);
+		const glm::vec4 bNewPosition = meshTransform * glm::vec4(b.position, 1.0f);
+		const glm::vec4 cNewPosition = meshTransform * glm::vec4(c.position, 1.0f);
+
+		//drawDebugPoint(aNewPosition, { 0.0f, 0.0f, 0.0f, 1.0f }, 5.0f, true);
+		//drawDebugPoint(bNewPosition, { 0.0f, 0.0f, 0.0f, 1.0f }, 5.0f, true);
+		//drawDebugPoint(cNewPosition, { 0.0f, 0.0f, 0.0f, 1.0f }, 5.0f, true);
 
 		glm::vec3 intersection = rayVsPolygon(origin, direction, aNewPosition, bNewPosition, cNewPosition);
 		if (!glm::all(glm::isnan(intersection)))

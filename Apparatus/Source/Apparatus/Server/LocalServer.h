@@ -73,7 +73,7 @@ public:
 	const DebugPrimitives& getDebugPrimitives() const;
 
 	// Returns an unsorted vector of entities and near and far positions of the intersections
-	std::vector<RayTraceResult> traceRay(const glm::vec3& origin, const glm::vec3& direction, float length, DetectionType detectionType = DetectionType::Visibility);
+	std::vector<RayTraceResult> traceRay(const glm::vec3& origin, const glm::vec3& direction, DetectionType detectionType = DetectionType::Visibility);
 	glm::vec3 getCursorToWorldRay(const glm::mat4& view, const glm::mat4& projection);
 
 protected:

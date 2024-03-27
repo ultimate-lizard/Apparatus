@@ -20,7 +20,7 @@ InputHandler::InputHandler()
 	keyActionMap.emplace(InputKey::MouseLeftButton, "Fire");
 	keyActionMap.emplace(InputKey::MouseRightButton, "AltFire");
 
-	keyActionMap.emplace(InputKey::G, "EnableTranslationMode");
+	keyActionMap.emplace(InputKey::E, "EnableTranslationMode");
 	keyActionMap.emplace(InputKey::R, "EnableRotationMode");
 
 	keyActionMap.emplace(InputKey::Escape, "OpenMainMenu");

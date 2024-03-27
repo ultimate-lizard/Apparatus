@@ -19,10 +19,14 @@ public:
 	void updateVisualBoundingBoxPosition();
 	void regenerateVisualBoundingBox();
 
+	void setBoxVisible(bool visible);
+	bool isBoxVisible() const;
+
 protected:
 	virtual void assignDefaultObjectName() override;
 
 	bool selected;
 	glm::vec3 cachedPosition;
 	Box box;
+	bool boxVisible;
 };

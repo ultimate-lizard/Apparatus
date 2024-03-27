@@ -10,7 +10,7 @@
 
 LocalClient::LocalClient(Apparatus* apparatus) :
 	Client(apparatus),
-	debugMeshBufferSize(1024 * 1024),
+	debugMeshBufferSize(1024 * 1024 * 32),
 	localServer(nullptr),
 	activeEntity(nullptr),
 	activeController(nullptr),

@@ -60,6 +60,7 @@ void EditorLocalClient::setGizmoVisibility(bool enabled)
 				continue;
 			}
 
+			// Assign rotation data to gizmo
 			if (auto selectionTransform = selectedEntity->findComponent<TransformComponent>())
 			{
 				const float pitch = selectionTransform->getRotationAngle(Euler::Pitch);

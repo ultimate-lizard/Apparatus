@@ -8,7 +8,8 @@
 SelectableComponent::SelectableComponent(Entity* owner) :
 	Component(owner),
 	selected(false),
-	cachedPosition(0.0f)
+	cachedPosition(0.0f),
+	boxVisible(true)
 {
 	assignDefaultObjectName();
 }
@@ -93,6 +94,16 @@ void SelectableComponent::regenerateVisualBoundingBox()
 		ModelComponent* modelComponent = modelComponents[0];
 		box = generateAABB(modelComponent->getModel(), modelComponent->getDerivedPosition(), modelComponent->getDerivedOrientation());
 	}
+}
+
+void SelectableComponent::setBoxVisible(bool visible)
+{
+	boxVisible = visible;
+}
+
+bool SelectableComponent::isBoxVisible() const
+{
+	return boxVisible == true;
 }
 
 void SelectableComponent::assignDefaultObjectName()

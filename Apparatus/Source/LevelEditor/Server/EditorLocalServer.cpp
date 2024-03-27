@@ -23,7 +23,7 @@ void EditorLocalServer::update(float dt)
 		{
 			if (auto selectable = entity->findComponent<SelectableComponent>())
 			{
-				if (selectable->isSelected())
+				if (selectable->isSelected() && selectable->isBoxVisible())
 				{
 					selectable->updateVisualBoundingBoxPosition();
 					Box box = selectable->getVisualBoundingBox();

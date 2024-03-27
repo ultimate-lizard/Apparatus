@@ -12,6 +12,7 @@
 #include <Apparatus/Util/CollisionDetection.h>
 
 #include "EditorLocalClient.h"
+#include "../Components/SelectableComponent.h"
 
 EditorController::EditorController(EditorLocalClient* editorLocalClient) :
 	HumanControllerBase(editorLocalClient),
@@ -42,20 +43,22 @@ void EditorController::onActivate()
 
 void EditorController::setupInput()
 {
-	if (inputHandler)
+	if (!inputHandler)
 	{
-		inputHandler->bindKeyAction("Fire", KeyEventType::Press, std::bind(&EditorController::pressSelect, this));
-		inputHandler->bindKeyAction("Fire", KeyEventType::Release, std::bind(&EditorController::releasePrimaryMouseButton, this));
-
-		inputHandler->bindKeyAction("AltFire", KeyEventType::Press, std::bind(&EditorController::releaseSelect, this));
-		inputHandler->bindKeyAction("OpenMainMenu", KeyEventType::Press, std::bind(&EditorController::releaseSelect, this));
-
-		inputHandler->bindKeyAction("EnableTranslationMode", KeyEventType::Press, std::bind(&EditorController::enableTranslationMode, this));
-		inputHandler->bindKeyAction("EnableRotationMode", KeyEventType::Press, std::bind(&EditorController::enableRotationMode, this));
-
-		inputHandler->bindAxisAction("LookY", std::bind(&EditorController::cursorMoveY, this, std::placeholders::_1));
-		inputHandler->bindAxisAction("LookX", std::bind(&EditorController::cursorMoveX, this, std::placeholders::_1));
+		return;
 	}
+
+	inputHandler->bindKeyAction("Fire", KeyEventType::Press, std::bind(&EditorController::pressSelect, this));
+	inputHandler->bindKeyAction("Fire", KeyEventType::Release, std::bind(&EditorController::releasePrimaryMouseButton, this));
+
+	inputHandler->bindKeyAction("AltFire", KeyEventType::Press, std::bind(&EditorController::releaseSelect, this));
+	inputHandler->bindKeyAction("OpenMainMenu", KeyEventType::Press, std::bind(&EditorController::releaseSelect, this));
+
+	inputHandler->bindKeyAction("EnableTranslationMode", KeyEventType::Press, std::bind(&EditorController::enableTranslationMode, this));
+	inputHandler->bindKeyAction("EnableRotationMode", KeyEventType::Press, std::bind(&EditorController::enableRotationMode, this));
+
+	inputHandler->bindAxisAction("LookY", std::bind(&EditorController::cursorMoveY, this, std::placeholders::_1));
+	inputHandler->bindAxisAction("LookX", std::bind(&EditorController::cursorMoveX, this, std::placeholders::_1));
 }
 
 void EditorController::pressSelect()
@@ -86,8 +89,7 @@ void EditorController::pressSelect()
 	glm::vec3 direction = localServer->getCursorToWorldRay(camera->getView(), camera->getProjection());
 	glm::vec3 origin = camera->getDerivedPosition();
 
-	const float selectRayLength = 50'000.0f;
-	std::vector<RayTraceResult> traceResults = localServer->traceRay(origin, direction, selectRayLength, DetectionType::Visibility);
+	std::vector<RayTraceResult> traceResults = localServer->traceRay(origin, direction, DetectionType::Visibility);
 
 	bool gizmoTraced = false;
 	for (const RayTraceResult& result : traceResults)
@@ -101,6 +103,7 @@ void EditorController::pressSelect()
 			{
 				clickOffset = result.near - selectedGizmoModel->getDerivedPosition();
 			}
+			// TODO: IsRotationGizmo?
 
 			break;
 		}
@@ -149,6 +152,21 @@ void EditorController::enableRotationMode()
 void EditorController::releasePrimaryMouseButton()
 {
 	gizmoPressed = false;
+
+	if (editorLocalClient)
+	{
+		if (editorLocalClient->getInteractionMode() == InteractionMode::Rotation)
+		{
+			if (Entity* selectedEntity = editorLocalClient->getSelectedEntity())
+			{
+				if (auto selectableComponent = selectedEntity->findComponent<SelectableComponent>())
+				{
+					selectableComponent->regenerateVisualBoundingBox();
+					selectableComponent->setBoxVisible(true);
+				}
+			}
+		}
+	}
 }
 
 void EditorController::cursorMoveY(float value)
@@ -278,6 +296,11 @@ void EditorController::handleGizmoRotation(float mouseInputX, float mouseInputY)
 
 	if (Entity* selection = editorLocalClient->getSelectedEntity())
 	{
+		if (auto selectableComponent = selection->findComponent<SelectableComponent>())
+		{
+			selectableComponent->setBoxVisible(false);
+		}
+
 		if (auto transformComponent = selection->findComponent<TransformComponent>())
 		{
 			const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
@@ -296,6 +319,11 @@ void EditorController::handleGizmoRotation(float mouseInputX, float mouseInputY)
 				transformComponent->rotate(mouseInputX, Euler::Roll);
 				selectedGizmoModel->rotate(mouseInputX, Euler::Roll);
 			}
+
+			// TODO: Improve mouse controls, likely using the data below
+			// glm::vec3 origin = selectedGizmoModel->getDerivedPosition();
+			// glm::vec3 forward = selectedGizmoModel->getForward();
+			// drawDebugLine(origin, origin + forward * 10.0f, { 0.0f, 0.0f, 1.0f, 1.0f }, 2.0f, false, 10.0f);
 		}
 	}
 }

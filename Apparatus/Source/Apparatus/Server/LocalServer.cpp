@@ -175,7 +175,7 @@ const DebugPrimitives& LocalServer::getDebugPrimitives() const
 	return debugPrimitives;
 }
 
-std::vector<RayTraceResult> LocalServer::traceRay(const glm::vec3& origin, const glm::vec3& direction, float length, DetectionType detectionType)
+std::vector<RayTraceResult> LocalServer::traceRay(const glm::vec3& origin, const glm::vec3& direction, DetectionType detectionType)
 {
 	if (detectionType != DetectionType::Visibility)
 	{
@@ -206,7 +206,7 @@ std::vector<RayTraceResult> LocalServer::traceRay(const glm::vec3& origin, const
 			{
 				for (Mesh* mesh : model->getMeshes())
 				{
-					auto intersections = rayVsMesh(origin, direction, length, mesh, modelComponent->getTransform());
+					auto intersections = rayVsMesh(origin, direction, mesh, modelComponent->getTransform());
 					for (const auto& intersectionPair : intersections)
 					{
 						RayTraceResult traceResult;
