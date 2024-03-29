@@ -29,7 +29,20 @@ void Rotator::set(float degree, Euler angle)
         return;
     }
 
-    angles[angle] = degree;
+    if (degree >= 360.0f)
+    {
+        angles[angle] = degree - 360.0f;
+    }
+    else if (degree < 0.0f)
+    {
+        angles[angle] = degree + 360.0f;
+    }
+    else
+    {
+        angles[angle] = degree;
+    }
+
+    //angles[angle] = degree;
 }
 
 void Rotator::rotate(float degree, Euler angle)
@@ -81,4 +94,24 @@ void Rotator::clamp(float min, float max, Euler angle)
     {
         angles[angle] = min;
     }
+}
+
+float Rotator::normalizeAngle(float degree)
+{
+    float result = 0.0f;
+
+    if (degree >= 360.0f)
+    {
+        result = degree - 360.0f;
+    }
+    else if (degree < 0.0f)
+    {
+        result = degree + 360.0f;
+    }
+    else
+    {
+        result = degree;
+    }
+
+    return result;
 }

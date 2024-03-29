@@ -3,11 +3,13 @@
 #include <string>
 #include <fstream>
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
+//#define LOG(text, level) Logger::log(text, level)
+//#else
+//#define LOG(text, level)
+//#endif
+
 #define LOG(text, level) Logger::log(text, level)
-#else
-#define LOG(text, level)
-#endif
 
 enum LogLevel
 {

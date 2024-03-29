@@ -22,9 +22,11 @@ MessageCallback(GLenum source,
 	const GLchar* message,
 	const void* userParam)
 {
-	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-		type, severity, message);
+	//fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+	//	(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+	//	type, severity, message);
+
+	LOG("GL CALLBACK: type = " + std::to_string(type) + " severity = " + std::to_string(severity) + " message = " + message, type == GL_DEBUG_TYPE_ERROR ? LogLevel::Error : LogLevel::Info);
 }
 
 Renderer::Renderer(SDL_Window* window) :
@@ -46,7 +48,7 @@ void Renderer::init()
 		LOG("Couldn't load GL loader!", LogLevel::Error);
 	}
 
-	glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_DEBUG_OUTPUT);

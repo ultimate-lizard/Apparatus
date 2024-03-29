@@ -27,6 +27,8 @@ public:
 
 	void clamp(float min, float max, Euler angle);
 
+	static float normalizeAngle(float degree);
+
 private:
 	float angles[3]{};
 	glm::vec2 clamps[3]{};

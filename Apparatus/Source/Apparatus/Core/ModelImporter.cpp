@@ -201,7 +201,7 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 				aiString texturePath;
 				aiMaterial->GetTexture(aiTextureType_DIFFUSE, i, &texturePath);
 
-				if (Texture* newTexture = assetManager->createAsset<Texture>("Texture_" + std::string(materialName.C_Str()), texturePath.C_Str()))
+				if (Texture* newTexture = assetManager->createAsset<Texture>("Texture_" + std::string(materialName.C_Str()), "../Models/" + std::string(texturePath.C_Str())))
 				{
 					newMaterial->addDiffuseTexture(newTexture);
 				}

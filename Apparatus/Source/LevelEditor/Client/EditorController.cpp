@@ -14,6 +14,9 @@
 #include "EditorLocalClient.h"
 #include "../Components/SelectableComponent.h"
 
+static Rotator gizmoSelectRotationOrigin;
+static float clickRotator;
+
 EditorController::EditorController(EditorLocalClient* editorLocalClient) :
 	HumanControllerBase(editorLocalClient),
 	editorLocalClient(editorLocalClient),
@@ -59,6 +62,8 @@ void EditorController::setupInput()
 
 	inputHandler->bindAxisAction("LookY", std::bind(&EditorController::cursorMoveY, this, std::placeholders::_1));
 	inputHandler->bindAxisAction("LookX", std::bind(&EditorController::cursorMoveX, this, std::placeholders::_1));
+
+	inputHandler->bindKeyAction("ToggleDebugPrimitives", KeyEventType::Press, std::bind(&EditorController::toggleDebugPrimitives, this));
 }
 
 void EditorController::pressSelect()
@@ -115,7 +120,18 @@ void EditorController::pressSelect()
 
 		if (selectedGizmoModel)
 		{
-			gizmoSelectOrigin = selectedGizmoModel->getDerivedPosition();
+			gizmoSelectPositionOrigin = selectedGizmoModel->getDerivedPosition();
+			gizmoSelectRotationOrigin = selectedGizmoModel->getRotator();
+
+			const glm::vec3 rayOrigin = camera->getDerivedPosition();
+			const glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
+			glm::vec3 newPosition = rayVsPlane(selectedGizmoModel->getDerivedPosition(), getSelectedGimbalUp(), rayOrigin, rayDirection);
+
+			float positionAngle = getPositionAngle(selectedGizmoModel->getDerivedPosition(), positionRelativeToGimbal(newPosition));
+
+			clickRotator = Rotator::normalizeAngle(positionAngle);
+			
+			// TODO: MOUSE PICKING IS BAD? MAYBE TRY DIRECTIONAL VECTOR INSTEAD
 		}
 	}
 	else
@@ -130,6 +146,14 @@ void EditorController::releaseSelect()
 	if (editorLocalClient)
 	{
 		editorLocalClient->selectEntity(nullptr);
+	}
+}
+
+void EditorController::toggleDebugPrimitives()
+{
+	if (editorLocalClient)
+	{
+		editorLocalClient->showDebugPrimitives = !editorLocalClient->showDebugPrimitives;
 	}
 }
 
@@ -218,7 +242,15 @@ void EditorController::handleGizmoTranslation()
 	const glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
 	const glm::vec3 gizmoOrigin = selectedGizmoModel->getDerivedPosition();
 
-	planeNormal = glm::normalize(gizmoOrigin - rayOrigin);
+	planeNormal = glm::normalize(rayOrigin - gizmoOrigin);
+
+	const glm::vec3 origNormal = planeNormal;
+
+	if (editorLocalClient->showDebugPrimitives)
+	{
+		drawDebugLine(gizmoOrigin, gizmoOrigin + planeNormal * 10.0f, { 0.0f, 0.0f, 1.0f, 1.0f }, 2.0f, false, 5.0f);
+	}
+
 	if (selectedGizmoName == "GizmoX")
 	{
 		planeNormal.x = 0.0f;
@@ -247,8 +279,15 @@ void EditorController::handleGizmoTranslation()
 		planeNormal.z = 0.0f;
 	}
 
-	glm::vec3 newPosition = rayVsPlane(gizmoSelectOrigin, planeNormal, rayOrigin, rayDirection);
+	if (editorLocalClient->showDebugPrimitives)
+	{
+		drawDebugLine(gizmoOrigin, gizmoOrigin + planeNormal * 5.0f, { 0.0f, 1.0f, 1.0f, 1.0f }, 4.0f, false, 5.0f);
+	}
+
+	glm::vec3 newPosition = rayVsPlane(gizmoSelectPositionOrigin, planeNormal, rayOrigin, rayDirection);
 	newPosition -= clickOffset;
+
+	// drawDebugPlane(gizmoOrigin, planeNormal, newPosition, 5.0f, true);
 
 	if (selectedGizmoName == "GizmoX")
 	{
@@ -287,9 +326,17 @@ void EditorController::handleGizmoTranslation()
 	}
 }
 
+
+
 void EditorController::handleGizmoRotation(float mouseInputX, float mouseInputY)
 {
 	if (!selectedGizmoModel)
+	{
+		return;
+	}
+
+	Camera* camera = editorLocalClient->getActiveCamera();
+	if (!camera)
 	{
 		return;
 	}
@@ -301,29 +348,99 @@ void EditorController::handleGizmoRotation(float mouseInputX, float mouseInputY)
 			selectableComponent->setBoxVisible(false);
 		}
 
-		if (auto transformComponent = selection->findComponent<TransformComponent>())
+		if (auto selectionTransform = selection->findComponent<TransformComponent>())
 		{
 			const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
-			if (selectedGizmoName == "Pitch")
-			{
-				transformComponent->rotate(mouseInputX, Euler::Pitch);
-				selectedGizmoModel->rotate(mouseInputX, Euler::Pitch);
-			}
-			else if (selectedGizmoName == "Yaw")
-			{
-				transformComponent->rotate(mouseInputX + mouseInputY, Euler::Yaw);
-				selectedGizmoModel->rotate(mouseInputX + mouseInputY, Euler::Yaw);
-			}
-			else if (selectedGizmoName == "Roll")
-			{
-				transformComponent->rotate(mouseInputX, Euler::Roll);
-				selectedGizmoModel->rotate(mouseInputX, Euler::Roll);
-			}
 
-			// TODO: Improve mouse controls, likely using the data below
-			// glm::vec3 origin = selectedGizmoModel->getDerivedPosition();
-			// glm::vec3 forward = selectedGizmoModel->getForward();
-			// drawDebugLine(origin, origin + forward * 10.0f, { 0.0f, 0.0f, 1.0f, 1.0f }, 2.0f, false, 10.0f);
+			const glm::vec3 rayOrigin = camera->getDerivedPosition();
+			const glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
+
+			const glm::vec3 rayVsGizmo = glm::normalize(rayOrigin - selectedGizmoModel->getDerivedPosition());
+
+			glm::vec3 newPosition = rayVsPlane(selectedGizmoModel->getDerivedPosition(), getSelectedGimbalUp(), rayOrigin, rayDirection);
+
+			float positionAngle = getPositionAngle(selectedGizmoModel->getDerivedPosition(), positionRelativeToGimbal(newPosition));
+
+			Euler selectedEuler = getSelectedGimbalEulerAngle();
+			float newAngle = gizmoSelectRotationOrigin.get(selectedEuler) + positionAngle - clickRotator;
+
+			selectionTransform->setRotation(newAngle, selectedEuler);
+			selectedGizmoModel->setRotation(newAngle, selectedEuler);
 		}
 	}
+}
+
+float EditorController::getPositionAngle(const glm::vec3& center, const glm::vec2& position)
+{
+	float yaw = glm::degrees(glm::atan(position.x, position.y));
+	return Rotator::normalizeAngle(yaw);
+}
+
+Euler EditorController::getSelectedGimbalEulerAngle()
+{
+	const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
+
+	if (selectedGizmoName == "Pitch")
+	{
+		return Euler::Pitch;
+	}
+	else if (selectedGizmoName == "Yaw")
+	{
+		return Euler::Yaw;
+	}
+	else if (selectedGizmoName == "Roll")
+	{
+		return Euler::Roll;
+	}
+
+	return Euler::Pitch;
+}
+
+// TODO: ALL DIRECTIONS MUST BE RELATIVE TO THE REST
+glm::vec3 EditorController::getSelectedGimbalUp()
+{
+	if (selectedGizmoModel)
+	{
+		const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
+
+		if (selectedGizmoName == "Pitch")
+		{
+			return selectedGizmoModel->getRight();
+		}
+		else if (selectedGizmoName == "Yaw")
+		{
+			return selectedGizmoModel->getUp();
+		}
+		else if (selectedGizmoName == "Roll")
+		{
+			return selectedGizmoModel->getForward();
+		}
+	}
+
+	return glm::vec3(0.0f);
+}
+
+glm::vec2 EditorController::positionRelativeToGimbal(const glm::vec3& position)
+{
+	glm::vec3 norm = glm::normalize(position - selectedGizmoModel->getDerivedPosition());
+
+	if (selectedGizmoModel)
+	{
+		const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
+
+		if (selectedGizmoName == "Pitch")
+		{
+			return { norm.z, norm.y };
+		}
+		else if (selectedGizmoName == "Yaw")
+		{
+			return { norm.x, norm.z };
+		}
+		else if (selectedGizmoName == "Roll")
+		{
+			return { norm.y, norm.x };
+		}
+	}
+
+	return norm;
 }

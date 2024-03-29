@@ -25,6 +25,8 @@ public:
 	InteractionMode getInteractionMode() const;
 	void setInteractionMode(InteractionMode interactionMode);
 
+	bool showDebugPrimitives = false;
+
 protected:
 	virtual void assignDefaultObjectName() override;
 

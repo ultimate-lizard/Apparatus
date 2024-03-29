@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include <Apparatus/Client/HumanControllerBase.h>
+#include <Apparatus/Rendering/Rotator.h>
 
 class InputHandler;
 class EditorLocalClient;
@@ -27,6 +28,8 @@ protected:
 	void pressSelect();
 	void releaseSelect();
 
+	void toggleDebugPrimitives();
+
 	void enableTranslationMode();
 	void enableRotationMode();
 
@@ -39,10 +42,16 @@ protected:
 	void handleGizmoTranslation();
 	void handleGizmoRotation(float mouseInputX, float mouseInputY);
 
+	float getPositionAngle(const glm::vec3& center, const glm::vec2& position);
+
+	Euler getSelectedGimbalEulerAngle();
+	glm::vec3 getSelectedGimbalUp();
+	glm::vec2 positionRelativeToGimbal(const glm::vec3& position);
+
 	EditorLocalClient* editorLocalClient;
 
 	bool gizmoPressed;
 	ModelComponent* selectedGizmoModel;
-	glm::vec3 gizmoSelectOrigin;
+	glm::vec3 gizmoSelectPositionOrigin;
 	glm::vec3 clickOffset;
 };
