@@ -18,8 +18,8 @@ public:
 	EditorController(EditorLocalClient* editorLocalClient);
 
 	virtual void onActivate() override;
-	virtual void onDeactivate() override {};
-	
+	virtual void onDeactivate() override;
+
 protected:
 	virtual void assignDefaultObjectName() override;
 
@@ -44,9 +44,11 @@ protected:
 
 	float getPositionAngle(const glm::vec3& center, const glm::vec2& position);
 
-	Euler getSelectedGimbalEulerAngle();
-	glm::vec3 getSelectedGimbalUp();
-	glm::vec2 positionRelativeToGimbal(const glm::vec3& position);
+	Euler getSelectedGimbalEulerAngle() const;
+	glm::vec3 getSelectedGimbalUp() const;
+	glm::vec2 positionRelativeToGimbal(const glm::vec3& position) const;
+
+	bool calculateGimbalRotationNegation() const;
 
 	EditorLocalClient* editorLocalClient;
 
@@ -54,4 +56,6 @@ protected:
 	ModelComponent* selectedGizmoModel;
 	glm::vec3 gizmoSelectPositionOrigin;
 	glm::vec3 clickOffset;
+
+	glm::ivec2 lastMousePosition;
 };

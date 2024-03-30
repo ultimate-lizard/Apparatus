@@ -115,6 +115,11 @@ void Apparatus::setCursorVisibleEnabled(bool enabled)
 	SDL_SetRelativeMouseMode(enabled ? SDL_FALSE : SDL_TRUE);
 }
 
+void Apparatus::setCursorPosition(const glm::ivec2& position)
+{
+	SDL_WarpMouseInWindow(window, position.x, position.y);
+}
+
 bool Apparatus::isCursorVisible() const
 {
 	SDL_bool result = SDL_GetRelativeMouseMode();
@@ -248,7 +253,8 @@ void Apparatus::startGameLoop()
 	{
 		if (!isCursorVisible())
 		{
-			SDL_WarpMouseInWindow(window, 800 / 2, 600 / 2);
+			const glm::ivec2 windowSize = getWindowSize();
+			SDL_WarpMouseInWindow(window, windowSize.x / 2, windowSize.y / 2);
 		}
 		
 		lastFrame = currentFrame;

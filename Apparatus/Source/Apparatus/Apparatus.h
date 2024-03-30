@@ -45,6 +45,7 @@ public:
 	AssetManager& getResourceManager();
 
 	void setCursorVisibleEnabled(bool enabled);
+	void setCursorPosition(const glm::ivec2& position);
 	bool isCursorVisible() const;
 
 	// A good place to create initial server and client

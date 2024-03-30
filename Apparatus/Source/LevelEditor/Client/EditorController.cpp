@@ -14,8 +14,9 @@
 #include "EditorLocalClient.h"
 #include "../Components/SelectableComponent.h"
 
-static Rotator gizmoSelectRotationOrigin;
-static float clickRotator;
+//static Rotator gizmoSelectRotationOrigin;
+//static float clickRotator;
+static bool negateRotationDirection = false;
 
 EditorController::EditorController(EditorLocalClient* editorLocalClient) :
 	HumanControllerBase(editorLocalClient),
@@ -41,6 +42,14 @@ void EditorController::onActivate()
 		{
 			apparatus->setCursorVisibleEnabled(true);
 		}
+	}
+}
+
+void EditorController::onDeactivate()
+{
+	if (gizmoPressed)
+	{
+		releasePrimaryMouseButton();
 	}
 }
 
@@ -107,9 +116,8 @@ void EditorController::pressSelect()
 			if (selectedGizmoModel)
 			{
 				clickOffset = result.near - selectedGizmoModel->getDerivedPosition();
+				gizmoSelectPositionOrigin = selectedGizmoModel->getDerivedPosition();
 			}
-			// TODO: IsRotationGizmo?
-
 			break;
 		}
 	}
@@ -120,18 +128,13 @@ void EditorController::pressSelect()
 
 		if (selectedGizmoModel)
 		{
-			gizmoSelectPositionOrigin = selectedGizmoModel->getDerivedPosition();
-			gizmoSelectRotationOrigin = selectedGizmoModel->getRotator();
+			if (editorLocalClient->getInteractionMode() == InteractionMode::Rotation)
+			{
+				negateRotationDirection = calculateGimbalRotationNegation();
 
-			const glm::vec3 rayOrigin = camera->getDerivedPosition();
-			const glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
-			glm::vec3 newPosition = rayVsPlane(selectedGizmoModel->getDerivedPosition(), getSelectedGimbalUp(), rayOrigin, rayDirection);
-
-			float positionAngle = getPositionAngle(selectedGizmoModel->getDerivedPosition(), positionRelativeToGimbal(newPosition));
-
-			clickRotator = Rotator::normalizeAngle(positionAngle);
-			
-			// TODO: MOUSE PICKING IS BAD? MAYBE TRY DIRECTIONAL VECTOR INSTEAD
+				lastMousePosition = apparatus->getMouseCursorPosition();
+				apparatus->setCursorVisibleEnabled(false);
+			}
 		}
 	}
 	else
@@ -175,12 +178,19 @@ void EditorController::enableRotationMode()
 
 void EditorController::releasePrimaryMouseButton()
 {
-	gizmoPressed = false;
-
 	if (editorLocalClient)
 	{
 		if (editorLocalClient->getInteractionMode() == InteractionMode::Rotation)
 		{
+			if (gizmoPressed)
+			{
+				if (Apparatus* apparatus = editorLocalClient->getApparatus())
+				{
+					apparatus->setCursorVisibleEnabled(true);
+					apparatus->setCursorPosition(lastMousePosition);
+				}
+			}
+
 			if (Entity* selectedEntity = editorLocalClient->getSelectedEntity())
 			{
 				if (auto selectableComponent = selectedEntity->findComponent<SelectableComponent>())
@@ -191,6 +201,8 @@ void EditorController::releasePrimaryMouseButton()
 			}
 		}
 	}
+
+	gizmoPressed = false;
 }
 
 void EditorController::cursorMoveY(float value)
@@ -287,8 +299,6 @@ void EditorController::handleGizmoTranslation()
 	glm::vec3 newPosition = rayVsPlane(gizmoSelectPositionOrigin, planeNormal, rayOrigin, rayDirection);
 	newPosition -= clickOffset;
 
-	// drawDebugPlane(gizmoOrigin, planeNormal, newPosition, 5.0f, true);
-
 	if (selectedGizmoName == "GizmoX")
 	{
 		newPosition.y = gizmoOrigin.y;
@@ -326,8 +336,6 @@ void EditorController::handleGizmoTranslation()
 	}
 }
 
-
-
 void EditorController::handleGizmoRotation(float mouseInputX, float mouseInputY)
 {
 	if (!selectedGizmoModel)
@@ -350,22 +358,46 @@ void EditorController::handleGizmoRotation(float mouseInputX, float mouseInputY)
 
 		if (auto selectionTransform = selection->findComponent<TransformComponent>())
 		{
-			const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
+			//const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
 
-			const glm::vec3 rayOrigin = camera->getDerivedPosition();
+			const Euler gimbalAngle = getSelectedGimbalEulerAngle();
+
+			/*const glm::vec3 gizmoOrigin = selectedGizmoModel->getDerivedPosition();
+
 			const glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
 
-			const glm::vec3 rayVsGizmo = glm::normalize(rayOrigin - selectedGizmoModel->getDerivedPosition());
+			const glm::vec3 rayOrigin = camera->getDerivedPosition();
 
 			glm::vec3 newPosition = rayVsPlane(selectedGizmoModel->getDerivedPosition(), getSelectedGimbalUp(), rayOrigin, rayDirection);
 
-			float positionAngle = getPositionAngle(selectedGizmoModel->getDerivedPosition(), positionRelativeToGimbal(newPosition));
+			glm::vec3 relativePosition = gizmoOrigin - newPosition;
+			relativePosition = selectedGizmoModel->getDerivedOrientation() * relativePosition;
 
-			Euler selectedEuler = getSelectedGimbalEulerAngle();
-			float newAngle = gizmoSelectRotationOrigin.get(selectedEuler) + positionAngle - clickRotator;
+			const float dot = glm::dot(glm::normalize(relativePosition), selectedGizmoModel->getDerivedOrientation() * camera->getForward());
+			const float dotTop = glm::dot(getSelectedGimbalUp(), glm::normalize(camera->getUp()));
 
-			selectionTransform->setRotation(newAngle, selectedEuler);
-			selectedGizmoModel->setRotation(newAngle, selectedEuler);
+			float sensitivity = 0.5f;
+
+			if (dot < 0.0f)
+			{
+				sensitivity = -sensitivity;
+			}
+			
+			if (dotTop < 0.0f)
+			{
+				sensitivity = -sensitivity;
+			}
+
+			if (gimbalAngle == Euler::Pitch)
+			{
+				sensitivity = -sensitivity;
+			}*/
+
+			const float sensitivity = 0.5f;
+			const float rotationOffset = (mouseInputX + mouseInputY) * sensitivity * (negateRotationDirection ? -1.0f : 1.0f);
+
+			selectionTransform->rotate(rotationOffset, gimbalAngle);
+			selectedGizmoModel->rotate(rotationOffset, gimbalAngle);
 		}
 	}
 }
@@ -376,7 +408,7 @@ float EditorController::getPositionAngle(const glm::vec3& center, const glm::vec
 	return Rotator::normalizeAngle(yaw);
 }
 
-Euler EditorController::getSelectedGimbalEulerAngle()
+Euler EditorController::getSelectedGimbalEulerAngle() const
 {
 	const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
 
@@ -397,7 +429,7 @@ Euler EditorController::getSelectedGimbalEulerAngle()
 }
 
 // TODO: ALL DIRECTIONS MUST BE RELATIVE TO THE REST
-glm::vec3 EditorController::getSelectedGimbalUp()
+glm::vec3 EditorController::getSelectedGimbalUp() const
 {
 	if (selectedGizmoModel)
 	{
@@ -420,7 +452,7 @@ glm::vec3 EditorController::getSelectedGimbalUp()
 	return glm::vec3(0.0f);
 }
 
-glm::vec2 EditorController::positionRelativeToGimbal(const glm::vec3& position)
+glm::vec2 EditorController::positionRelativeToGimbal(const glm::vec3& position) const
 {
 	glm::vec3 norm = glm::normalize(position - selectedGizmoModel->getDerivedPosition());
 
@@ -443,4 +475,49 @@ glm::vec2 EditorController::positionRelativeToGimbal(const glm::vec3& position)
 	}
 
 	return norm;
+}
+
+bool EditorController::calculateGimbalRotationNegation() const
+{
+	const Euler gimbalAngle = getSelectedGimbalEulerAngle();
+
+	Camera* camera = editorLocalClient->getActiveCamera();
+	if (!camera)
+	{
+		return false;
+	}
+
+	const glm::vec3 gizmoOrigin = selectedGizmoModel->getDerivedPosition();
+	const glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
+	const glm::vec3 rayOrigin = camera->getDerivedPosition();
+
+	const glm::vec3 newPosition = rayVsPlane(selectedGizmoModel->getDerivedPosition(), getSelectedGimbalUp(), rayOrigin, rayDirection);
+
+	glm::vec3 relativePosition = newPosition - gizmoOrigin;
+	relativePosition = selectedGizmoModel->getDerivedOrientation() * relativePosition;
+
+	const float clickPointDot = glm::dot(glm::normalize(relativePosition), selectedGizmoModel->getDerivedOrientation() * camera->getForward());
+	const float topDot = glm::dot(getSelectedGimbalUp(), glm::normalize(camera->getUp()));
+
+	LOG("Click point: " + std::to_string(clickPointDot), LogLevel::Info);
+	LOG("Top   point: " + std::to_string(topDot), LogLevel::Info);
+
+	bool negate = false;
+
+	if (clickPointDot > 0.0f)
+	{
+		negate = !negate;
+	}
+
+	if (topDot < 0.0f)
+	{
+		negate = true;
+	}
+
+	if (gimbalAngle == Euler::Pitch)
+	{
+		negate = true;
+	}
+
+	return negate;
 }

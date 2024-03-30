@@ -16,6 +16,7 @@ public:
 	void setPosition(const glm::vec3& position);
 	void setRotation(const Rotator& rotator);
 	void setRotation(float degrees, Euler angle);
+	
 	void setScale(const glm::vec3& scale);
 
 	void offsetPosition(const glm::vec3& delta);
