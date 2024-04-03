@@ -230,15 +230,21 @@ std::vector<RayTraceResult> LocalServer::traceRay(const glm::vec3& origin, const
 	return result;
 }
 
-glm::vec3 LocalServer::getCursorToWorldRay(const glm::mat4& view, const glm::mat4& projection)
+glm::vec2 LocalServer::getCursorToDevice()
 {
 	glm::ivec2 mousePos = apparatus->getMouseCursorPosition();
 	glm::vec2 windowSize = apparatus->getWindowSize();
 
 	float normalX = (2.0f * mousePos.x) / windowSize.x - 1.0f;
 	float normalY = 1.0f - (2.0f * mousePos.y) / windowSize.y;
+	return glm::vec2(normalX, normalY);
+}
 
-	glm::vec4 rayClip(normalX, normalY, -1.0f, 1.0f);
+glm::vec3 LocalServer::getCursorToWorldRay(const glm::mat4& view, const glm::mat4& projection)
+{
+	glm::vec2 normal = getCursorToDevice();
+
+	glm::vec4 rayClip(normal.x, normal.y, -1.0f, 1.0f);
 
 	glm::vec4 rayEye = glm::inverse(projection) * rayClip;
 	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);

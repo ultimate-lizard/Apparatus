@@ -48,10 +48,10 @@ void SelectableComponent::updateVisualBoundingBoxPosition()
 
 	if (auto transform = owner->findComponent<TransformComponent>())
 	{
-		if (transform->getDerivedPosition() != cachedPosition)
+		if (transform->getWorldPosition() != cachedPosition)
 		{
-			glm::vec3 delta = transform->getDerivedPosition() - cachedPosition;
-			cachedPosition = transform->getDerivedPosition();
+			glm::vec3 delta = transform->getWorldPosition() - cachedPosition;
+			cachedPosition = transform->getWorldPosition();
 			box.position += delta;
 		}
 	}
@@ -70,7 +70,7 @@ void SelectableComponent::regenerateVisualBoundingBox()
 		return;
 	}
 
-	cachedPosition = transformComponent->getDerivedPosition();
+	cachedPosition = transformComponent->getWorldPosition();
 
 	std::vector<ModelComponent*> modelComponents = owner->getAllComponentsOfClass<ModelComponent>();
 	if (modelComponents.size() > 1)
@@ -87,12 +87,12 @@ void SelectableComponent::regenerateVisualBoundingBox()
 			}
 		}
 
-		box = generateAABB(models, transformComponent->getDerivedPosition(), transformComponent->getDerivedOrientation());
+		box = generateAABB(models, transformComponent->getWorldPosition(), transformComponent->getDerivedOrientation());
 	}
 	else if (!modelComponents.empty())
 	{
 		ModelComponent* modelComponent = modelComponents[0];
-		box = generateAABB(modelComponent->getModel(), modelComponent->getDerivedPosition(), modelComponent->getDerivedOrientation());
+		box = generateAABB(modelComponent->getModel(), modelComponent->getWorldPosition(), modelComponent->getDerivedOrientation());
 	}
 }
 

@@ -19,7 +19,7 @@ void Camera::calculateTransform()
 {
 	SceneNode::calculateTransform();
 
-	view = glm::lookAt(getDerivedPosition(), getDerivedPosition() + getForward(), getUp());
+	view = glm::lookAt(getWorldPosition(), getWorldPosition() + getForward(), getUp());
 	projection = glm::perspective(glm::radians(fov), aspect, 0.01f, 1000.0f);
 }
 

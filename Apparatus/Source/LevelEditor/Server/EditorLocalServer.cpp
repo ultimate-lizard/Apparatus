@@ -52,13 +52,37 @@ void EditorLocalServer::setupEntities()
 
 	if (Entity* modelEntity = createEntity("ModelEntity"))
 	{
-		auto transformComponent = createComponent<TransformComponent>(modelEntity);
+		auto modelTransform = createComponent<TransformComponent>(modelEntity);
 		if (auto modelComponent = createComponent<ModelComponent>(modelEntity))
 		{
 			modelComponent->setModel(assetManager.findAsset<Model>("Model_Makarov"));
-			modelComponent->setParent(transformComponent);
+			modelComponent->setParent(modelTransform);
 		}
-		transformComponent->setPosition({ 3.0f, 0.0f, 14.0f });
+		modelTransform->setPosition({ 3.0f, 0.0f, 14.0f });
+
+		if (Entity* anotherEntity = createEntity("ModelEntity2"))
+		{
+			auto anotherEntityTransform = createComponent<TransformComponent>(anotherEntity);
+			anotherEntityTransform->setParent(modelTransform);
+			if (auto modelComponent = createComponent<ModelComponent>(anotherEntity))
+			{
+				modelComponent->setModel(assetManager.findAsset<Model>("Model_Makarov"));
+				modelComponent->setParent(anotherEntityTransform);
+			}
+			anotherEntityTransform->setPosition({ 0.0f, 2.0f, 0.0f });
+
+			if (Entity* anotherAnotherEntity = createEntity("ModelEntity2"))
+			{
+				auto transformComponent = createComponent<TransformComponent>(anotherAnotherEntity);
+				transformComponent->setParent(anotherEntityTransform);
+				if (auto modelComponent = createComponent<ModelComponent>(anotherAnotherEntity))
+				{
+					modelComponent->setModel(assetManager.findAsset<Model>("Model_Makarov"));
+					modelComponent->setParent(transformComponent);
+				}
+				transformComponent->setPosition({ 0.0f, 2.0f, 0.0f });
+			}
+		}
 	}
 
 	// In Editor for all entities except the player add SelectableComponent
@@ -80,55 +104,50 @@ void EditorLocalServer::setupGizmoEntity()
 {
 	if (Entity* gizmo = createEntity("Gizmo"))
 	{
-		if (auto transform = createComponent<TransformComponent>(gizmo))
+		if (auto gizmoTransform = createComponent<TransformComponent>(gizmo))
 		{
+			gizmoTransform->setInheritRotation(false);
+
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoX"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoX"));
-				modelComponent->setParent(transform);
-				modelComponent->setInheritRotation(false);
+				modelComponent->setParent(gizmoTransform);
 			}
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoY"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoY"));
-				modelComponent->setParent(transform);
-				modelComponent->setInheritRotation(false);
+				modelComponent->setParent(gizmoTransform);
 			}
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoZ"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoZ"));
-				modelComponent->setParent(transform);
-				modelComponent->setInheritRotation(false);
+				modelComponent->setParent(gizmoTransform);
 			}
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoXY"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoXY"));
-				modelComponent->setParent(transform);
-				modelComponent->setInheritRotation(false);
+				modelComponent->setParent(gizmoTransform);
 			}
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoXZ"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoXZ"));
-				modelComponent->setParent(transform);
-				modelComponent->setInheritRotation(false);
+				modelComponent->setParent(gizmoTransform);
 			}
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoYZ"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoYZ"));
-				modelComponent->setParent(transform);
-				modelComponent->setInheritRotation(false);
+				modelComponent->setParent(gizmoTransform);
 			}
 
 			if (auto rollModelComponent = createComponent<ModelComponent>(gizmo, "Roll"))
 			{
 				rollModelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_Roll"));
-				rollModelComponent->setParent(transform);
-				rollModelComponent->setInheritRotation(false);
+				rollModelComponent->setParent(gizmoTransform);
 
 				if (auto yawModelComponent = createComponent<ModelComponent>(gizmo, "Yaw"))
 				{

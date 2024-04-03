@@ -131,6 +131,17 @@ glm::vec3 rayVsPolygon(const glm::vec3& origin, const glm::vec3& direction, cons
 
 glm::vec3 rayVsPlane(const glm::vec3& planeOrigin, const glm::vec3& planeNormal, const glm::vec3& rayOrigin, const glm::vec3& rayDirection)
 {
-	const float t = glm::dot((planeOrigin - rayOrigin), planeNormal) / glm::dot(rayDirection, planeNormal);
-	return rayOrigin + (rayDirection * t);
+	if (float denominator = glm::dot(rayDirection, planeNormal))
+	{
+		if (glm::abs(denominator) > std::numeric_limits<float>::epsilon())
+		{
+			const float t = glm::dot((planeOrigin - rayOrigin), planeNormal) / denominator;
+			if (t >= 0.0f && !glm::isinf(t))
+			{
+				return rayOrigin + (rayDirection * t);
+			}
+		}
+	}
+	
+	return glm::vec3(std::numeric_limits<float>::quiet_NaN());
 }

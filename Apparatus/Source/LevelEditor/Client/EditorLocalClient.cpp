@@ -1,5 +1,6 @@
 #include "EditorLocalClient.h"
 
+#include <Apparatus/Apparatus.h>
 #include <Apparatus/Core/Logger.h>
 #include <Apparatus/Server/LocalServer.h>
 #include <Apparatus/Components/ModelComponent.h>
@@ -42,6 +43,31 @@ void EditorLocalClient::setGizmoVisibility(bool enabled)
 			{
 				modelComponent->setVisibility(false);
 			}
+
+			//if (selectedEntity)
+			//{
+			//	if (auto selectionTransform = selectedEntity->findComponent<TransformComponent>())
+			//	{
+			//		// TRANSLATION
+			//		std::vector<ModelComponent*> modelComponents = selectedEntity->getAllComponentsOfClass<ModelComponent>();
+			//		for (ModelComponent* modelComponent : modelComponents)
+			//		{
+			//			if (!modelComponent)
+			//			{
+			//				continue;
+			//			}
+
+			//			const std::string& name = modelComponent->getObjectName();
+			//			if (name != "Pitch" && name != "Yaw" && name != "Roll")
+			//			{
+			//				if (SceneNode* parentOfSelection = selectionTransform->getParent())
+			//				{
+			//					// modelComponent->setPosition(parentOfSelection->getDerivedOrientation() * selectionTransform->getPosition());
+			//				}
+			//			}
+			//		}
+			//	}
+			//}
 		}
 		else if (interactionMode == InteractionMode::Rotation)
 		{
@@ -59,34 +85,11 @@ void EditorLocalClient::setGizmoVisibility(bool enabled)
 			{
 				continue;
 			}
-
-			// Assign rotation data to gizmo
-			if (auto selectionTransform = selectedEntity->findComponent<TransformComponent>())
-			{
-				const float pitch = selectionTransform->getRotationAngle(Euler::Pitch);
-				const float yaw = selectionTransform->getRotationAngle(Euler::Yaw);
-				const float roll = selectionTransform->getRotationAngle(Euler::Roll);
-
-				if (auto modelComponent = gizmo->findComponent<ModelComponent>("Pitch"))
-				{
-					modelComponent->setRotation(pitch, Euler::Pitch);
-				}
-
-				if (auto modelComponent = gizmo->findComponent<ModelComponent>("Yaw"))
-				{
-					modelComponent->setRotation(yaw, Euler::Yaw);
-				}
-
-				if (auto modelComponent = gizmo->findComponent<ModelComponent>("Roll"))
-				{
-					modelComponent->setRotation(roll, Euler::Roll);
-				}
-			}
 		}
 	}
 }
 
-void EditorLocalClient::attachGizmo(Entity* parent)
+void EditorLocalClient::attachGizmo(Entity* entityToAttachTo)
 {
 	if (!gizmo)
 	{
@@ -95,17 +98,55 @@ void EditorLocalClient::attachGizmo(Entity* parent)
 
 	if (auto gizmoTransform = gizmo->findComponent<TransformComponent>())
 	{
-		if (parent)
+		if (entityToAttachTo)
 		{
-			if (auto parentTransform = parent->findComponent<TransformComponent>())
+			if (auto entityTransform = entityToAttachTo->findComponent<TransformComponent>())
 			{
+				// Attach gizmo to entity (gizmo doesn't inherit rotation)
 				gizmoTransform->setPosition(glm::vec3(0.0f));
-				gizmoTransform->setParent(parentTransform);
+				gizmoTransform->setParent(entityTransform);
+
+				// Gizmo must inherit entity parent's rotation manually, or reset its rotation, if no parent.
+				// After that, gizmos and gimbals will face parent's direction but would still have their own local rotations
+				if (SceneNode* entityParent = entityTransform->getParent())
+				{
+					// Gizmo now in the parent's space
+					gizmoTransform->setOrientation(entityParent->getDerivedOrientation());
+				}
+				else
+				{
+					// Gizmo now in the global space
+					gizmoTransform->setOrientation(glm::quat(glm::vec3(0.0f)));
+				}
 			}
 		}
 		else
 		{
 			gizmoTransform->setParent(nullptr);
+		}
+	}
+
+	// Pass the selected entity's LOCAL rotations to the gimbals
+	if (auto selectionTransform = selectedEntity->findComponent<TransformComponent>())
+	{
+		// ROTATION
+		const float pitch = selectionTransform->getRotationAngle(Euler::Pitch);
+		const float yaw = selectionTransform->getRotationAngle(Euler::Yaw);
+		const float roll = selectionTransform->getRotationAngle(Euler::Roll);
+
+		if (auto modelComponent = gizmo->findComponent<ModelComponent>("Pitch"))
+		{
+			modelComponent->setRotation(pitch, Euler::Pitch);
+		}
+
+		if (auto modelComponent = gizmo->findComponent<ModelComponent>("Yaw"))
+		{
+			modelComponent->setRotation(yaw, Euler::Yaw);
+		}
+
+		if (auto modelComponent = gizmo->findComponent<ModelComponent>("Roll"))
+		{
+			modelComponent->setRotation(roll, Euler::Roll);
 		}
 	}
 }
@@ -219,6 +260,10 @@ void EditorLocalClient::toggleEditMode()
 void EditorLocalClient::setEditModeEnabled(bool enabled)
 {
 	inEditMode = enabled;
+	if (apparatus)
+	{
+		apparatus->setCursorWrapEnabled(!enabled);
+	}
 	
 	if (inEditMode)
 	{

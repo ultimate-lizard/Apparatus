@@ -14,8 +14,27 @@ public:
 	virtual void calculateTransform();
 
 	void setPosition(const glm::vec3& position);
+
+	/*
+		!!! Since I couldn't manage to find a way to properly convert quaternions to euler angles,
+		I made a separate 'orientation' variable that stores a local quaternion, that
+		evaluates as orientation * rotator (pitch, yaw, roll) during the consrtuction of the transformation matrix
+	*/
 	void setRotation(const Rotator& rotator);
+
+	/*
+		!!! Since I couldn't manage to find a way to properly convert quaternions to euler angles,
+		I made a separate 'orientation' variable that stores a local quaternion, that
+		evaluates as orientation * rotator (pitch, yaw, roll) during the consrtuction of the transformation matrix
+	*/
 	void setRotation(float degrees, Euler angle);
+
+	/*
+		!!! Since I couldn't manage to find a way to properly convert quaternions to euler angles,
+		I made a separate 'orientation' variable that stores a local quaternion, that
+		evaluates as orientation * rotator (pitch, yaw, roll) during the consrtuction of the transformation matrix
+	*/
+	void setOrientation(const glm::quat& quat);
 	
 	void setScale(const glm::vec3& scale);
 
@@ -26,7 +45,7 @@ public:
 	float getRotationAngle(Euler angle) const;
 	const glm::vec3& getScale() const;
 
-	glm::vec3 getDerivedPosition() const;
+	glm::vec3 getWorldPosition() const;
 	glm::quat getDerivedOrientation() const;
 
 	void rotate(float degrees, Euler angle);
@@ -51,7 +70,15 @@ protected:
 	glm::mat4 transform;
 
 	glm::vec3 position;
+
+	/*
+		!!! Since I couldn't manage to find a way to properly convert quaternions to euler angles,
+		I made a separate 'orientation' variable that stores a local quaternion, that
+		evaluates as orientation * rotator (pitch, yaw, roll) during the consrtuction of the transformation matrix
+	*/
 	Rotator rotator;
+	glm::quat orientation;
+
 	glm::vec3 scale;
 
 	SceneNode* parent;

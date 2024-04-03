@@ -57,7 +57,7 @@ void CollisionComponent::regenerateAABB()
 	{
 		for (ModelComponent* modelComponent : owner->getAllComponentsOfClass<ModelComponent>())
 		{
-			Box newBox = generateAABB(modelComponent->getModel(), modelComponent->getDerivedPosition(), modelComponent->getDerivedOrientation());
+			Box newBox = generateAABB(modelComponent->getModel(), modelComponent->getWorldPosition(), modelComponent->getDerivedOrientation());
 			cachedAABBs.push_back({ newBox, modelComponent });
 		}
 	}

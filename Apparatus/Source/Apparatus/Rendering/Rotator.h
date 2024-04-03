@@ -6,7 +6,7 @@
 
 enum Euler
 {
-	Pitch,
+	Pitch = 0,
 	Yaw,
 	Roll
 };

@@ -16,6 +16,7 @@
 Apparatus::Apparatus(const std::string& gameTitle) :
 	gameTitle(gameTitle),
 	window(nullptr),
+	wrapCursor(true),
 	running(false),
 	inputReader(this)
 {
@@ -110,6 +111,11 @@ AssetManager& Apparatus::getResourceManager()
 	return assetManager;
 }
 
+void Apparatus::setCursorWrapEnabled(bool enabled)
+{
+	wrapCursor = enabled;
+}
+
 void Apparatus::setCursorVisibleEnabled(bool enabled)
 {
 	SDL_SetRelativeMouseMode(enabled ? SDL_FALSE : SDL_TRUE);
@@ -166,6 +172,8 @@ int Apparatus::initEngineInternal()
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Unable to initialize Renderer!", nullptr);
 		return 1;
 	}
+
+	// SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "0");
 
 	initAssets();
 
@@ -251,8 +259,9 @@ void Apparatus::startGameLoop()
 
 	while (running)
 	{
-		if (!isCursorVisible())
+		if (wrapCursor)
 		{
+			// TODO: Toggle wrap
 			const glm::ivec2 windowSize = getWindowSize();
 			SDL_WarpMouseInWindow(window, windowSize.x / 2, windowSize.y / 2);
 		}

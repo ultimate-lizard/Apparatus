@@ -44,6 +44,7 @@ public:
 
 	AssetManager& getResourceManager();
 
+	void setCursorWrapEnabled(bool enabled);
 	void setCursorVisibleEnabled(bool enabled);
 	void setCursorPosition(const glm::ivec2& position);
 	bool isCursorVisible() const;
@@ -58,6 +59,7 @@ private:
 
 	std::string gameTitle;
 	SDL_Window* window;
+	bool wrapCursor;
 
 	std::unique_ptr<Renderer> renderer;
 

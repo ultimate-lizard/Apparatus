@@ -46,16 +46,17 @@ protected:
 
 	Euler getSelectedGimbalEulerAngle() const;
 	glm::vec3 getSelectedGimbalUp() const;
-	glm::vec2 positionRelativeToGimbal(const glm::vec3& position) const;
+	glm::vec3 getSelectedGimbalLocalUp() const;
+	glm::vec2 directionRelativeToGimbal(const glm::vec3& position) const;
+	glm::vec2 projectOnGimbalPlane(const glm::vec3& position) const;
 
-	bool calculateGimbalRotationNegation() const;
+	//bool calculateGimbalRotationNegation() const;
 
 	EditorLocalClient* editorLocalClient;
 
 	bool gizmoPressed;
 	ModelComponent* selectedGizmoModel;
 	glm::vec3 gizmoSelectPositionOrigin;
-	glm::vec3 clickOffset;
-
+	glm::vec3 gizmoClickOffset;
 	glm::ivec2 lastMousePosition;
 };
