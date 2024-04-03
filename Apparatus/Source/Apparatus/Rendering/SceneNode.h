@@ -66,6 +66,8 @@ public:
 	glm::vec3 getLocalUp() const;
 	glm::vec3 getLocalRight() const;
 
+	SceneNode* getRoot();
+
 protected:
 	glm::mat4 transform;
 

@@ -142,20 +142,27 @@ void EditorController::pressSelect()
 				lastMousePosition = apparatus->getMouseCursorPosition();
 				apparatus->setCursorVisibleEnabled(false);
 
-				const glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
-				const glm::vec3 rayOrigin = camera->getWorldPosition();
-				clickPosition = rayVsPlane(selectedGizmoModel->getWorldPosition(), getSelectedGimbalUp(), rayOrigin, rayDirection);
+				glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
+				glm::vec3 rayOrigin = camera->getWorldPosition();
+				glm::vec3 gizmoOrigin = selectedGizmoModel->getPosition();
+				glm::vec3 gizmoUp = getSelectedGimbalLocalUp();
+				glm::vec3 camRight = camera->getRight();
 
-				const glm::vec3 clickToGimbalProjection = clickPosition - selectedGizmoModel->getWorldPosition();
-				//drawDebugLine(selectedGizmoModel->getDerivedPosition(), selectedGizmoModel->getDerivedPosition() + clickToGimbalProjection * 5.0f, glm::vec4(0.0f), 2.0f, true);
-				const glm::vec2 clickToGimbalProjection2d = projectOnGimbalPlane(clickToGimbalProjection);
+				if (SceneNode* parent = selectedGizmoModel->getParent())
+				{
+					rayDirection = glm::inverse(parent->getTransform()) * glm::vec4(rayDirection, 0.0f);
+					rayOrigin = glm::inverse(parent->getTransform()) * glm::vec4(rayOrigin, 1.0f);
+					camRight = glm::inverse(parent->getTransform()) * glm::vec4(camRight, 1.0f);
+				}
 
+				clickPosition = rayVsPlane(gizmoOrigin, gizmoUp, rayOrigin, rayDirection);
+
+				glm::vec3 clickToGimbalProjection = clickPosition - gizmoOrigin;
+				const glm::vec2 clickToGimbalProjection2d = projectOnPlane(clickToGimbalProjection, gizmoUp);
 				clickAngle = Rotator::normalizeAngle(glm::degrees(glm::atan(clickToGimbalProjection2d.x, clickToGimbalProjection2d.y)));
 
-				const glm::vec3 camRight = camera->getRight();
-				const glm::vec3 rightToGimbalProjection = camRight - (glm::dot(camRight, getSelectedGimbalUp()) * getSelectedGimbalUp());
-				//drawDebugLine(selectedGizmoModel->getDerivedPosition(), selectedGizmoModel->getDerivedPosition() + rightToGimbalProjection * 5.0f, glm::vec4(1.0f), 2.0f, true);
-				const glm::vec2 rightToGimbalProjection2d = projectOnGimbalPlane(rightToGimbalProjection);
+				const glm::vec3 rightToGimbalProjection = camRight - (glm::dot(camRight, gizmoUp) * gizmoUp);
+				const glm::vec2 rightToGimbalProjection2d = projectOnPlane(rightToGimbalProjection, gizmoUp);
 				
 				rightAngle = Rotator::normalizeAngle(glm::degrees(glm::atan(rightToGimbalProjection2d.x, rightToGimbalProjection2d.y)));
 
@@ -399,23 +406,30 @@ void EditorController::handleGizmoRotation(float mouseInputX, float mouseInputY)
 
 		if (auto selectionTransform = selection->findComponent<TransformComponent>())
 		{
-			float right = rightAngle;
-			float left = Rotator::normalizeAngle(rightAngle + 180.0f);
+			glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
+			glm::vec3 rayOrigin = camera->getWorldPosition();
+			glm::vec3 gizmoOrigin = selectedGizmoModel->getPosition();
+			glm::vec3 gizmoUp = getSelectedGimbalLocalUp();
 
-			Euler gimbalAngle = getSelectedGimbalEulerAngle();
+			if (SceneNode* parent = selectedGizmoModel->getParent())
+			{
+				rayDirection = glm::inverse(parent->getTransform()) * glm::vec4(rayDirection, 0.0f);
+				rayOrigin = glm::inverse(parent->getTransform()) * glm::vec4(rayOrigin, 1.0f);
+			}
 
-			const glm::vec3 rayDirection = glm::normalize(localClient->getLocalServer()->getCursorToWorldRay(camera->getView(), camera->getProjection()));
-			const glm::vec3 rayOrigin = camera->getWorldPosition();
-			glm::vec3 dragPos = rayVsPlane(selectedGizmoModel->getWorldPosition(), getSelectedGimbalUp(), rayOrigin, rayDirection);
-
-			const glm::vec3 dragToGimbalProjection = dragPos - selectedGizmoModel->getWorldPosition();
-			drawDebugLine(selectedGizmoModel->getWorldPosition(), selectedGizmoModel->getWorldPosition() + getSelectedGimbalUp() * 15.0f, glm::vec4(0.0f), 2.0f, false);
-			const glm::vec2 dragToGimbalProjection2d = projectOnGimbalPlane(dragToGimbalProjection);
+			glm::vec3 dragPos = rayVsPlane(gizmoOrigin, gizmoUp, rayOrigin, rayDirection);
+			glm::vec3 dragToGimbalProjection = dragPos - gizmoOrigin;
+			const glm::vec2 dragToGimbalProjection2d = projectOnPlane(dragToGimbalProjection, gizmoUp);
 
 			float dragAngle = Rotator::normalizeAngle(glm::degrees(glm::atan(dragToGimbalProjection2d.x, dragToGimbalProjection2d.y)));
-
 			float deltaAngle = clickAngle - dragAngle;
 
+			if (selectedGizmoModel->getObjectName() == "Yaw")
+			{
+				deltaAngle = -deltaAngle;
+			}
+
+			Euler gimbalAngle = getSelectedGimbalEulerAngle();
 			selectionTransform->rotate(deltaAngle, gimbalAngle);
 			selectedGizmoModel->rotate(deltaAngle, gimbalAngle);
 
@@ -524,13 +538,13 @@ glm::vec2 EditorController::directionRelativeToGimbal(const glm::vec3& direction
 	return norm;
 }
 
-glm::vec2 EditorController::projectOnGimbalPlane(const glm::vec3& position) const
+glm::vec2 EditorController::projectOnPlane(const glm::vec3& position, const glm::vec3& normal) const
 {
 	glm::vec2 result;
 
 	glm::vec3 test = position;
 	
-	glm::vec3 planeNormal = glm::abs(getSelectedGimbalUp());
+	glm::vec3 planeNormal = glm::abs(normal);
 	int upAxis = 0;
 
 	float max = std::max({ planeNormal.x, planeNormal.y, planeNormal.z });

@@ -176,3 +176,8 @@ glm::vec3 SceneNode::getLocalRight() const
 {
 	return getRotator().asQuat() * glm::vec3(-1.0f, 0.0f, 0.0f);
 }
+
+SceneNode* SceneNode::getRoot()
+{
+	return parent != nullptr ? parent->getRoot() : this;
+}

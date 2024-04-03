@@ -48,7 +48,7 @@ protected:
 	glm::vec3 getSelectedGimbalUp() const;
 	glm::vec3 getSelectedGimbalLocalUp() const;
 	glm::vec2 directionRelativeToGimbal(const glm::vec3& position) const;
-	glm::vec2 projectOnGimbalPlane(const glm::vec3& position) const;
+	glm::vec2 projectOnPlane(const glm::vec3& position, const glm::vec3& normal) const;
 
 	//bool calculateGimbalRotationNegation() const;
 

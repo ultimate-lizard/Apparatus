@@ -35,56 +35,12 @@ void EditorLocalClient::setGizmoVisibility(bool enabled)
 
 		if (interactionMode == InteractionMode::Translation)
 		{
-			if (modelComponent->getObjectName().find("Gizmo") != std::string::npos)
-			{
-				modelComponent->setVisibility(enabled);
-			}
-			else
-			{
-				modelComponent->setVisibility(false);
-			}
-
-			//if (selectedEntity)
-			//{
-			//	if (auto selectionTransform = selectedEntity->findComponent<TransformComponent>())
-			//	{
-			//		// TRANSLATION
-			//		std::vector<ModelComponent*> modelComponents = selectedEntity->getAllComponentsOfClass<ModelComponent>();
-			//		for (ModelComponent* modelComponent : modelComponents)
-			//		{
-			//			if (!modelComponent)
-			//			{
-			//				continue;
-			//			}
-
-			//			const std::string& name = modelComponent->getObjectName();
-			//			if (name != "Pitch" && name != "Yaw" && name != "Roll")
-			//			{
-			//				if (SceneNode* parentOfSelection = selectionTransform->getParent())
-			//				{
-			//					// modelComponent->setPosition(parentOfSelection->getDerivedOrientation() * selectionTransform->getPosition());
-			//				}
-			//			}
-			//		}
-			//	}
-			//}
+			modelComponent->setVisibility((modelComponent->getObjectName().find("Gizmo") != std::string::npos) && enabled);
 		}
 		else if (interactionMode == InteractionMode::Rotation)
 		{
 			std::string modelName = modelComponent->getObjectName();
-			if (modelName == "Pitch" || modelName == "Yaw" || modelName == "Roll")
-			{
-				modelComponent->setVisibility(enabled);
-			}
-			else
-			{
-				modelComponent->setVisibility(false);
-			}
-
-			if (!selectedEntity)
-			{
-				continue;
-			}
+			modelComponent->setVisibility((modelName == "Pitch" || modelName == "Yaw" || modelName == "Roll") && enabled);
 		}
 	}
 }
@@ -96,43 +52,47 @@ void EditorLocalClient::attachGizmo(Entity* entityToAttachTo)
 		return;
 	}
 
-	if (auto gizmoTransform = gizmo->findComponent<TransformComponent>())
+	TransformComponent* gizmoTransform = gizmo->findComponent<TransformComponent>();
+	if (!gizmoTransform)
 	{
-		if (entityToAttachTo)
-		{
-			if (auto entityTransform = entityToAttachTo->findComponent<TransformComponent>())
-			{
-				// Attach gizmo to entity (gizmo doesn't inherit rotation)
-				gizmoTransform->setPosition(glm::vec3(0.0f));
-				gizmoTransform->setParent(entityTransform);
+		return;
+	}
 
-				// Gizmo must inherit entity parent's rotation manually, or reset its rotation, if no parent.
-				// After that, gizmos and gimbals will face parent's direction but would still have their own local rotations
-				if (SceneNode* entityParent = entityTransform->getParent())
-				{
-					// Gizmo now in the parent's space
-					gizmoTransform->setOrientation(entityParent->getDerivedOrientation());
-				}
-				else
-				{
-					// Gizmo now in the global space
-					gizmoTransform->setOrientation(glm::quat(glm::vec3(0.0f)));
-				}
-			}
+	if (!entityToAttachTo)
+	{
+		gizmoTransform->setParent(nullptr);
+		gizmoTransform->setOrientation(glm::quat(glm::vec3(0.0f)));
+		gizmoTransform->setPosition(glm::vec3(0.0f));
+
+		return;
+	}
+
+	if (TransformComponent* entityTransform = entityToAttachTo->findComponent<TransformComponent>())
+	{
+		// POSITION -------------------------------------------------------
+		// Set local position of gizmo to 0 so it will not look displaced relative to the parent
+		gizmoTransform->setPosition(glm::vec3(0.0f));
+		// Inherit position of the entity. Gizmo doesn't inherit rotation, though. It is set manually
+		gizmoTransform->setParent(entityTransform);
+
+		// Gizmo must inherit entity parent's rotation manually, or reset its rotation, if no parent.
+		// After that, gizmos and gimbals will face parent's direction but still have their own local rotations
+		if (SceneNode* entityParent = entityTransform->getParent())
+		{
+			// Gizmo rotation is now in the parent space
+			gizmoTransform->setOrientation(entityParent->getDerivedOrientation());
 		}
 		else
 		{
-			gizmoTransform->setParent(nullptr);
+			// Gizmo rotation is not in the global space
+			gizmoTransform->setOrientation(glm::quat(glm::vec3(0.0f)));
 		}
-	}
 
-	// Pass the selected entity's LOCAL rotations to the gimbals
-	if (auto selectionTransform = selectedEntity->findComponent<TransformComponent>())
-	{
-		// ROTATION
-		const float pitch = selectionTransform->getRotationAngle(Euler::Pitch);
-		const float yaw = selectionTransform->getRotationAngle(Euler::Yaw);
-		const float roll = selectionTransform->getRotationAngle(Euler::Roll);
+		// ROTATION -------------------------------------------------------
+		// Pass the selected entity's LOCAL rotations to the gimbals
+		const float pitch = entityTransform->getRotationAngle(Euler::Pitch);
+		const float yaw = entityTransform->getRotationAngle(Euler::Yaw);
+		const float roll = entityTransform->getRotationAngle(Euler::Roll);
 
 		if (auto modelComponent = gizmo->findComponent<ModelComponent>("Pitch"))
 		{
@@ -211,6 +171,7 @@ void EditorLocalClient::indicateSelection(Entity* entity, bool selected)
 	if (auto selectableComponent = entity->findComponent<SelectableComponent>())
 	{
 		selectableComponent->setSelected(selected);
+		selectableComponent->regenerateVisualBoundingBox();
 	}
 }
 
