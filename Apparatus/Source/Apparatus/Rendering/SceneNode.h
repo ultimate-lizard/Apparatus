@@ -39,24 +39,28 @@ public:
 	void setScale(const glm::vec3& scale);
 
 	void offsetPosition(const glm::vec3& delta);
+	void offsetScale(const glm::vec3& delta);
 
 	const glm::vec3& getPosition() const;
 	const Rotator& getRotator() const;
-	float getRotationAngle(Euler angle) const;
 	const glm::vec3& getScale() const;
+
+	void rotate(float degrees, Euler angle);
+	float getRotationAngle(Euler angle) const;
 
 	glm::vec3 getWorldPosition() const;
 	glm::quat getWorldOrientation() const;
-
-	void rotate(float degrees, Euler angle);
+	glm::vec3 getWorldScale() const;
 
 	glm::mat4 getTransform() const;
 
 	void setParent(SceneNode* parent);
 	SceneNode* getParent();
+
 	void detachChild(SceneNode* child);
 
 	void setInheritRotation(bool inheritRotation);
+	void setInheritScale(bool inheritScale);
 
 	glm::vec3 getForward() const;
 	glm::vec3 getUp() const;
@@ -85,4 +89,5 @@ protected:
 	std::vector<SceneNode*> children;
 
 	bool inheritRotation;
+	bool inheritScale;
 };

@@ -24,6 +24,9 @@ public:
 	void setVisibility(bool enabled);
 	bool isVisible() const;
 
+	void setDepthBufferLayer(size_t layer);
+	size_t getDepthBufferLayer() const;
+
 protected:
 	virtual void assignDefaultObjectName() override;
 
@@ -31,4 +34,6 @@ protected:
 	std::unique_ptr<ModelInstance> modelInstance;
 
 	bool visible;
+
+	size_t depthBufferLayer;
 };

@@ -33,6 +33,7 @@ Renderer::Renderer(SDL_Window* window) :
 	window(window),
 	context(nullptr)
 {
+	commandsArray.resize(8);
 }
 
 void Renderer::init()
@@ -50,83 +51,94 @@ void Renderer::init()
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
 }
 
 void Renderer::render()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-	while (!commands.empty())
+	if (!commandsArray.size())
 	{
-		RenderCommand command = commands.front();
-		commands.pop();
+		return;
+	}
 
-		if (command.mesh)
+	for (std::queue<RenderCommand>& commands : commandsArray)
+	{
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		while (!commands.empty())
 		{
-			command.mesh->bind();
+			RenderCommand command = commands.front();
+			commands.pop();
 
-			// Material
-			if (command.materialInstance)
+			if (command.mesh)
 			{
-				if (Material* material = command.materialInstance->getMaterial())
+				command.mesh->bind();
+
+				// Material
+				if (command.materialInstance)
 				{
-					if (Shader* shader = material->getShader())
+					if (Material* material = command.materialInstance->getMaterial())
 					{
-						material->bind();
-						shader->bind();
-
-						shader->setUniform("world", command.worldMatrix);
-						if (command.camera)
+						if (Shader* shader = material->getShader())
 						{
-							shader->setUniform("view", command.camera->getView());
-							shader->setUniform("projection", command.camera->getProjection());
-						}
+							material->bind();
+							shader->bind();
 
-						MaterialParameters& params = command.materialInstance->getMaterialParameters();
+							shader->setUniform("world", command.worldMatrix);
+							if (command.camera)
+							{
+								shader->setUniform("view", command.camera->getView());
+								shader->setUniform("projection", command.camera->getProjection());
+							}
 
-						for (auto mapIter : params.getAllBoolParameters())
-						{
-							shader->setUniform(mapIter.first, mapIter.second);
-						}
+							MaterialParameters& params = command.materialInstance->getMaterialParameters();
 
-						for (auto mapIter : params.getAllVec4Parameters())
-						{
-							shader->setUniform(mapIter.first, mapIter.second);
+							for (auto mapIter : params.getAllBoolParameters())
+							{
+								shader->setUniform(mapIter.first, mapIter.second);
+							}
+
+							for (auto mapIter : params.getAllVec4Parameters())
+							{
+								shader->setUniform(mapIter.first, mapIter.second);
+							}
 						}
 					}
+
+					// Draw
+					const std::vector<Vertex>& vertices = command.mesh->getVertices();
+					const std::vector<unsigned int>& indices = command.mesh->getIndices();
+
+					glPointSize(command.drawSize);
+					glLineWidth(command.drawSize);
+
+					const GLenum mode = static_cast<GLenum>(command.renderMode);
+
+					if (indices.size())
+					{
+						glDrawElements(mode, static_cast<int>(indices.size()), GL_UNSIGNED_INT, 0);
+					}
+					else if (vertices.size())
+					{
+						glDrawArrays(mode, 0, static_cast<int>(vertices.size()));
+					}
+
+					glPointSize(1.0f);
+					glLineWidth(1.0f);
 				}
-
-				// Draw
-				const std::vector<Vertex>& vertices = command.mesh->getVertices();
-				const std::vector<unsigned int>& indices = command.mesh->getIndices();
-
-				glPointSize(command.drawSize);
-				glLineWidth(command.drawSize);
-
-				const GLenum mode = static_cast<GLenum>(command.renderMode);
-
-				if (indices.size())
-				{
-					glDrawElements(mode, static_cast<int>(indices.size()), GL_UNSIGNED_INT, 0);
-				}
-				else if (vertices.size())
-				{
-					glDrawArrays(mode, 0, static_cast<int>(vertices.size()));
-				}
-
-				glPointSize(1.0f);
-				glLineWidth(1.0f);
 			}
 		}
 	}
 }
 
-void Renderer::push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode, float drawSize)
+void Renderer::push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode, float drawSize, size_t depthBufferLayer)
 {
-	commands.push({ mesh, materialInstance, camera, worldMatrix, renderMode, drawSize });
+	commandsArray[depthBufferLayer].push({ mesh, materialInstance, camera, worldMatrix, renderMode, drawSize, depthBufferLayer });
 }
 
 void Renderer::push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix)
@@ -159,6 +171,7 @@ void Renderer::push(ModelInstance* modelInstance, Camera* camera, const glm::mat
 		command.camera = camera;
 		command.worldMatrix = worldMatrix;
 		command.renderMode = RenderMode::Triangles;
-		commands.push(command);
+		command.depthBufferLayer = modelInstance->getDepthBufferLayer();
+		commandsArray[command.depthBufferLayer].push(command);
 	}
 }

@@ -6,7 +6,8 @@ SceneNode::SceneNode() :
 	orientation(glm::vec3(0.0f)),
 	scale(1.0f),
 	parent(nullptr),
-	inheritRotation(true)
+	inheritRotation(true),
+	inheritScale(true)
 {
 
 }
@@ -15,10 +16,11 @@ void SceneNode::calculateTransform()
 {
 	glm::vec3 derivedPosition = getWorldPosition();
 	glm::quat derivedRotation = inheritRotation ? getWorldOrientation() : (orientation * rotator.asQuat());
+	glm::vec3 derivedScale = getWorldScale();
 
 	glm::mat4 newTransform = glm::translate(glm::mat4(1.0f), derivedPosition);
 	newTransform *= glm::mat4(derivedRotation);
-	newTransform = glm::scale(newTransform, scale);
+	newTransform = glm::scale(newTransform, derivedScale);
 
 	transform = newTransform;
 
@@ -58,6 +60,11 @@ void SceneNode::offsetPosition(const glm::vec3& delta)
 	this->position += delta;
 }
 
+void SceneNode::offsetScale(const glm::vec3& delta)
+{
+	this->scale += delta;
+}
+
 const glm::vec3& SceneNode::getPosition() const
 {
 	return position;
@@ -82,7 +89,9 @@ glm::vec3 SceneNode::getWorldPosition() const
 {
 	if (parent)
 	{
-		glm::vec3 derivedPosition = parent->getWorldOrientation() * position;
+		glm::vec3 derivedPosition = position;
+		derivedPosition = parent->getWorldScale() * derivedPosition;
+		derivedPosition = parent->getWorldOrientation() * derivedPosition;
 		derivedPosition += parent->getWorldPosition();
 
 		return derivedPosition;
@@ -99,6 +108,16 @@ glm::quat SceneNode::getWorldOrientation() const
 	}
 
 	return orientation * rotator.asQuat();
+}
+
+glm::vec3 SceneNode::getWorldScale() const
+{
+	if (parent && inheritScale)
+	{
+		return parent->getWorldScale() * scale;
+	}
+
+	return scale;
 }
 
 void SceneNode::rotate(float degrees, Euler angle)
@@ -145,6 +164,11 @@ void SceneNode::detachChild(SceneNode* child)
 void SceneNode::setInheritRotation(bool inheritRotation)
 {
 	this->inheritRotation = inheritRotation;
+}
+
+void SceneNode::setInheritScale(bool inheritScale)
+{
+	this->inheritScale = inheritScale;
 }
 
 glm::vec3 SceneNode::getForward() const

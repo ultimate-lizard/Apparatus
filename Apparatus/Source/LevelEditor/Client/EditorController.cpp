@@ -66,6 +66,7 @@ void EditorController::setupInput()
 
 	inputHandler->bindKeyAction("EnableTranslationMode", KeyEventType::Press, std::bind(&EditorController::enableTranslationMode, this));
 	inputHandler->bindKeyAction("EnableRotationMode", KeyEventType::Press, std::bind(&EditorController::enableRotationMode, this));
+	inputHandler->bindKeyAction("EnableScaleMode", KeyEventType::Press, std::bind(&EditorController::enableScaleMode, this));
 
 	inputHandler->bindAxisAction("LookY", std::bind(&EditorController::cursorMoveY, this, std::placeholders::_1));
 	inputHandler->bindAxisAction("LookX", std::bind(&EditorController::cursorMoveX, this, std::placeholders::_1));
@@ -146,6 +147,14 @@ void EditorController::enableRotationMode()
 	if (gizmo)
 	{
 		gizmo->setInteractionMode(InteractionMode::Rotation);
+	}
+}
+
+void EditorController::enableScaleMode()
+{
+	if (gizmo)
+	{
+		gizmo->setInteractionMode(InteractionMode::Scale);
 	}
 }
 

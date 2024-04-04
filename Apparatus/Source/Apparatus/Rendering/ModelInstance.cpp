@@ -17,8 +17,20 @@ MaterialInstance* ModelInstance::getMaterialInstance(size_t materialSlot)
 	return nullptr;
 }
 
+void ModelInstance::setDepthBufferLayer(size_t layer)
+{
+	depthBufferLayer = layer;
+}
+
+size_t ModelInstance::getDepthBufferLayer() const
+{
+	return depthBufferLayer;
+}
+
+
 ModelInstance::ModelInstance(Model* model) :
-	model(model)
+	model(model),
+	depthBufferLayer(0)
 {
 	if (model)
 	{

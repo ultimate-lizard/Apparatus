@@ -8,7 +8,8 @@
 ModelComponent::ModelComponent(Entity* owner) :
 	Component(owner),
 	model(nullptr),
-	visible(true)
+	visible(true),
+	depthBufferLayer(0)
 {
 	assignDefaultObjectName();
 }
@@ -16,7 +17,8 @@ ModelComponent::ModelComponent(Entity* owner) :
 ModelComponent::ModelComponent(Entity* owner, const std::string& name) :
 	Component(owner, name),
 	model(nullptr),
-	visible(true)
+	visible(true),
+	depthBufferLayer(0)
 {
 	
 }
@@ -28,6 +30,11 @@ void ModelComponent::init()
 	if (model)
 	{
 		modelInstance = std::move(model->createModelInstance());
+
+		if (modelInstance)
+		{
+			modelInstance->setDepthBufferLayer(depthBufferLayer);
+		}
 	}
 }
 
@@ -59,6 +66,26 @@ void ModelComponent::setVisibility(bool enabled)
 bool ModelComponent::isVisible() const
 {
 	return visible == true;
+}
+
+void ModelComponent::setDepthBufferLayer(size_t layer)
+{
+	if (modelInstance)
+	{
+		modelInstance->setDepthBufferLayer(layer);
+	}
+
+	depthBufferLayer = layer;
+}
+
+size_t ModelComponent::getDepthBufferLayer() const
+{
+	if (modelInstance)
+	{
+		return modelInstance->getDepthBufferLayer();
+	}
+	
+	return depthBufferLayer;
 }
 
 void ModelComponent::assignDefaultObjectName()

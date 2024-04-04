@@ -1,8 +1,9 @@
 #include "EditorLocalServer.h"
 
+#include <Apparatus/Apparatus.h>
+#include <Apparatus/Rendering/Renderer.h>
 #include <Apparatus/Components/TransformComponent.h>
 #include <Apparatus/Components/ModelComponent.h>
-#include <Apparatus/Apparatus.h>
 
 #include "../Components/SelectableComponent.h"
 #include "../Components/GizmoComponent.h"
@@ -60,7 +61,8 @@ void EditorLocalServer::setupEntities()
 			modelComponent->setParent(modelTransform);
 		}
 		modelTransform->setPosition({ 3.0f, 0.0f, 14.0f });
-
+		modelTransform->setScale(glm::vec3(1.5f));
+		
 		if (Entity* anotherEntity = createEntity("ModelEntity2"))
 		{
 			auto anotherEntityTransform = createComponent<TransformComponent>(anotherEntity);
@@ -71,6 +73,9 @@ void EditorLocalServer::setupEntities()
 				modelComponent->setParent(anotherEntityTransform);
 			}
 			anotherEntityTransform->setPosition({ 0.0f, 2.0f, 0.0f });
+			anotherEntityTransform->setScale(glm::vec3(1.5f));
+			// anotherEntityTransform->setInheritScale(false);
+			// anotherEntityTransform->setInheritRotation(false);
 
 			if (Entity* anotherAnotherEntity = createEntity("ModelEntity2"))
 			{
@@ -82,6 +87,7 @@ void EditorLocalServer::setupEntities()
 					modelComponent->setParent(transformComponent);
 				}
 				transformComponent->setPosition({ 0.0f, 2.0f, 0.0f });
+				transformComponent->setScale(glm::vec3(1.5f));
 			}
 		}
 	}
@@ -108,64 +114,120 @@ void EditorLocalServer::setupGizmoEntity()
 		if (auto gizmoTransform = createComponent<TransformComponent>(gizmo))
 		{
 			gizmoTransform->setInheritRotation(false);
+			gizmoTransform->setInheritScale(false);
 
-			if (auto gizmoComponent = createComponent<GizmoComponent>(gizmo, "GizmoX"))
-			{
-				// gizmoComponent->set
-			}
+			createComponent<GizmoComponent>(gizmo, "GizmoX");
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoX"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoX"));
 				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoY"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoY"));
 				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoZ"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoZ"));
 				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoXY"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoXY"));
 				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoXZ"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoXZ"));
 				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoYZ"))
+			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoZY"))
 			{
 				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoYZ"));
 				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
 			if (auto rollModelComponent = createComponent<ModelComponent>(gizmo, "Roll"))
 			{
 				rollModelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_Roll"));
 				rollModelComponent->setParent(gizmoTransform);
+				rollModelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 
 				if (auto yawModelComponent = createComponent<ModelComponent>(gizmo, "Yaw"))
 				{
 					yawModelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_Yaw"));
 					yawModelComponent->setParent(rollModelComponent);
+					yawModelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 
 					if (auto modelComponent = createComponent<ModelComponent>(gizmo, "Pitch"))
 					{
 						modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_Pitch"));
 						modelComponent->setParent(yawModelComponent);
+						modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 					}
 				}
+			}
+
+			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleUp"))
+			{
+				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleUp"));
+				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
+			}
+
+			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleDown"))
+			{
+				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleDown"));
+				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
+			}
+
+			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleLeft"))
+			{
+				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleLeft"));
+				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
+			}
+
+			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleRight"))
+			{
+				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleRight"));
+				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
+			}
+
+			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleFront"))
+			{
+				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleFront"));
+				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
+			}
+
+			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleBack"))
+			{
+				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleBack"));
+				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
+			}
+
+			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleAll"))
+			{
+				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleAll"));
+				modelComponent->setParent(gizmoTransform);
+				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 		}
 	}

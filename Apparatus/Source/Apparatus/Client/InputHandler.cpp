@@ -22,13 +22,13 @@ InputHandler::InputHandler()
 
 	keyActionMap.emplace(InputKey::E, "EnableTranslationMode");
 	keyActionMap.emplace(InputKey::R, "EnableRotationMode");
+	keyActionMap.emplace(InputKey::T, "EnableScaleMode");
 
 	keyActionMap.emplace(InputKey::Escape, "OpenMainMenu");
 
 
 	// TODO: This is only for LevelEditor project!
 	keyActionMap.emplace(InputKey::Space, "ToggleEditMode");
-	keyActionMap.emplace(InputKey::F1, "ToggleDebugPrimitives");
 
 	for (auto& pair : keyAsAxisActionMap)
 	{

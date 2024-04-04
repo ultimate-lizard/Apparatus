@@ -8,7 +8,7 @@
 #include "../Core/Logger.h"
 #include "../Rendering/Mesh.h"
 
-Box generateAABB(const Model* model, const glm::vec3& position, const glm::quat& orientation)
+Box generateAABB(const Model* model, const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
 {
 	if (!model)
 	{
@@ -36,7 +36,8 @@ Box generateAABB(const Model* model, const glm::vec3& position, const glm::quat&
 
 	for (const Vertex& vertex : modelVertices)
 	{
-		glm::vec3 rotatedPosition = (glm::mat4_cast(orientation) * glm::vec4(vertex.position, 1.0f));
+		glm::vec3 scaledPosition = vertex.position * scale;
+		glm::vec3 rotatedPosition = (glm::mat4_cast(orientation) * glm::vec4(scaledPosition, 1.0f));
 
 		for (int i = 0; i < 3; ++i)
 		{
@@ -59,7 +60,7 @@ Box generateAABB(const Model* model, const glm::vec3& position, const glm::quat&
 	return newBox;
 }
 
-Box generateAABB(const std::vector<Model*>& models, const glm::vec3& position, const glm::quat& orientation)
+Box generateAABB(const std::vector<Model*>& models, const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
 {
 	std::vector<Vertex> modelVertices;
 
@@ -85,7 +86,8 @@ Box generateAABB(const std::vector<Model*>& models, const glm::vec3& position, c
 
 	for (const Vertex& vertex : modelVertices)
 	{
-		glm::vec3 rotatedPosition = (glm::mat4_cast(orientation) * glm::vec4(vertex.position, 1.0f));
+		glm::vec3 scaledPosition = vertex.position * scale;
+		glm::vec3 rotatedPosition = (glm::mat4_cast(orientation) * glm::vec4(scaledPosition, 1.0f));
 
 		for (int i = 0; i < 3; ++i)
 		{

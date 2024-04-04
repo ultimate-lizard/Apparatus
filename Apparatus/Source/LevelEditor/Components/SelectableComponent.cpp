@@ -87,12 +87,12 @@ void SelectableComponent::regenerateVisualBoundingBox()
 			}
 		}
 
-		box = generateAABB(models, transformComponent->getWorldPosition(), transformComponent->getWorldOrientation());
+		box = generateAABB(models, transformComponent->getWorldPosition(), transformComponent->getWorldOrientation(), transformComponent->getWorldScale());
 	}
 	else if (!modelComponents.empty())
 	{
 		ModelComponent* modelComponent = modelComponents[0];
-		box = generateAABB(modelComponent->getModel(), modelComponent->getWorldPosition(), modelComponent->getWorldOrientation());
+		box = generateAABB(modelComponent->getModel(), modelComponent->getWorldPosition(), modelComponent->getWorldOrientation(), modelComponent->getWorldScale());
 	}
 }
 

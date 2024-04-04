@@ -201,6 +201,7 @@
     <ClInclude Include="Source\Apparatus\Client\InputHandler.h" />
     <ClInclude Include="Source\Apparatus\Client\LocalClient.h" />
     <ClInclude Include="Source\Apparatus\Rendering\MaterialParameter.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Vector.h" />
     <ClInclude Include="Source\Apparatus\Util\BoundingBox.h" />
     <ClInclude Include="Source\Apparatus\Components\CameraComponent.h" />
     <ClInclude Include="Source\Apparatus\Components\CollisionComponent.h" />

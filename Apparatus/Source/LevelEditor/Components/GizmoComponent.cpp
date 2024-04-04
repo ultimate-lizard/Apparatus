@@ -1,11 +1,14 @@
 #include "GizmoComponent.h"
 
+#include <cmath>
+
 #include <Apparatus/Apparatus.h>
 #include <Apparatus/Server/Entity.h>
 #include <Apparatus/Server/LocalServer.h>
 #include <Apparatus/Components/TransformComponent.h>
 #include <Apparatus/Components/ModelComponent.h>
 #include <Apparatus/Util/CollisionDetection.h>
+#include <Apparatus/Rendering/Vector.h>
 
 #include "SelectableComponent.h"
 #include "../Client/EditorLocalClient.h"
@@ -17,11 +20,13 @@ GizmoComponent::GizmoComponent(Entity* owner) :
 	selectedGizmoModel(nullptr),
 	pressed(false),
 	visible(false),
-	clickAngle(0.0f),
-	lastCursorPosition(0),
-	clickPosition(0.0f),
+	rotationClickAngle(0.0f),
+	rotationClickPosition(0.0f),
 	gizmoSelectPositionOrigin(0.0f),
-	gizmoClickOffset(0.0f)
+	gizmoClickPosition(0.0f),
+	gizmoClickOffset(0.0f),
+	lastCursorScreenPosition(0),
+	clickCursorDevicePosition(0.0f)
 {
 	assignDefaultObjectName();
 }
@@ -33,11 +38,13 @@ GizmoComponent::GizmoComponent(Entity* owner, const std::string& name) :
 	selectedGizmoModel(nullptr),
 	pressed(false),
 	visible(false),
-	clickAngle(0.0f),
-	lastCursorPosition(0),
-	clickPosition(0.0f),
+	rotationClickAngle(0.0f),
+	rotationClickPosition(0.0f),
 	gizmoSelectPositionOrigin(0.0f),
-	gizmoClickOffset(0.0f)
+	gizmoClickPosition(0.0f),
+	gizmoClickOffset(0.0f),
+	lastCursorScreenPosition(0),
+	clickCursorDevicePosition(0.0f)
 {
 }
 
@@ -46,6 +53,28 @@ void GizmoComponent::init()
 	Component::init();
 
 	updateVisibility();
+}
+
+void GizmoComponent::update(float dt)
+{
+	Component::update(dt);
+
+	if (!editorLocalClient || !owner)
+	{
+		return;
+	}
+	
+	Camera* camera = editorLocalClient->getActiveCamera();
+	if (!camera)
+	{
+		return;
+	}
+
+	if (TransformComponent* ownerTransform = owner->findComponent<TransformComponent>())
+	{
+		float distanceToCamera = glm::distance(camera->getWorldPosition(), ownerTransform->getWorldPosition()) * 0.075f;
+		ownerTransform->setScale(glm::vec3(distanceToCamera));
+	}
 }
 
 void GizmoComponent::setEditorLocalClient(EditorLocalClient* editorLocalClient)
@@ -104,7 +133,7 @@ void GizmoComponent::attach(Entity* attachmentEntity)
 	}
 
 	// POSITION -------------------------------------------------------
-		// Set local position of gizmo to 0 so it will not look displaced relative to the parent
+	// Set local position of gizmo to 0 so it will not look displaced relative to the parent
 	gizmoTransform->setPosition(glm::vec3(0.0f));
 	// Inherit position of the entity. Gizmo doesn't inherit rotation, though. It is set manually
 	gizmoTransform->setParent(selectedEntityTransform);
@@ -138,6 +167,20 @@ void GizmoComponent::attach(Entity* attachmentEntity)
 	{
 		rollModel->setRotation(selectedEntityTransform->getRotationAngle(Euler::Roll), Euler::Roll);
 	}
+
+	// Rotate scale
+	for (ModelComponent* modelComponent : owner->getAllComponentsOfClass<ModelComponent>())
+	{
+		if (!modelComponent)
+		{
+			continue;
+		}
+
+		if (modelComponent->getObjectName().find(GizmoNames::Scale) != std::string::npos)
+		{
+			modelComponent->setRotation(selectedEntityTransform->getRotator());
+		}
+	}
 }
 
 void GizmoComponent::press(const glm::vec3& clickWorldPosition)
@@ -155,60 +198,99 @@ void GizmoComponent::press(const glm::vec3& clickWorldPosition)
 		return;
 	}
 
+	if (getInteractionMode() == InteractionMode::Translation || getInteractionMode() == InteractionMode::Scale)
+	{
+		gizmoClickPosition = clickWorldPosition;
+		gizmoClickOffset = (clickWorldPosition - selectedGizmoModel->getWorldPosition()) / selectedGizmoModel->getWorldScale();
+		gizmoSelectPositionOrigin = selectedGizmoModel->getWorldPosition();
+
+		if (LocalServer* localServer = editorLocalClient->getLocalServer())
+		{
+			clickCursorDevicePosition = localServer->getCursorToDevice();
+		}
+	}
+	else if (getInteractionMode() == InteractionMode::Rotation)
+	{
+		Camera* camera = editorLocalClient->getActiveCamera();
+		if (!camera)
+		{
+			return;
+		}
+
+		glm::vec3 rayDirectionLocal = glm::normalize(localServer->getCursorToWorldRay(camera->getView(), camera->getProjection()));
+		glm::vec3 rayOriginLocal = camera->getWorldPosition();
+		glm::vec3 camRightLocal = camera->getRight();
+
+		// Convert to gimbal's local space
+		if (SceneNode* parent = selectedGizmoModel->getParent())
+		{
+			rayDirectionLocal = glm::inverse(parent->getTransform()) * glm::vec4(rayDirectionLocal, 0.0f);
+			rayOriginLocal = glm::inverse(parent->getTransform()) * glm::vec4(rayOriginLocal, 1.0f);
+			camRightLocal = glm::inverse(parent->getTransform()) * glm::vec4(camRightLocal, 1.0f);
+		}
+
+		const glm::vec3 gizmoOriginLocal = selectedGizmoModel->getPosition();
+		const glm::vec3 gimbalUpLocal = getLocalUpForGimbal(selectedGizmoModel->getObjectName());
+
+		rotationClickPosition = rayVsPlane(gizmoOriginLocal, gimbalUpLocal, rayOriginLocal, rayDirectionLocal);
+
+		glm::vec3 clickToGimbalProjection = rotationClickPosition - gizmoOriginLocal;
+		const glm::vec2 clickToGimbalProjection2d = projectOnPlane(clickToGimbalProjection, gimbalUpLocal);
+		rotationClickAngle = Rotator::normalizeAngle(glm::degrees(glm::atan(clickToGimbalProjection2d.x, clickToGimbalProjection2d.y)));
+	}
+
+	if (getInteractionMode() == InteractionMode::Rotation || getInteractionMode() == InteractionMode::Scale)
+	{
+		if (Apparatus* apparatus = editorLocalClient->getApparatus())
+		{
+			lastCursorScreenPosition = apparatus->getMouseCursorPosition();
+			apparatus->setCursorVisibleEnabled(false);
+		}
+	}
+}
+
+void GizmoComponent::release()
+{
+	if (!editorLocalClient)
+	{
+		return;
+	}
+
 	Apparatus* apparatus = editorLocalClient->getApparatus();
 	if (!apparatus)
 	{
 		return;
 	}
 
-	Camera* camera = editorLocalClient->getActiveCamera();
-	if (!camera)
+	if (pressed)
 	{
-		return;
-	}
-
-	if (getInteractionMode() == InteractionMode::Translation)
-	{
-		gizmoClickOffset = clickWorldPosition - selectedGizmoModel->getWorldPosition();
-		gizmoSelectPositionOrigin = selectedGizmoModel->getWorldPosition();
-	}
-	else if (getInteractionMode() == InteractionMode::Rotation)
-	{
-		lastCursorPosition = apparatus->getMouseCursorPosition();
-		apparatus->setCursorVisibleEnabled(false);
-
-		glm::vec3 rayDirection = glm::normalize(localServer->getCursorToWorldRay(camera->getView(), camera->getProjection()));
-		glm::vec3 rayOrigin = camera->getWorldPosition();
-		glm::vec3 gizmoOrigin = selectedGizmoModel->getPosition();
-		glm::vec3 gizmoUp = getLocalUpForGimbal(selectedGizmoModel->getObjectName());
-		glm::vec3 camRight = camera->getRight();
-
-		// Convert to gimbal's local space
-		if (SceneNode* parent = selectedGizmoModel->getParent())
+		if (getInteractionMode() == InteractionMode::Rotation)
 		{
-			rayDirection = glm::inverse(parent->getTransform()) * glm::vec4(rayDirection, 0.0f);
-			rayOrigin = glm::inverse(parent->getTransform()) * glm::vec4(rayOrigin, 1.0f);
-			camRight = glm::inverse(parent->getTransform()) * glm::vec4(camRight, 1.0f);
-		}
+			apparatus->setCursorVisibleEnabled(true);
 
-		clickPosition = rayVsPlane(gizmoOrigin, gizmoUp, rayOrigin, rayDirection);
-
-		glm::vec3 clickToGimbalProjection = clickPosition - gizmoOrigin;
-		const glm::vec2 clickToGimbalProjection2d = projectOnPlane(clickToGimbalProjection, gizmoUp);
-		clickAngle = Rotator::normalizeAngle(glm::degrees(glm::atan(clickToGimbalProjection2d.x, clickToGimbalProjection2d.y)));
-	}
-}
-
-void GizmoComponent::release()
-{
-	if (getInteractionMode() == InteractionMode::Rotation)
-	{
-		if (pressed)
-		{
-			if (Apparatus* apparatus = editorLocalClient->getApparatus())
+			// Rotate the scale models
+			if (Entity* selectedEntity = editorLocalClient->getSelectedEntity())
 			{
-				apparatus->setCursorVisibleEnabled(true);
+				if (TransformComponent* selectedEntityTransform = selectedEntity->findComponent<TransformComponent>())
+				{
+					for (ModelComponent* modelComponent : owner->getAllComponentsOfClass<ModelComponent>())
+					{
+						if (!modelComponent)
+						{
+							continue;
+						}
+
+						if (modelComponent->getObjectName().find(GizmoNames::Scale) != std::string::npos)
+						{
+							modelComponent->setRotation(selectedEntityTransform->getRotator());
+						}
+					}
+				}
 			}
+		}
+		else if (getInteractionMode() == InteractionMode::Scale)
+		{
+			apparatus->setCursorVisibleEnabled(true);
 		}
 	}
 
@@ -236,6 +318,10 @@ void GizmoComponent::handleCursorMovement(float inputX, float inputY)
 	case InteractionMode::Rotation:
 		handleRotation();
 		break;
+
+	case InteractionMode::Scale:
+		handleScale();
+		break;
 	}
 }
 
@@ -253,14 +339,18 @@ void GizmoComponent::updateVisibility()
 			continue;
 		}
 
+		const std::string modelName = elementModelComponent->getObjectName();
 		if (interactionMode == InteractionMode::Translation)
 		{
-			elementModelComponent->setVisibility((elementModelComponent->getObjectName().find(GizmoNames::Gizmo) != std::string::npos) && visible);
+			elementModelComponent->setVisibility((modelName.find(GizmoNames::Gizmo) != std::string::npos) && visible);
 		}
 		else if (interactionMode == InteractionMode::Rotation)
 		{
-			std::string modelName = elementModelComponent->getObjectName();
 			elementModelComponent->setVisibility((modelName == GizmoNames::Pitch || modelName == GizmoNames::Yaw || modelName == GizmoNames::Roll) && visible);
+		}
+		else
+		{
+			elementModelComponent->setVisibility((modelName.find(GizmoNames::Scale) != std::string::npos) && visible);
 		}
 	}
 }
@@ -300,10 +390,10 @@ void GizmoComponent::handleTranslation()
 	glm::vec3 rayOriginLocal = camera->getWorldPosition();
 	glm::vec3 rayDirectionLocal = glm::normalize(localServer->getCursorToWorldRay(camera->getView(), camera->getProjection()));
 	glm::vec3 gizmoOriginLocal = selectedEntityTransform->getWorldPosition();
-
 	glm::vec3 gizmoSelectPositionOriginLocal = gizmoSelectPositionOrigin;
+
 	// No need to change offsets to local space. Only rotate
-	glm::vec3 gizmoClickOffsetLocal = gizmoClickOffset;
+	glm::vec3 gizmoClickOffsetLocal = gizmoClickOffset * selectedGizmoModel->getWorldScale();
 
 	// Convert to gizmo's local space (for easier way of getting the proper axis plane normal)
 	if (SceneNode* parent = selectedEntityTransform->getParent())
@@ -311,11 +401,10 @@ void GizmoComponent::handleTranslation()
 		rayOriginLocal = glm::inverse(parent->getTransform()) * glm::vec4(rayOriginLocal, 1.0f);
 		rayDirectionLocal = glm::inverse(parent->getTransform()) * glm::vec4(rayDirectionLocal, 0.0f);
 		gizmoOriginLocal = glm::inverse(parent->getTransform()) * glm::vec4(gizmoOriginLocal, 1.0f);
-
 		gizmoSelectPositionOriginLocal = glm::inverse(parent->getTransform()) * glm::vec4(gizmoSelectPositionOriginLocal, 1.0f);
 
 		// No need to convert to local coordiante system since this is just an offset. But need to rotate it
-		gizmoClickOffsetLocal = glm::inverse(parent->getWorldOrientation()) * gizmoClickOffsetLocal;
+		gizmoClickOffsetLocal = glm::inverse(parent->getWorldOrientation()) * gizmoClickOffsetLocal / parent->getWorldScale();
 	}
 
 	glm::vec3 axisPlaneNormal = glm::normalize(rayOriginLocal - gizmoSelectPositionOriginLocal);
@@ -350,7 +439,7 @@ void GizmoComponent::handleTranslation()
 	}
 
 	glm::vec3 newPosition = rayVsPlane(gizmoSelectPositionOriginLocal, axisPlaneNormal, rayOriginLocal, rayDirectionLocal);
-	if (glm::all(glm::isnan(newPosition)))
+	if (glm::any(glm::isnan(newPosition)))
 	{
 		return;
 	}
@@ -435,25 +524,136 @@ void GizmoComponent::handleRotation()
 		rayOrigin = glm::inverse(parent->getTransform()) * glm::vec4(rayOrigin, 1.0f);
 	}
 
-	glm::vec3 dragPos = rayVsPlane(gizmoOrigin, gizmoUp, rayOrigin, rayDirection);
-	glm::vec3 dragToGimbalProjection = dragPos - gizmoOrigin;
+	glm::vec3 dragPosition = rayVsPlane(gizmoOrigin, gizmoUp, rayOrigin, rayDirection);
+	if (glm::any(glm::isnan(dragPosition)))
+	{
+		return;
+	}
+
+	glm::vec3 dragToGimbalProjection = dragPosition - gizmoOrigin;
 	const glm::vec2 dragToGimbalProjection2d = projectOnPlane(dragToGimbalProjection, gizmoUp);
 
 	float dragAngle = Rotator::normalizeAngle(glm::degrees(glm::atan(dragToGimbalProjection2d.x, dragToGimbalProjection2d.y)));
-	float deltaAngle = clickAngle - dragAngle;
+	float deltaAngle = rotationClickAngle - dragAngle;
 
 	if (selectedGizmoModel->getObjectName() == GizmoNames::Yaw)
 	{
 		deltaAngle = -deltaAngle;
 	}
 
+	// Sensitivity
+	deltaAngle *= 0.5f;
+
 	const Euler gimbalAngle = getEulerAngleOfGimbal(selectedGizmoModel->getObjectName());
+
 	selectedEntityTransform->rotate(deltaAngle, gimbalAngle);
 	selectedGizmoModel->rotate(deltaAngle, gimbalAngle);
 
 	if (Apparatus* app = editorLocalClient->getApparatus())
 	{
-		app->setCursorPosition(lastCursorPosition);
+		app->setCursorPosition(lastCursorScreenPosition);
+	}
+}
+
+void GizmoComponent::handleScale()
+{
+	if (!selectedGizmoModel || !editorLocalClient)
+	{
+		return;
+	}
+
+	LocalServer* localServer = editorLocalClient->getLocalServer();
+	if (!localServer)
+	{
+		return;
+	}
+
+	Camera* camera = editorLocalClient->getActiveCamera();
+	if (!camera)
+	{
+		return;
+	}
+
+	Entity* selectedEntity = editorLocalClient->getSelectedEntity();
+	if (!selectedEntity)
+	{
+		return;
+	}
+
+	if (SelectableComponent* selectableComponent = selectedEntity->findComponent<SelectableComponent>())
+	{
+		selectableComponent->setBoxVisible(false);
+	}
+
+	TransformComponent* selectedEntityTransform = selectedEntity->findComponent<TransformComponent>();
+	if (!selectedEntityTransform)
+	{
+		return;
+	}
+
+	glm::vec3 newScale(0.0f);
+	if (selectedGizmoModel->getObjectName() == GizmoNames::ScaleAll)
+	{
+		glm::vec2 cursorDragPosition = localServer->getCursorToDevice();
+		glm::vec2 cursorDragOffset = (cursorDragPosition - clickCursorDevicePosition) * 2.0f;
+
+		newScale = selectedEntityTransform->getScale() * (cursorDragOffset.x + cursorDragOffset.y + 1.0f);
+	}
+	else
+	{
+		// Convert all required vectors into gizmo's local space for the easier creation of the gizmo axis normals
+		glm::vec3 rayOrigin = camera->getWorldPosition();
+		glm::vec3 rayDirection = glm::normalize(localServer->getCursorToWorldRay(camera->getView(), camera->getProjection()));
+
+		glm::vec3 axisPlaneNormal = glm::normalize(rayOrigin - gizmoClickPosition);
+
+		const std::string selectedGizmoName = selectedGizmoModel->getObjectName();
+
+		glm::vec3 dragPositionLocal = rayVsPlane(gizmoClickPosition, axisPlaneNormal, rayOrigin, rayDirection);
+		if (glm::any(glm::isnan(dragPositionLocal)))
+		{
+			return;
+		}
+
+		// Determine whether the scaling must be negated or not
+		glm::vec3 clickOffset = gizmoClickPosition - gizmoSelectPositionOrigin;
+		glm::vec3 scaleOffset = dragPositionLocal - gizmoClickPosition;
+
+		const int longestAxis = Vector::findLongestAxis(scaleOffset);
+		if (clickOffset[longestAxis] < 0.0f)
+		{
+			scaleOffset = -scaleOffset;
+		}
+
+		scaleOffset.x = scaleOffset[longestAxis];
+		scaleOffset.y = scaleOffset[longestAxis];
+		scaleOffset.z = scaleOffset[longestAxis];
+
+		newScale = selectedEntityTransform->getScale() + scaleOffset;
+
+		const glm::vec3 gizmoCurrentScale = selectedEntityTransform->getScale();
+		if (selectedGizmoName == GizmoNames::ScaleUp || selectedGizmoName == GizmoNames::ScaleDown)
+		{
+			newScale.x = gizmoCurrentScale.x;
+			newScale.z = gizmoCurrentScale.z;
+		}
+		else if (selectedGizmoName == GizmoNames::ScaleRight || selectedGizmoName == GizmoNames::ScaleLeft)
+		{
+			newScale.y = gizmoCurrentScale.y;
+			newScale.z = gizmoCurrentScale.z;
+		}
+		else if (selectedGizmoName == GizmoNames::ScaleFront || selectedGizmoName == GizmoNames::ScaleBack)
+		{
+			newScale.x = gizmoCurrentScale.x;
+			newScale.y = gizmoCurrentScale.y;
+		}
+	}
+
+	selectedEntityTransform->setScale(newScale);
+
+	if (Apparatus* app = editorLocalClient->getApparatus())
+	{
+		app->setCursorPosition(lastCursorScreenPosition);
 	}
 }
 
@@ -499,17 +699,7 @@ glm::vec2 GizmoComponent::projectOnPlane(const glm::vec3& position, const glm::v
 
 	glm::vec3 test = position;
 
-	glm::vec3 planeNormal = glm::abs(normal);
-	int upAxis = 0;
-
-	float max = std::max({ planeNormal.x, planeNormal.y, planeNormal.z });
-	for (int i = 0; i < 3; ++i)
-	{
-		if (planeNormal[i] == max)
-		{
-			upAxis = i;
-		}
-	}
+	int upAxis = Vector::findLongestAxis(glm::abs(normal));
 
 	test[upAxis] = std::numeric_limits<float>::quiet_NaN();
 

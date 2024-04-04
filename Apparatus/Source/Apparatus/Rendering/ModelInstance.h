@@ -15,9 +15,14 @@ public:
 	Model* getModel();
 	MaterialInstance* getMaterialInstance(size_t materialSlot);
 
+	void setDepthBufferLayer(size_t layer);
+	size_t getDepthBufferLayer() const;
+
 private:
 	Model* model;
 	std::vector<std::unique_ptr<MaterialInstance>> materialInstances;
+
+	size_t depthBufferLayer;
 
 	friend class Model;
 };

@@ -31,6 +31,15 @@ namespace GizmoNames
 	static const std::string Pitch = "Pitch";
 	static const std::string Yaw = "Yaw";
 	static const std::string Roll = "Roll";
+
+	static const std::string Scale = "Scale";
+	static const std::string ScaleAll = "ScaleAll";
+	static const std::string ScaleUp = "ScaleUp";
+	static const std::string ScaleDown = "ScaleDown";
+	static const std::string ScaleLeft = "ScaleLeft";
+	static const std::string ScaleRight = "ScaleRight";
+	static const std::string ScaleFront = "ScaleFront";
+	static const std::string ScaleBack = "ScaleBack";
 }
 
 class GizmoComponent : public Component
@@ -41,6 +50,7 @@ public:
 	~GizmoComponent() = default;
 
 	virtual void init() override;
+	virtual void update(float dt) override;
 
 	void setEditorLocalClient(EditorLocalClient* editorLocalClient);
 	void setSelectedGizmoModel(ModelComponent* modelComponent);
@@ -65,6 +75,7 @@ protected:
 
 	void handleTranslation();
 	void handleRotation();
+	void handleScale();
 
 	glm::vec3 getLocalUpForGimbal(const std::string& gimbalName) const;
 	Euler getEulerAngleOfGimbal(const std::string& gimbalName) const;
@@ -80,9 +91,11 @@ private:
 	bool pressed;
 	bool visible;
 
-	float clickAngle;
-	glm::ivec2 lastCursorPosition;
-	glm::vec3 clickPosition;
+	float rotationClickAngle;
+	glm::vec3 rotationClickPosition;
 	glm::vec3 gizmoSelectPositionOrigin;
+	glm::vec3 gizmoClickPosition;
 	glm::vec3 gizmoClickOffset;
+	glm::ivec2 lastCursorScreenPosition;
+	glm::vec2 clickCursorDevicePosition;
 };

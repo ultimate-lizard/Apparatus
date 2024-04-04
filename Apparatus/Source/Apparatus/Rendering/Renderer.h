@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <queue>
 
 #include <glm/glm.hpp>
@@ -29,6 +30,7 @@ struct RenderCommand
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
 	RenderMode renderMode = RenderMode::Triangles;
 	float drawSize = 1.0f;
+	size_t depthBufferLayer = 0;
 };
 
 class Renderer
@@ -45,12 +47,17 @@ public:
 
 	void render();
 
-	void push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode = RenderMode::Triangles, float drawSize = 1.0f);
+	void push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode = RenderMode::Triangles, float drawSize = 1.0f, size_t depthBufferLayer = 0);
 	void push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix);
+
+	static size_t getMaxDepthBufferLayer()
+	{
+		return 7;
+	}
 
 private:
 	SDL_Window* window;
 	SDL_GLContext context;
 
-	std::queue<RenderCommand> commands;
+	std::vector<std::queue<RenderCommand>> commandsArray;
 };

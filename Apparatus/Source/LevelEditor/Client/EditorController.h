@@ -31,6 +31,7 @@ protected:
 
 	void enableTranslationMode();
 	void enableRotationMode();
+	void enableScaleMode();
 
 	void releasePrimaryMouseButton();
 
