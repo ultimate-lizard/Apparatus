@@ -14,11 +14,11 @@ SceneNode::SceneNode() :
 void SceneNode::calculateTransform()
 {
 	glm::vec3 derivedPosition = getWorldPosition();
-	glm::quat derivedRotation = inheritRotation ? getDerivedOrientation() : (orientation * rotator.asQuat());
-	// newTransform = glm::scale(newTransform, scale);
+	glm::quat derivedRotation = inheritRotation ? getWorldOrientation() : (orientation * rotator.asQuat());
 
 	glm::mat4 newTransform = glm::translate(glm::mat4(1.0f), derivedPosition);
 	newTransform *= glm::mat4(derivedRotation);
+	newTransform = glm::scale(newTransform, scale);
 
 	transform = newTransform;
 
@@ -82,7 +82,7 @@ glm::vec3 SceneNode::getWorldPosition() const
 {
 	if (parent)
 	{
-		glm::vec3 derivedPosition = parent->getDerivedOrientation() * position;
+		glm::vec3 derivedPosition = parent->getWorldOrientation() * position;
 		derivedPosition += parent->getWorldPosition();
 
 		return derivedPosition;
@@ -91,11 +91,11 @@ glm::vec3 SceneNode::getWorldPosition() const
 	return position;
 }
 
-glm::quat SceneNode::getDerivedOrientation() const
+glm::quat SceneNode::getWorldOrientation() const
 {
 	if (parent && inheritRotation)
 	{
-		return glm::normalize(parent->getDerivedOrientation() * rotator.asQuat());
+		return glm::normalize(parent->getWorldOrientation() * rotator.asQuat());
 	}
 
 	return orientation * rotator.asQuat();
@@ -149,17 +149,17 @@ void SceneNode::setInheritRotation(bool inheritRotation)
 
 glm::vec3 SceneNode::getForward() const
 {
-	return getDerivedOrientation() * glm::vec3(0.0f, 0.0f, 1.0f);
+	return getWorldOrientation() * glm::vec3(0.0f, 0.0f, 1.0f);
 }
 
 glm::vec3 SceneNode::getUp() const
 {
-	return getDerivedOrientation() * glm::vec3(0.0f, 1.0f, 0.0f);
+	return getWorldOrientation() * glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 glm::vec3 SceneNode::getRight() const
 {
-	return getDerivedOrientation() * glm::vec3(-1.0f, 0.0f, 0.0f);
+	return getWorldOrientation() * glm::vec3(-1.0f, 0.0f, 0.0f);
 }
 
 glm::vec3 SceneNode::getLocalForward() const
@@ -175,9 +175,4 @@ glm::vec3 SceneNode::getLocalUp() const
 glm::vec3 SceneNode::getLocalRight() const
 {
 	return getRotator().asQuat() * glm::vec3(-1.0f, 0.0f, 0.0f);
-}
-
-SceneNode* SceneNode::getRoot()
-{
-	return parent != nullptr ? parent->getRoot() : this;
 }

@@ -3,29 +3,17 @@
 #include <Apparatus/Client/LocalClient.h>
 
 class Entity;
-
-enum class InteractionMode
-{
-	Translation,
-	Rotation,
-	Scale
-};
+class GizmoComponent;
 
 class EditorLocalClient : public LocalClient
 {
 public:
 	EditorLocalClient(Apparatus* apparatus);
 
-	void setGizmoVisibility(bool enabled);
-	void attachGizmo(Entity* parent);
-
 	void selectEntity(Entity* entity);
 	Entity* getSelectedEntity();
 
-	InteractionMode getInteractionMode() const;
-	void setInteractionMode(InteractionMode interactionMode);
-
-	bool showDebugPrimitives = false;
+	GizmoComponent* getGizmo();
 
 protected:
 	virtual void assignDefaultObjectName() override;
@@ -46,7 +34,5 @@ protected:
 
 	bool inEditMode;
 	Entity* selectedEntity;
-	Entity* gizmo;
-
-	InteractionMode interactionMode;
+	GizmoComponent* gizmo;
 };

@@ -175,7 +175,7 @@ int Apparatus::initEngineInternal()
 
 	// SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "0");
 
-	SDL_GL_SetSwapInterval(1);
+	// SDL_GL_SetSwapInterval(1);
 
 	initAssets();
 

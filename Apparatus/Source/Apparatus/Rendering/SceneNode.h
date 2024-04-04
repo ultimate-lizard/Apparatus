@@ -46,7 +46,7 @@ public:
 	const glm::vec3& getScale() const;
 
 	glm::vec3 getWorldPosition() const;
-	glm::quat getDerivedOrientation() const;
+	glm::quat getWorldOrientation() const;
 
 	void rotate(float degrees, Euler angle);
 
@@ -65,8 +65,6 @@ public:
 	glm::vec3 getLocalForward() const;
 	glm::vec3 getLocalUp() const;
 	glm::vec3 getLocalRight() const;
-
-	SceneNode* getRoot();
 
 protected:
 	glm::mat4 transform;

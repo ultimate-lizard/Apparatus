@@ -8,107 +8,15 @@
 
 #include "EditorController.h"
 #include "../Components/SelectableComponent.h"
+#include "../Components/GizmoComponent.h"
 
 EditorLocalClient::EditorLocalClient(Apparatus* apparatus) :
 	LocalClient(apparatus),
 	inEditMode(false),
 	selectedEntity(nullptr),
-	gizmo(nullptr),
-	interactionMode(InteractionMode::Translation)
+	gizmo(nullptr)
 {
 	assignDefaultObjectName();
-}
-
-void EditorLocalClient::setGizmoVisibility(bool enabled)
-{
-	if (!gizmo)
-	{
-		return;
-	}
-
-	for (ModelComponent* modelComponent : gizmo->getAllComponentsOfClass<ModelComponent>())
-	{
-		if (!modelComponent)
-		{
-			continue;
-		}
-
-		if (interactionMode == InteractionMode::Translation)
-		{
-			modelComponent->setVisibility((modelComponent->getObjectName().find("Gizmo") != std::string::npos) && enabled);
-		}
-		else if (interactionMode == InteractionMode::Rotation)
-		{
-			std::string modelName = modelComponent->getObjectName();
-			modelComponent->setVisibility((modelName == "Pitch" || modelName == "Yaw" || modelName == "Roll") && enabled);
-		}
-	}
-}
-
-void EditorLocalClient::attachGizmo(Entity* entityToAttachTo)
-{
-	if (!gizmo)
-	{
-		return;
-	}
-
-	TransformComponent* gizmoTransform = gizmo->findComponent<TransformComponent>();
-	if (!gizmoTransform)
-	{
-		return;
-	}
-
-	if (!entityToAttachTo)
-	{
-		gizmoTransform->setParent(nullptr);
-		gizmoTransform->setOrientation(glm::quat(glm::vec3(0.0f)));
-		gizmoTransform->setPosition(glm::vec3(0.0f));
-
-		return;
-	}
-
-	if (TransformComponent* entityTransform = entityToAttachTo->findComponent<TransformComponent>())
-	{
-		// POSITION -------------------------------------------------------
-		// Set local position of gizmo to 0 so it will not look displaced relative to the parent
-		gizmoTransform->setPosition(glm::vec3(0.0f));
-		// Inherit position of the entity. Gizmo doesn't inherit rotation, though. It is set manually
-		gizmoTransform->setParent(entityTransform);
-
-		// Gizmo must inherit entity parent's rotation manually, or reset its rotation, if no parent.
-		// After that, gizmos and gimbals will face parent's direction but still have their own local rotations
-		if (SceneNode* entityParent = entityTransform->getParent())
-		{
-			// Gizmo rotation is now in the parent space
-			gizmoTransform->setOrientation(entityParent->getDerivedOrientation());
-		}
-		else
-		{
-			// Gizmo rotation is not in the global space
-			gizmoTransform->setOrientation(glm::quat(glm::vec3(0.0f)));
-		}
-
-		// ROTATION -------------------------------------------------------
-		// Pass the selected entity's LOCAL rotations to the gimbals
-		const float pitch = entityTransform->getRotationAngle(Euler::Pitch);
-		const float yaw = entityTransform->getRotationAngle(Euler::Yaw);
-		const float roll = entityTransform->getRotationAngle(Euler::Roll);
-
-		if (auto modelComponent = gizmo->findComponent<ModelComponent>("Pitch"))
-		{
-			modelComponent->setRotation(pitch, Euler::Pitch);
-		}
-
-		if (auto modelComponent = gizmo->findComponent<ModelComponent>("Yaw"))
-		{
-			modelComponent->setRotation(yaw, Euler::Yaw);
-		}
-
-		if (auto modelComponent = gizmo->findComponent<ModelComponent>("Roll"))
-		{
-			modelComponent->setRotation(roll, Euler::Roll);
-		}
-	}
 }
 
 void EditorLocalClient::selectEntity(Entity* entity)
@@ -120,19 +28,23 @@ void EditorLocalClient::selectEntity(Entity* entity)
 	if (entity)
 	{
 		indicateSelection(entity, true);
-		attachGizmo(entity);
-		setGizmoVisibility(true);
 	}
 
-	if (!entity)
+	if (gizmo)
 	{
-		setGizmoVisibility(false);
+		gizmo->attach(entity);
+		gizmo->setVisibility(entity != nullptr);
 	}
 }
 
 Entity* EditorLocalClient::getSelectedEntity()
 {
 	return selectedEntity;
+}
+
+GizmoComponent* EditorLocalClient::getGizmo()
+{
+	return gizmo;
 }
 
 void EditorLocalClient::indicateSelection(Entity* entity, bool selected)
@@ -175,17 +87,6 @@ void EditorLocalClient::indicateSelection(Entity* entity, bool selected)
 	}
 }
 
-InteractionMode EditorLocalClient::getInteractionMode() const
-{
-	return interactionMode;
-}
-
-void EditorLocalClient::setInteractionMode(InteractionMode interactionMode)
-{
-	this->interactionMode = interactionMode;
-	setGizmoVisibility(getSelectedEntity() != nullptr);
-}
-
 void EditorLocalClient::assignDefaultObjectName()
 {
 	setObjectName("EditorLocalClient");
@@ -204,8 +105,19 @@ void EditorLocalClient::start()
 {
 	LocalClient::start();
 
-	gizmo = localServer->findEntity("Gizmo");
-	setGizmoVisibility(false);
+	if (localServer)
+	{
+		if (Entity* gizmoEntity = localServer->findEntity(GizmoNames::Gizmo))
+		{
+			gizmo = gizmoEntity->findComponent<GizmoComponent>();
+			gizmo->setEditorLocalClient(this);
+		}
+	}
+
+	if (gizmo)
+	{
+		gizmo->setVisibility(false);
+	}
 }
 
 void EditorLocalClient::onActiveControllerChanged()

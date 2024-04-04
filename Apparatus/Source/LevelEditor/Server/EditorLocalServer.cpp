@@ -5,6 +5,7 @@
 #include <Apparatus/Apparatus.h>
 
 #include "../Components/SelectableComponent.h"
+#include "../Components/GizmoComponent.h"
 
 EditorLocalServer::EditorLocalServer(Apparatus* apparatus) :
 	LocalServer(apparatus)
@@ -107,6 +108,11 @@ void EditorLocalServer::setupGizmoEntity()
 		if (auto gizmoTransform = createComponent<TransformComponent>(gizmo))
 		{
 			gizmoTransform->setInheritRotation(false);
+
+			if (auto gizmoComponent = createComponent<GizmoComponent>(gizmo, "GizmoX"))
+			{
+				// gizmoComponent->set
+			}
 
 			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoX"))
 			{

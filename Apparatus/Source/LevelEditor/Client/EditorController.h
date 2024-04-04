@@ -10,6 +10,7 @@
 class InputHandler;
 class EditorLocalClient;
 class ModelComponent;
+class GizmoComponent;
 struct RayTraceResult;
 
 class EditorController : public HumanControllerBase
@@ -28,8 +29,6 @@ protected:
 	void pressSelect();
 	void releaseSelect();
 
-	void toggleDebugPrimitives();
-
 	void enableTranslationMode();
 	void enableRotationMode();
 
@@ -37,26 +36,7 @@ protected:
 
 	void cursorMoveY(float value);
 	void cursorMoveX(float value);
-	void cursorMove(float mouseInputX, float mouseInputY);
-
-	void handleGizmoTranslation();
-	void handleGizmoRotation(float mouseInputX, float mouseInputY);
-
-	float getPositionAngle(const glm::vec3& center, const glm::vec2& position);
-
-	Euler getSelectedGimbalEulerAngle() const;
-	glm::vec3 getSelectedGimbalUp() const;
-	glm::vec3 getSelectedGimbalLocalUp() const;
-	glm::vec2 directionRelativeToGimbal(const glm::vec3& position) const;
-	glm::vec2 projectOnPlane(const glm::vec3& position, const glm::vec3& normal) const;
-
-	//bool calculateGimbalRotationNegation() const;
 
 	EditorLocalClient* editorLocalClient;
-
-	bool gizmoPressed;
-	ModelComponent* selectedGizmoModel;
-	glm::vec3 gizmoSelectPositionOrigin;
-	glm::vec3 gizmoClickOffset;
-	glm::ivec2 lastMousePosition;
+	GizmoComponent* gizmo;
 };
