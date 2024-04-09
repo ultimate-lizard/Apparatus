@@ -1,19 +1,18 @@
 #include "Controller.h"
 
-Controller::Controller() :
-	controlledEntity(nullptr)
-{
-
-}
-
-Controller::Controller(const std::string& name) :
-	NameProvider(name),
-	controlledEntity(nullptr)
+Controller::Controller(const std::string& controllerName) :
+	controllerName(controllerName),
+	controlEntity(nullptr)
 {
 
 }
 
 void Controller::setControlEntity(Entity* entity)
 {
-	controlledEntity = entity;
+	controlEntity = entity;
+}
+
+std::string Controller::getControllerName() const
+{
+	return controllerName;
 }

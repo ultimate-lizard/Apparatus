@@ -3,33 +3,48 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+#include "Level.h"
+#include "Core/ModelImporter.h"
 #include "Server/LocalServer.h"
 #include "Client/LocalClient.h"
 
-// TODO: This is temp
+// TODO: These are probably temporary!
 #include "Rendering/Model.h"
 #include "Rendering/Mesh.h"
 #include "Rendering/Shader.h"
 #include "Rendering/Material.h"
-#include "Core/ModelImporter.h"
+#include "Components/TransformComponent.h"
+#include "Components/MovementComponent.h"
+#include "Components/CameraComponent.h"
+#include "Components/ModelComponent.h"
+
+Apparatus* Apparatus::apparatus;
+Apparatus::ApparatusGlobalInstance Apparatus::globalState;
 
 Apparatus::Apparatus(const std::string& gameTitle) :
 	gameTitle(gameTitle),
-	window(nullptr),
-	wrapCursor(true),
-	running(false),
-	inputReader(this)
+	running(false)
 {
+	apparatus = this;
+
+	globalState.entityRegistry = &entityRegistry;
+	globalState.assetManager = &assetManager;
+	globalState.eventDispatcher = &eventDispatcher;
 }
 
-Apparatus::~Apparatus()
+Apparatus& Apparatus::get()
 {
-	Logger::close();
+	return *apparatus;
 }
 
 int Apparatus::launch(int argc, char** argv)
 {
 	// TODO: Handle args
+
+	if (running)
+	{
+		return -1;
+	}
 
 	return initEngineInternal();
 }
@@ -39,14 +54,19 @@ void Apparatus::quit()
 	running = false;
 }
 
-WindowEventHandler& Apparatus::getInputReader()
+std::vector<Client*> Apparatus::getClients()
 {
-	return inputReader;
-}
+	std::vector<Client*> result;
 
-Renderer* Apparatus::getRenderer()
-{
-	return renderer.get();
+	for (std::unique_ptr<Client>& client : clients)
+	{
+		if (client)
+		{
+			result.push_back(client.get());
+		}
+	}
+
+	return result;
 }
 
 LocalClient* Apparatus::getPrimaryLocalClient()
@@ -67,69 +87,46 @@ LocalClient* Apparatus::getPrimaryLocalClient()
 	return nullptr;
 }
 
-void Apparatus::onWindowResized()
+Window& Apparatus::getWindow()
 {
-	for (std::unique_ptr<Client>& client : clients)
-	{
-		if (client)
-		{
-			if (Viewport* viewport = client->getViewport())
-			{
-				viewport->setSize(getWindowSize());
-			}
+	return window;
+}
 
-			if (Camera* camera = client->getActiveCamera())
-			{
-				glm::ivec2 windowSize = getWindowSize();
-				camera->setAspect(windowSize.x / static_cast<float>(windowSize.y));
-			}
-		}
+Level* Apparatus::getLevel()
+{
+	return level.get();
+}
+
+EntityRegistry& Apparatus::getEntityRegistry()
+{
+	return *globalState.entityRegistry;
+}
+
+AssetManager& Apparatus::getAssetManager()
+{
+	return *globalState.assetManager;
+}
+
+EventDispatcher& Apparatus::getEventDispatcher()
+{
+	return *globalState.eventDispatcher;
+}
+
+void Apparatus::init()
+{
+ 	window.getEventHandler()._bindQuitEvent(std::bind(&Apparatus::quit, this));
+	
+	// TODO: Load level sequence
+	level = std::make_unique<Level>();
+	if (level)
+	{
+		level->init();
 	}
 }
 
-glm::ivec2 Apparatus::getWindowSize() const
+Renderer* Apparatus::getRenderer()
 {
-	int width = 0;
-	int height = 0;
-	SDL_GetWindowSize(window, &width, &height);
-
-	return { width, height };
-}
-
-glm::ivec2 Apparatus::getMouseCursorPosition() const
-{
-	int x = 0;
-	int y = 0;
-
-	SDL_GetMouseState(&x, &y);
-
-	return glm::ivec2(x, y);
-}
-
-AssetManager& Apparatus::getResourceManager()
-{
-	return assetManager;
-}
-
-void Apparatus::setCursorWrapEnabled(bool enabled)
-{
-	wrapCursor = enabled;
-}
-
-void Apparatus::setCursorVisibleEnabled(bool enabled)
-{
-	SDL_SetRelativeMouseMode(enabled ? SDL_FALSE : SDL_TRUE);
-}
-
-void Apparatus::setCursorPosition(const glm::ivec2& position)
-{
-	SDL_WarpMouseInWindow(window, position.x, position.y);
-}
-
-bool Apparatus::isCursorVisible() const
-{
-	SDL_bool result = SDL_GetRelativeMouseMode();
-	return result == SDL_FALSE;
+	return renderer.get();
 }
 
 int Apparatus::initEngineInternal()
@@ -148,17 +145,9 @@ int Apparatus::initEngineInternal()
 		return 1;
 	}
 
-	window = SDL_CreateWindow(
-		gameTitle.c_str(),
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-		800,
-		600,
-		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
-	);
-	if (!window)
+	if (!window.create(gameTitle))
 	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Unable to initialize SDL window!", nullptr);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Unable to initialize Window!", nullptr);
 		return 1;
 	}
 
@@ -177,7 +166,8 @@ int Apparatus::initEngineInternal()
 
 	// SDL_GL_SetSwapInterval(1);
 
-	initAssets();
+	_createAssets();
+	_createEntityTemplates();
 
 	init();
 
@@ -203,7 +193,18 @@ int Apparatus::initEngineInternal()
 	{
 		if (client)
 		{
-			client->start();
+			client->onGameStart();
+		}
+	}
+
+	// TODO: This is a default offline connection sequence. Find a better way and place to do it
+	if (LocalClient* localClient = getPrimaryLocalClient())
+	{
+		if (LocalServer* localServer = getServer<LocalServer>())
+		{
+			ConnectionInfo info;
+			info.client = localClient;
+			localServer->connect(info);
 		}
 	}
 
@@ -212,10 +213,8 @@ int Apparatus::initEngineInternal()
 	return 0;
 }
 
-void Apparatus::initAssets()
+void Apparatus::_createAssets()
 {
-	assetManager.init();
-
 	if (Shader* debugPrimitiveShader = assetManager.createAsset<Shader>("Shader_DebugPrimitive", "../Shaders/DebugPrimitive.vert", "../Shaders/DebugPrimitive.frag"))
 	{
 		if (Material* debugPrimitiveMaterial = assetManager.createAsset<Material>("Material_DebugPrimitive"))
@@ -224,26 +223,65 @@ void Apparatus::initAssets()
 		}
 	}
 	
-	Shader* modelShader = assetManager.createAsset<Shader>("Shader_DefaultModel", "../Shaders/Model.vert", "../Shaders/Model.frag");
-	ModelImporter* importer = assetManager.getImporter<ModelImporter>();
-
-	if (modelShader && importer)
+	if (Shader* modelShader = assetManager.createAsset<Shader>("Shader_DefaultModel", "../Shaders/Model.vert", "../Shaders/Model.frag"))
 	{
-		assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "../Models/scene.fbx")));
-		// assetManager.createAsset(std::move(importer->import("Model_Cube", modelShader, "../Models/cube.fbx")));
-		assetManager.createAsset(std::move(importer->import("Model_Makarov", modelShader, "../Models/makarov.fbx")));
-		assetManager.createAsset(std::move(importer->import("Model_DirectionalLight", modelShader, "../Models/DirectionalLight.fbx")));
-		assetManager.createAsset(std::move(importer->import("Model_PointLight", modelShader, "../Models/PointLight.fbx")));
-		assetManager.createAsset(std::move(importer->import("Model_SpotLight", modelShader, "../Models/SpotLight.fbx")));
-		// assetManager.createAsset(std::move(importer->import("Model_Entity", modelShader, "../Models/entity.fbx")));
-		// assetManager.createAsset(std::move(importer->import("Model_Gizmo", modelShader, "C:/Users/mykha/Desktop/test/Gizmo.fbx")));
-		auto gizmoModels = importer->importMultiple(modelShader, "../Models/Gizmo.fbx");
-		for (auto& model : gizmoModels)
+		modelShader->createUniformBufferObject(4096, "LightUniformBuffer", 0);
+
+		ModelImporter* importer = assetManager.getImporter<ModelImporter>();
+
+		if (modelShader && importer)
 		{
-			if (model)
+			// assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "../Models/scene.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_NewScene", modelShader, "../Models/NewScene.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_Dragon", modelShader, "../Models/Dragon.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_Makarov", modelShader, "../Models/makarov.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_DirectionalLight", modelShader, "../Models/DirectionalLight.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_PointLight", modelShader, "../Models/PointLight.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_SpotLight", modelShader, "../Models/SpotLight.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_Error", modelShader, "../Models/Error.fbx")));
+			auto gizmoModels = importer->importMultiple(modelShader, "../Models/Gizmo.fbx");
+			for (auto& model : gizmoModels)
 			{
-				assetManager.createAsset(std::move(model));
+				if (model)
+				{
+					assetManager.createAsset(std::move(model));
+				}
 			}
+
+			auto dungeonModels = importer->importMultiple(modelShader, "../Models/Dungeon.fbx");
+			for (auto& model : dungeonModels)
+			{
+				if (model)
+				{
+					assetManager.createAsset(std::move(model));
+				}
+			}
+		}
+	}
+}
+
+void Apparatus::_createEntityTemplates()
+{
+	if (Entity* playerEntity = entityRegistry.createEntityTemplate("Player"))
+	{
+		if (auto transformComponent = entityRegistry.createComponent<TransformComponent>(playerEntity))
+		{
+			if (auto cameraComponent = entityRegistry.createComponent<CameraComponent>(playerEntity))
+			{
+				cameraComponent->setParent(transformComponent);
+			}
+		}
+
+		auto movementComponent = entityRegistry.createComponent<MovementComponent>(playerEntity);
+	}
+
+	if (Entity* modelEntity = entityRegistry.createEntityTemplate("ModelEntity"))
+	{
+		auto transformComponent = entityRegistry.createComponent<TransformComponent>(modelEntity);
+		if (auto modelComponent = entityRegistry.createComponent<ModelComponent>(modelEntity))
+		{
+			modelComponent->setModel(assetManager.findAsset<Model>("Model_Error"));
+			modelComponent->setParent(transformComponent);
 		}
 	}
 }
@@ -264,23 +302,20 @@ void Apparatus::startGameLoop()
 
 	while (running)
 	{
-		if (wrapCursor)
+		if (window.isWrapCursorEnabled())
 		{
 			// TODO: Toggle wrap
-			const glm::ivec2 windowSize = getWindowSize();
-			SDL_WarpMouseInWindow(window, windowSize.x / 2, windowSize.y / 2);
+			const glm::ivec2 windowSize = window.getWindowSize();
+			window.setCursorPosition({ windowSize.x / 2, windowSize.y / 2 });
 		}
 		
 		lastFrame = currentFrame;
 		currentFrame = SDL_GetPerformanceCounter();
 
-		float dt = (currentFrame - lastFrame) / static_cast<float>(SDL_GetPerformanceFrequency());
-		accumulator += dt;
-
-		inputReader.handleEvents();
+		window.handleEvents();
 
 		// Update logic
-		while (accumulator >= fixedDt)
+		while (accumulator == 0 || accumulator >= fixedDt)
 		{
 			if (server)
 			{
@@ -289,6 +324,9 @@ void Apparatus::startGameLoop()
 
 			accumulator -= fixedDt;
 		}
+
+		float dt = (currentFrame - lastFrame) / static_cast<float>(SDL_GetPerformanceFrequency());
+		accumulator += dt;
 
 		// Update clients
 		for (std::unique_ptr<Client>& client : clients)
@@ -303,9 +341,20 @@ void Apparatus::startGameLoop()
 		if (renderer)
 		{
 			renderer->render();
-			SDL_GL_SwapWindow(window);
+
+			window.swap();
 		}
 
 		// TODO: Shutdown
 	}
+
+	Logger::close();
+}
+
+void Apparatus::onWindowResized()
+{
+	// TODO: Renderer->GetActiveCameras->setAspect
+	// TODO: Renderer->GetViewports->setSize
+
+
 }

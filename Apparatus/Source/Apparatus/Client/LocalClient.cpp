@@ -2,81 +2,53 @@
 
 #include "../Core/Logger.h"
 #include "../Apparatus.h"
-#include "../Server/LocalServer.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/ModelComponent.h"
 #include "../Components/CameraComponent.h"
-#include "../Components/DirectionalLightComponent.h"
-#include "../Components/PointLightComponent.h"
-#include "../Components/SpotLightComponent.h"
+#include "../Components/LightComponent/DirectionalLightComponent.h"
+#include "../Components/LightComponent/PointLightComponent.h"
+#include "../Components/LightComponent/SpotLightComponent.h"
 #include "GenericHumanController.h"
+#include "../Level.h"
+#include "../Server/LocalServer.h"
 
-LocalClient::LocalClient(Apparatus* apparatus) :
-	Client(apparatus),
+LocalClient::LocalClient(Renderer* renderer) :
 	debugMeshBufferSize(1024 * 1024 * 32), // 32MB per mesh for debug primitives
-	localServer(nullptr),
-	activeEntity(nullptr),
+	renderer(renderer),
 	activeController(nullptr),
 	defaultController(nullptr)
 {
-	assignDefaultObjectName();
 }
 
 void LocalClient::init()
 {
-	if (!apparatus)
-	{
-		return;
-	}
+	Apparatus& app = Apparatus::get();
+	Window& window = app.getWindow();
 
-	WindowEventHandler& inputReader = apparatus->getInputReader();
-	inputReader.addInputHandler(&inputHandler);
+	window.getEventHandler().addInputHandler(&inputHandler);
 
-	defaultController = createController<GenericHumanController>(this);
-
-	localServer = apparatus->getServer<LocalServer>();
-	if (!localServer)
-	{
-		return;
-	}
-
-	if (Entity* playerEntity = localServer->findEntity("Player"))
-	{
-		setActiveEntity(playerEntity);
-	}
+	defaultController = createController<GenericHumanController>("DefaultController", *this);
 
 	if (std::unique_ptr<Controller>& controller = controllers[0])
 	{
 		setActiveController(controller.get());
-		activeController->setControlEntity(activeEntity);
 	}
 
-	glm::ivec2 windowSize = apparatus->getWindowSize();
+	glm::ivec2 windowSize = window.getWindowSize();
 	viewport.setSize(windowSize);
 	
 	// Debug stuff
-	Material* debugPrimitiveMaterial = apparatus->getResourceManager().findAsset<Material>("Material_DebugPrimitive");
+	Material* debugPrimitiveMaterial = Apparatus::getAssetManager().findAsset<Material>("Material_DebugPrimitive");
 	debugPrimitiveMaterialInstance = debugPrimitiveMaterial->createMaterialInstance();
 }
 
 void LocalClient::update(float dt)
 {
-	if (!activeEntity || !localServer)
-	{
-		return;
-	}
-
 	inputHandler.update();
 
-	renderEntities();
-
 	// Render debug primitives
-	composeDebugPrimitiveData();
-}
-
-LocalServer* LocalClient::getLocalServer()
-{
-	return localServer;
+	composeDebugPrimitiveRenderData();
+	composeEntityRenderData();
 }
 
 Viewport* LocalClient::getViewport()
@@ -86,27 +58,15 @@ Viewport* LocalClient::getViewport()
 
 Camera* LocalClient::getActiveCamera()
 {
-	if (!activeEntity)
+	if (activeEntity)
 	{
-		return nullptr;
-	}
-
-	if (CameraComponent* cameraComponent = activeEntity->findComponent<CameraComponent>())
-	{
-		return &cameraComponent->getCamera();
+		if (CameraComponent* cameraComponent = activeEntity->findComponent<CameraComponent>())
+		{
+			return &cameraComponent->getCamera();
+		}
 	}
 
 	return nullptr;
-}
-
-void LocalClient::setActiveEntity(Entity* entity)
-{
-	activeEntity = entity;
-}
-
-Entity* LocalClient::getActiveEntity()
-{
-	return activeEntity;
 }
 
 InputHandler& LocalClient::getInputHandler()
@@ -116,6 +76,7 @@ InputHandler& LocalClient::getInputHandler()
 
 void LocalClient::setActiveController(Controller* controller)
 {
+	// Deactivate current
 	if (activeController)
 	{
 		activeController->onDeactivate();
@@ -123,11 +84,13 @@ void LocalClient::setActiveController(Controller* controller)
 
 	activeController = controller;
 
+	// Activate new
 	if (activeController)
 	{
 		inputHandler.clearAllBindings();
-		activeController->onActivate();
 		activeController->setupInput();
+		activeController->setControlEntity(getActiveEntity());
+		activeController->onActivate();
 	}
 
 	onActiveControllerChanged();
@@ -143,13 +106,11 @@ Controller* LocalClient::getDefaultController()
 	return defaultController;
 }
 
-void LocalClient::assignDefaultObjectName()
+void LocalClient::composeDebugPrimitiveRenderData()
 {
-	setObjectName("LocalClient");
-}
+	Apparatus& app = Apparatus::get();
+	LocalServer* localServer = app.getServer<LocalServer>();
 
-void LocalClient::composeDebugPrimitiveData()
-{
 	if (!localServer)
 	{
 		return;
@@ -301,12 +262,11 @@ void LocalClient::composeDebugPrimitiveData()
 
 void LocalClient::renderDebugPrimitives(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, std::map<float, Mesh*>& debugMeshCache, const std::string& assetNamePrefix, RenderMode renderMode, float drawSize)
 {
-	if (!apparatus || !activeEntity)
+	if (!activeEntity)
 	{
 		return;
 	}
 
-	Renderer* renderer = apparatus->getRenderer();
 	CameraComponent* cameraComponent = activeEntity->findComponent<CameraComponent>();
 
 	if (!renderer || !cameraComponent)
@@ -327,9 +287,8 @@ void LocalClient::renderDebugPrimitives(const std::vector<Vertex>& vertices, con
 	// If no mesh cached, create a mesh asset for that purpose, and for it to be reused later
 	if (!mesh)
 	{
-		AssetManager& resourceManager = apparatus->getResourceManager();
 		// TODO: Take buffer size from somewhere else
-		mesh = resourceManager.createAsset<Mesh>(meshName, debugMeshBufferSize, debugMeshBufferSize);
+		mesh = Apparatus::getAssetManager().createAsset<Mesh>(meshName, debugMeshBufferSize, debugMeshBufferSize);
 		debugMeshCache[drawSize] = mesh;
 	}
 	else
@@ -374,85 +333,47 @@ void LocalClient::renderDebugPrimitives(const std::vector<Vertex>& vertices, con
 	}
 }
 
-void LocalClient::renderEntities()
+void LocalClient::onActiveEntitySet()
 {
-	Renderer* renderer = nullptr;
-
-	if (apparatus)
+	if (activeEntity)
 	{
-		renderer = apparatus->getRenderer();
-	}
+		if (CameraComponent* cameraComponent = activeEntity->findComponent<CameraComponent>())
+		{
+			if (renderer)
+			{
+				renderer->setActiveCamera(&cameraComponent->getCamera());
+			}
+		}
 
+		if (activeController)
+		{
+			activeController->setControlEntity(getActiveEntity());
+		}
+	}
+}
+
+void LocalClient::composeEntityRenderData()
+{
 	if (!renderer)
 	{
 		return;
 	}
 
-	std::vector<DirectionalLight*> directionalLights;
-	std::vector<PointLight*> pointLights;
-	std::vector<SpotLight*> spotLights;
-
-	// Gather lights
-	for (DirectionalLightComponent* directionalLightComponent : localServer->getAllComponentsOfClass<DirectionalLightComponent>())
+	Apparatus& app = Apparatus::get();
+	if (Level* level = app.getLevel())
 	{
-		if (!directionalLightComponent)
+		for (Entity* entity : level->getAllEntities())
 		{
-			continue;
-		}
-
-		directionalLights.push_back(&directionalLightComponent->getDirectionalLight());
-	}
-
-	for (PointLightComponent* pointLightComponent : localServer->getAllComponentsOfClass<PointLightComponent>())
-	{
-		if (!pointLightComponent)
-		{
-			continue;
-		}
-
-		pointLights.push_back(&pointLightComponent->getPointLight());
-	}
-
-	for (SpotLightComponent* spotLightsComponent : localServer->getAllComponentsOfClass<SpotLightComponent>())
-	{
-		if (!spotLightsComponent)
-		{
-			continue;
-		}
-
-		spotLights.push_back(&spotLightsComponent->getSpotLight());
-	}
-
-	LightingInfo lightingInfo;
-	lightingInfo.directionalLights = directionalLights;
-	lightingInfo.pointLights = pointLights;
-	lightingInfo.spotLights = spotLights;
-
-	// Render entities
-	for (const std::unique_ptr<Entity>& entity : localServer->getAllEntities())
-	{
-		if (!entity)
-		{
-			continue;
-		}
-
-		if (entity.get() == activeEntity)
-		{
-			continue;
-		}
-
-		if (TransformComponent* transformComponent = entity->findComponent<TransformComponent>())
-		{
-			if (CameraComponent* cameraComponent = activeEntity->findComponent<CameraComponent>())
+			if (!entity)
 			{
-				for (ModelComponent* modelComponent : entity->getAllComponentsOfClass<ModelComponent>())
+				continue;
+			}
+
+			for (ModelComponent* modelComponent : entity->getAllComponentsOfClass<ModelComponent>())
+			{
+				if (modelComponent->isVisible())
 				{
-					if (modelComponent->isVisible())
-					{
-						// TODO: Frustum check. Probably need to put all the visible to the client entities into a separate
-						// vector inside the client
-						renderer->push(modelComponent->getModelInstance(), &cameraComponent->getCamera(), modelComponent->getTransform(), lightingInfo);
-					}
+					renderer->push(modelComponent->getModelInstance(), getActiveCamera(), modelComponent->getTransform());
 				}
 			}
 		}

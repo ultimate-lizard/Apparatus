@@ -6,12 +6,32 @@
 #include "../Server/LocalServer.h"
 #include "../Core/Logger.h"
 
-MovementComponent::MovementComponent(Entity* owner) :
-	Component(owner),
+MovementComponent::MovementComponent() :
+	Component("MovementComponent"),
 	forward(0),
 	sideways(0)
 {
-	assignDefaultObjectName();
+}
+
+MovementComponent::MovementComponent(const std::string& componentName) :
+	Component(componentName),
+	forward(0),
+	sideways(0)
+{
+}
+
+std::unique_ptr<Component> MovementComponent::clone()
+{
+	std::unique_ptr<MovementComponent> newMovementComponent = std::make_unique<MovementComponent>(getComponentName());
+
+	if (newMovementComponent)
+	{
+		newMovementComponent->forward = forward;
+		newMovementComponent->sideways = sideways;
+		newMovementComponent->headRotator = headRotator;
+	}
+
+	return newMovementComponent;
 }
 
 void MovementComponent::init()
@@ -91,12 +111,4 @@ void MovementComponent::lookY(float rate)
 
 	headRotator.rotate(rate * sensitivity, Euler::Pitch);
 	headRotator.clamp(90.0f, 270.0f, Euler::Pitch);
-}
-
-void MovementComponent::assignDefaultObjectName()
-{
-	if (owner)
-	{
-		setObjectName(owner->getObjectName() + "_MovementComponent");
-	}
 }

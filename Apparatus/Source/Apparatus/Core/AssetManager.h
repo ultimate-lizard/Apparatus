@@ -5,21 +5,20 @@
 #include <vector>
 
 #include "Asset.h"
-#include "../Rendering/Shader.h"
 #include "Logger.h"
 #include "Importer.h"
+#include "../Rendering/Shader.h"
 
 class AssetManager
 {
 public:
-	AssetManager() = default;
+	AssetManager();
 	~AssetManager() = default;
 
 	AssetManager(const AssetManager&) = delete;
 	AssetManager(AssetManager&&) = delete;
 	void operator=(const AssetManager&) = delete;
 
-	void init();
 	void initAssets();
 
 	template <class ResourceType, typename ... Args>
@@ -44,7 +43,7 @@ inline ResourceType* AssetManager::createAsset(Args&& ... args)
 {
 	if (std::unique_ptr<Asset> newResource = std::make_unique<ResourceType>(std::forward<Args>(args)...))
 	{
-		newResource->assetManager = this;
+		//newResource->assetManager = this;
 
 		auto searchIter = assetMap.find(newResource->getAssetName());
 		if (searchIter != assetMap.end())
@@ -71,7 +70,7 @@ inline ResourceType* AssetManager::createAsset(std::unique_ptr<ResourceType> ass
 	if (asset)
 	{
 		ResourceType* resourcePtr = asset.get();
-		asset->assetManager = this;
+		//asset->assetManager = this;
 		auto iter = assetMap.emplace(asset->getAssetName(), std::move(asset));
 		if (iter.second)
 		{

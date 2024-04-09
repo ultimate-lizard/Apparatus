@@ -2,7 +2,7 @@
 
 #include "ModelImporter.h"
 
-void AssetManager::init()
+AssetManager::AssetManager()
 {
 	importers.push_back(std::make_unique<ModelImporter>());
 	importers.back().get()->assetManager = this;

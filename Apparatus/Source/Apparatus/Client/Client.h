@@ -1,34 +1,41 @@
 #pragma once
 
-#include "../Core/LifecycleInterface.h"
+#include <vector>
+#include <memory>
+
 #include "../Core/NameProvider.h"
 #include "../Rendering/Viewport.h"
 
-class Apparatus;
 class Camera;
+class Entity;
 
-class Client : public LifecycleInterface, public NameProvider
+class Client
 {
 public:
-	Client(Apparatus* apparatus);
+	Client();
 	virtual ~Client() = default;
 
 	Client(const Client&) = delete;
 	Client(Client&&) = delete;
 	void operator=(const Client&) = delete;
 
+	// These should probably be replaced by the state. Like PlayingState->Start, MenuState->Start etc.
 	virtual void init() = 0;
-	virtual void start() {}
+	virtual void onGameStart() = 0;
 	virtual void update(float dt) = 0;
+	virtual void stop();
 
-	virtual void quit();
+	bool isStopping() const;
 
-	virtual Viewport* getViewport() = 0;
 	virtual Camera* getActiveCamera() = 0;
+	virtual Viewport* getViewport() = 0;
 
-	Apparatus* getApparatus();
+	void setActiveEntity(Entity* entity);
+	Entity* getActiveEntity();
 
 protected:
-	Apparatus* apparatus;
-	bool quitting;
+	virtual void onActiveEntitySet() = 0;
+
+	bool stopping;
+	Entity* activeEntity;
 };

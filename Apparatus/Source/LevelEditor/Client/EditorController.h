@@ -7,37 +7,35 @@
 #include <Apparatus/Client/HumanControllerBase.h>
 #include <Apparatus/Rendering/Rotator.h>
 
-class InputHandler;
-class EditorLocalClient;
-class ModelComponent;
 class GizmoComponent;
-struct RayTraceResult;
 
 class EditorController : public HumanControllerBase
 {
 public:
-	EditorController(EditorLocalClient* editorLocalClient);
+	EditorController(const std::string& controllerName, LocalClient& localClient);
 
 	virtual void onActivate() override;
 	virtual void onDeactivate() override;
 
 protected:
-	virtual void assignDefaultObjectName() override;
-
 	virtual void setupInput() override;
 
 	void pressSelect();
-	void releaseSelect();
+	void cancelSelection();
 
 	void enableTranslationMode();
 	void enableRotationMode();
 	void enableScaleMode();
 
-	void releasePrimaryMouseButton();
+	void releaseSelect();
 
 	void cursorMoveY(float value);
 	void cursorMoveX(float value);
 
-	EditorLocalClient* editorLocalClient;
+	void onModifierPressed();
+	void onModifierReleased();
+	void onDuplicate();
+
 	GizmoComponent* gizmo;
+	bool ctrlPressed;
 };

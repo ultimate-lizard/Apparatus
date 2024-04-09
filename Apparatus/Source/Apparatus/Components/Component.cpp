@@ -2,21 +2,21 @@
 
 #include "../Core/Logger.h"
 
-Component::Component(Entity* owner) :
-	owner(owner)
+Component::Component(const std::string& componentName) :
+	owner(nullptr),
+	componentName(componentName)
 {
-	
 }
 
-Component::Component(Entity* owner, const std::string& name) :
-	NameProvider(name),
-	owner(owner)
+Component::Component(const Component& other) :
+	owner(other.owner),
+	componentName(other.componentName)
 {
 }
 
 void Component::init()
 {
-	LOG("Initialized component '" + getObjectName() + "'", LogLevel::Info);
+	LOG("Initialized component '" + componentName + "'", LogLevel::Info);
 }
 
 void Component::setOwner(Entity* owner)
@@ -27,4 +27,14 @@ void Component::setOwner(Entity* owner)
 Entity* Component::getOwner()
 {
 	return owner;
+}
+
+void Component::setComponentName(const std::string& componentName)
+{
+	this->componentName = componentName;
+}
+
+const std::string& Component::getComponentName() const
+{
+	return componentName;
 }

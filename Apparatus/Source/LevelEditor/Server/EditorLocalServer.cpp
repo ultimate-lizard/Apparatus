@@ -1,313 +1,445 @@
 #include "EditorLocalServer.h"
 
-#include <Apparatus/Apparatus.h>
+#include <Apparatus/Level.h>
+#include <Apparatus/Util/BoundingBox.h>
 #include <Apparatus/Rendering/Renderer.h>
+#include <Apparatus/Client/LocalClient.h>
 #include <Apparatus/Components/TransformComponent.h>
 #include <Apparatus/Components/ModelComponent.h>
-#include <Apparatus/Components/DirectionalLightComponent.h>
-#include <Apparatus/Components/PointLightComponent.h>
-#include <Apparatus/Components/SpotLightComponent.h>
+#include <Apparatus/Components/LightComponent/DirectionalLightComponent.h>
+#include <Apparatus/Components/LightComponent/PointLightComponent.h>
+#include <Apparatus/Components/LightComponent/SpotLightComponent.h>
 
 #include "../Components/SelectableComponent.h"
 #include "../Components/GizmoComponent.h"
+#include "../Editor/Editor.h"
 
-EditorLocalServer::EditorLocalServer(Apparatus* apparatus) :
-	LocalServer(apparatus)
+EditorLocalServer::EditorLocalServer() :
+	LocalServer(),
+	selection(nullptr),
+	gizmo(nullptr),
+	cachedSelectionPosition(0.0f)
 {
-	assignDefaultObjectName();
+}
+
+void EditorLocalServer::connect(const ConnectionInfo& info)
+{
+	LocalServer::connect(info);
+
+
 }
 
 void EditorLocalServer::update(float dt)
 {
 	LocalServer::update(dt);
 
-	// Render visual boxes of selected entities
-	for (std::unique_ptr<Entity>& entityPtr : getAllEntities())
+	if (selection)
 	{
-		if (Entity* entity = entityPtr.get())
+		if (auto transform = selection->findComponent<TransformComponent>())
 		{
-			if (auto selectable = entity->findComponent<SelectableComponent>())
+			if (transform->getWorldPosition() != cachedSelectionPosition)
 			{
-				if (selectable->isSelected() && selectable->isBoxVisible())
-				{
-					selectable->updateVisualBoundingBoxPosition();
-					Box box = selectable->getVisualBoundingBox();
-					drawDebugBox(box, { 1.0f, 1.0f, 0.0f, 1.0f }, 1.0f);
-				}
+				glm::vec3 delta = transform->getWorldPosition() - cachedSelectionPosition;
+				cachedSelectionPosition = transform->getWorldPosition();
+				selectionBox.position += delta;
 			}
 		}
+
+		drawDebugBox(selectionBox, { 1.0f, 1.0f, 0.0f, 1.0f }, 1.0f);
 	}
 }
 
-void EditorLocalServer::assignDefaultObjectName()
+void EditorLocalServer::start()
 {
-	setObjectName("EditorLocalServer");
+	LocalServer::start();
+
+	if (level)
+	{
+		Entity* player = level->spawnEntity("Player");
+
+		if (Entity* gizmo = level->spawnEntity("Gizmo"))
+		{
+			this->gizmo = gizmo->findComponent<GizmoComponent>();
+		}
+
+		if (Entity* sceneModel = level->spawnEntity("ModelEntity"))
+		{
+			if (ModelComponent* modelComponent = sceneModel->findComponent<ModelComponent>())
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_NewScene"));
+			}
+		}
+
+		//if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		//{
+		//	if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+		//	{
+		//		modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CaveFloor"));
+		//	}
+		//}
+
+		//if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		//{
+		//	if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+		//	{
+		//		modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CaveWall"));
+		//	}
+		//}
+
+		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		{
+			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_ChestBroken"));
+			}
+
+			auto trans = dungeonModel->findComponent<TransformComponent>();
+
+			if (Entity* dungeonModel2 = level->spawnEntity("ModelEntity"))
+			{
+				if (ModelComponent* modelComponent = dungeonModel2->findComponent<ModelComponent>())
+				{
+					modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Table"));
+					modelComponent->setParent(trans);
+				}
+			}
+		}
+
+		//if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		//{
+		//	if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+		//	{
+		//		modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CellDoor"));
+		//	}
+		//}
+
+		//if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		//{
+		//	if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+		//	{
+		//		modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Table"));
+		//	}
+		//}
+
+		/*if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		{
+			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Skull"));
+			}
+		}
+
+		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		{
+			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Cage"));
+			}
+		}*/
+
+		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		{
+			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Dragon"));
+			}
+		}
+
+		/*for (size_t i = 0; i < 11; ++i)
+		{
+			for (size_t j = 0; j < 11; ++j)
+			{
+				if (Entity* pointLight = level->spawnEntity("PointLight"))
+				{
+					if (TransformComponent* lightTransform = pointLight->findComponent<TransformComponent>())
+					{
+						lightTransform->setPosition({ i * 4.0f, 5.0f, j * 4.0f });
+					}
+				}
+			}
+		}*/
+
+		Entity* pointLight = level->spawnEntity("PointLight");
+	}
 }
 
-void EditorLocalServer::setupEntities()
+void EditorLocalServer::selectEntity(Entity* entity)
 {
-	LocalServer::setupEntities();
+	indicateSelection(selection, false);
 
-	if (!apparatus)
+	this->selection = entity;
+
+	if (entity)
+	{
+		indicateSelection(entity, true);
+		regenerateSelectionBoundingBox();
+	}
+
+	if (gizmo)
+	{
+		gizmo->attach(entity);
+		gizmo->setVisibility(entity != nullptr);
+	}
+}
+
+Entity* EditorLocalServer::getSelectedEntity()
+{
+	return selection;
+}
+
+void EditorLocalServer::duplicateSelection()
+{
+	if (Entity* newSelection = Apparatus::getEntityRegistry().clone(selection))
+	{
+		newSelection->init();
+		newSelection->onSpawn();
+
+		if (level)
+		{
+			level->addEntity(newSelection);
+		}
+
+		selectEntity(newSelection);
+	}
+}
+
+void EditorLocalServer::indicateSelection(Entity* entity, bool selected)
+{
+	if (!entity)
 	{
 		return;
 	}
 
-	AssetManager& assetManager = apparatus->getResourceManager();
-
-	if (Entity* modelEntity = createEntity("ModelEntity"))
+	for (ModelComponent* modelComponent : entity->getAllComponentsOfClass<ModelComponent>())
 	{
-		auto modelTransform = createComponent<TransformComponent>(modelEntity);
-		if (auto modelComponent = createComponent<ModelComponent>(modelEntity))
+		if (!modelComponent)
 		{
-			modelComponent->setModel(assetManager.findAsset<Model>("Model_Makarov"));
-			modelComponent->setParent(modelTransform);
+			continue;
 		}
-		modelTransform->setPosition({ 3.0f, 0.0f, 14.0f });
-		modelTransform->setScale(glm::vec3(1.5f));
-		
-		if (Entity* anotherEntity = createEntity("ModelEntity2"))
-		{
-			auto anotherEntityTransform = createComponent<TransformComponent>(anotherEntity);
-			anotherEntityTransform->setParent(modelTransform);
-			if (auto modelComponent = createComponent<ModelComponent>(anotherEntity))
-			{
-				modelComponent->setModel(assetManager.findAsset<Model>("Model_Makarov"));
-				modelComponent->setParent(anotherEntityTransform);
-			}
-			anotherEntityTransform->setPosition({ 0.0f, 2.0f, 0.0f });
-			anotherEntityTransform->setScale(glm::vec3(1.5f));
-			// anotherEntityTransform->setInheritScale(false);
-			// anotherEntityTransform->setInheritRotation(false);
 
-			if (Entity* anotherAnotherEntity = createEntity("ModelEntity2"))
+		if (ModelInstance* modelInstance = modelComponent->getModelInstance())
+		{
+			if (Model* model = modelInstance->getModel())
 			{
-				auto transformComponent = createComponent<TransformComponent>(anotherAnotherEntity);
-				transformComponent->setParent(anotherEntityTransform);
-				if (auto modelComponent = createComponent<ModelComponent>(anotherAnotherEntity))
+				const size_t materialsNum = model->getMaterials().size();
+				for (size_t i = 0; i < materialsNum; ++i)
 				{
-					modelComponent->setModel(assetManager.findAsset<Model>("Model_Makarov"));
-					modelComponent->setParent(transformComponent);
-				}
-				transformComponent->setPosition({ 0.0f, 2.0f, 0.0f });
-				transformComponent->setScale(glm::vec3(1.5f));
-			}
-		}
-	}
-
-	//// Directional light
-	//if (Entity* directionalLightEntity = createEntity("DirectionalLight"))
-	//{
-	//	auto lightTransform = createComponent<TransformComponent>(directionalLightEntity);
-	//	
-	//	if (auto lightModel = createComponent<ModelComponent>(directionalLightEntity))
-	//	{
-	//		lightModel->setModel(apparatus->getResourceManager().findAsset<Model>("Model_DirectionalLight"));
-	//		lightModel->setParent(lightTransform);
-	//	}
-
-	//	if (auto directionalLightComponent = createComponent<DirectionalLightComponent>(directionalLightEntity))
-	//	{
-	//		directionalLightComponent->setDiffuseColor({ 0.2f, 0.2f, 0.4f });
-	//		directionalLightComponent->setAmbientColor({ 0.0f, 0.0f, 0.1f });
-	//		directionalLightComponent->setSpecularColor({ 0.0f, 0.0f, 0.1f });
-	//	}
-	//}
-
-	//// Point light
-	//if (Entity* pointLightEntity = createEntity("PointLight"))
-	//{
-	//	auto lightTransform = createComponent<TransformComponent>(pointLightEntity);
-
-	//	if (auto lightModel = createComponent<ModelComponent>(pointLightEntity))
-	//	{
-	//		lightModel->setModel(apparatus->getResourceManager().findAsset<Model>("Model_PointLight"));
-	//		lightModel->setParent(lightTransform);
-	//	}
-
-	//	if (auto pointLightComponent = createComponent<PointLightComponent>(pointLightEntity))
-	//	{
-	//		pointLightComponent->setAmbientColor({ 0.5f, 0.3f, 0.0f });
-	//		pointLightComponent->setDiffuseColor({ 1.0f, 0.7f, 0.0f });
-	//		pointLightComponent->setSpecularColor({ 1.0f, 0.7f, 0.0f });
-	//	}
-	//}
-
-	//// Point light
-	if (Entity* pointLightEntity = createEntity("PointLight2"))
-	{
-		auto lightTransform = createComponent<TransformComponent>(pointLightEntity);
-
-		if (auto lightModel = createComponent<ModelComponent>(pointLightEntity))
-		{
-			lightModel->setModel(apparatus->getResourceManager().findAsset<Model>("Model_PointLight"));
-			lightModel->setParent(lightTransform);
-		}
-
-		if (auto pointLightComponent = createComponent<PointLightComponent>(pointLightEntity))
-		{
-			pointLightComponent->setAmbientColor({ 0.5f, 0.5f, 0.5f });
-			pointLightComponent->setDiffuseColor({ 1.0f, 0.0f, 1.0f });
-			pointLightComponent->setSpecularColor({ 1.0f, 0.0f, 1.0f });
-		}
-	}
-
-	// Spot light
-	if (Entity* spotLightEntity = createEntity("SpotLight"))
-	{
-		auto lightTransform = createComponent<TransformComponent>(spotLightEntity);
-
-		if (auto lightModel = createComponent<ModelComponent>(spotLightEntity))
-		{
-			lightModel->setModel(apparatus->getResourceManager().findAsset<Model>("Model_SpotLight"));
-			lightModel->setParent(lightTransform);
-		}
-
-		if (auto pointLightComponent = createComponent<SpotLightComponent>(spotLightEntity))
-		{
-			pointLightComponent->setAmbientColor({ 0.5f, 0.5f, 0.5f });
-			pointLightComponent->setDiffuseColor({ 1.0f, 1.0f, 0.8f });
-			pointLightComponent->setSpecularColor({ 1.0f, 1.0f, 0.8f });
-		}
-	}
-
-	// In Editor for all entities except the player add SelectableComponent
-	for (std::unique_ptr<Entity>& entityPtr : getAllEntities())
-	{
-		if (Entity* entity = entityPtr.get())
-		{
-			if (entity->getObjectName() != "Player")
-			{
-				createComponent<SelectableComponent>(entity);
-			}
-		}
-	}
-
-	setupGizmoEntity();
-}
-
-void EditorLocalServer::setupGizmoEntity()
-{
-	if (Entity* gizmo = createEntity("Gizmo"))
-	{
-		if (auto gizmoTransform = createComponent<TransformComponent>(gizmo))
-		{
-			gizmoTransform->setInheritRotation(false);
-			gizmoTransform->setInheritScale(false);
-
-			createComponent<GizmoComponent>(gizmo, "GizmoX");
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoX"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoX"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoY"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoY"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoZ"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoZ"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoXY"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoXY"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoXZ"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoXZ"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "GizmoZY"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_GizmoYZ"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto rollModelComponent = createComponent<ModelComponent>(gizmo, "Roll"))
-			{
-				rollModelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_Roll"));
-				rollModelComponent->setParent(gizmoTransform);
-				rollModelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-
-				if (auto yawModelComponent = createComponent<ModelComponent>(gizmo, "Yaw"))
-				{
-					yawModelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_Yaw"));
-					yawModelComponent->setParent(rollModelComponent);
-					yawModelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-
-					if (auto modelComponent = createComponent<ModelComponent>(gizmo, "Pitch"))
+					if (MaterialInstance* materialInstance = modelInstance->getMaterialInstance(i))
 					{
-						modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_Pitch"));
-						modelComponent->setParent(yawModelComponent);
-						modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
+						MaterialParameters& params = materialInstance->getMaterialParameters();
+
+						params.setVec4("selectionColor", { 1.0f, 0.0f, 0.0f, 1.0f });
+						params.setBool("selected", selected);
 					}
 				}
 			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleUp"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleUp"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleDown"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleDown"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleLeft"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleLeft"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleRight"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleRight"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleFront"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleFront"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleBack"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleBack"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
-
-			if (auto modelComponent = createComponent<ModelComponent>(gizmo, "ScaleAll"))
-			{
-				modelComponent->setModel(apparatus->getResourceManager().findAsset<Model>("Model_Mesh_ScaleAll"));
-				modelComponent->setParent(gizmoTransform);
-				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
-			}
 		}
 	}
+
+	//if (auto selectableComponent = entity->findComponent<SelectableComponent>())
+	//{
+	//	selectableComponent->setSelected(selected);
+	//	selectableComponent->regenerateVisualBoundingBox();
+	//}
 }
+
+void EditorLocalServer::regenerateSelectionBoundingBox()
+{
+	if (!selection)
+	{
+		return;
+	}
+
+	auto transformComponent = selection->findComponent<TransformComponent>();
+	if (!transformComponent)
+	{
+		return;
+	}
+
+	cachedSelectionPosition = transformComponent->getWorldPosition();
+
+	std::vector<ModelComponent*> modelComponents = selection->getAllComponentsOfClass<ModelComponent>();
+	if (modelComponents.size() > 1)
+	{
+		std::vector<Model*> models;
+		for (ModelComponent* modelComponent : modelComponents)
+		{
+			if (modelComponent)
+			{
+				if (Model* model = modelComponent->getModel())
+				{
+					models.push_back(model);
+				}
+			}
+		}
+
+		selectionBox = generateAABB(models, transformComponent->getWorldPosition(), transformComponent->getWorldOrientation(), transformComponent->getWorldScale());
+	}
+	else if (!modelComponents.empty())
+	{
+		ModelComponent* modelComponent = modelComponents[0];
+		selectionBox = generateAABB(modelComponent->getModel(), modelComponent->getWorldPosition(), modelComponent->getWorldOrientation(), modelComponent->getWorldScale());
+	}
+}
+
+//EditorContext& EditorLocalServer::getEditorContext()
+//{
+//	return editorContext;
+//}
+
+//
+//void EditorLocalServer::setupEntities()
+//{
+//	LocalServer::setupEntities();
+//
+//	//if (Entity* modelEntity = createEntity("ModelEntity"))
+//	//{
+//	//	auto modelTransform = modelEntity->createComponent<TransformComponent>(modelEntity);
+//	//	if (auto modelComponent = modelEntity->createComponent<ModelComponent>(modelEntity))
+//	//	{
+//	//		modelComponent->setModel(assetManager.findAsset<Model>("Model_Makarov"));
+//	//		modelComponent->setParent(modelTransform);
+//	//	}
+//	//	modelTransform->setPosition({ 3.0f, 0.0f, 14.0f });
+//	//	modelTransform->setScale(glm::vec3(1.5f));
+//	//	
+//	//	if (Entity* anotherEntity = createEntity("ModelEntity2"))
+//	//	{
+//	//		auto anotherEntityTransform = anotherEntity->createComponent<TransformComponent>(anotherEntity);
+//	//		anotherEntityTransform->setParent(modelTransform);
+//	//		if (auto modelComponent = anotherEntity->createComponent<ModelComponent>(anotherEntity))
+//	//		{
+//	//			modelComponent->setModel(assetManager.findAsset<Model>("Model_Makarov"));
+//	//			modelComponent->setParent(anotherEntityTransform);
+//	//		}
+//	//		anotherEntityTransform->setPosition({ 0.0f, 2.0f, 0.0f });
+//	//		anotherEntityTransform->setScale(glm::vec3(1.5f));
+//	//		// anotherEntityTransform->setInheritScale(false);
+//	//		// anotherEntityTransform->setInheritRotation(false);
+//
+//	//		if (Entity* anotherAnotherEntity = createEntity("ModelEntity2"))
+//	//		{
+//	//			auto transformComponent = anotherAnotherEntity->createComponent<TransformComponent>(anotherAnotherEntity);
+//	//			transformComponent->setParent(anotherEntityTransform);
+//	//			if (auto modelComponent = anotherAnotherEntity->createComponent<ModelComponent>(anotherAnotherEntity))
+//	//			{
+//	//				modelComponent->setModel(assetManager.findAsset<Model>("Model_Makarov"));
+//	//				modelComponent->setParent(transformComponent);
+//	//			}
+//	//			transformComponent->setPosition({ 0.0f, 2.0f, 0.0f });
+//	//			transformComponent->setScale(glm::vec3(1.5f));
+//	//		}
+//	//	}
+//	//}
+//
+//	// Directional light
+//	//if (Entity* directionalLightEntity = createEntityTemplate("DirectionalLight"))
+//	//{
+//	//	TransformComponent* lightTransform = directionalLightEntity->createComponent<TransformComponent>(directionalLightEntity);
+//	//	
+//	//	if (ModelComponent* lightModel = directionalLightEntity->createComponent<ModelComponent>(directionalLightEntity))
+//	//	{
+//	//		lightModel->setModel(apparatus->getAssetManager().findAsset<Model>("Model_DirectionalLight"));
+//	//		lightModel->setParent(lightTransform);
+//	//	}
+//
+//	//	if (auto directionalLightComponent = directionalLightEntity->createComponent<DirectionalLightComponent>(directionalLightEntity))
+//	//	{
+//	//		directionalLightComponent->setColor({ 0.2f, 0.2f, 0.2f });
+//	//	}
+//	//}
+//
+//	//// Point light TEMPLATE
+//	
+//
+//	// Point light
+//	//if (Entity* pointLightEntity = createEntity("PointLight2"))
+//	//{
+//	//	auto lightTransform = createComponent<TransformComponent>(pointLightEntity);
+//
+//	//	if (auto lightModel = createComponent<ModelComponent>(pointLightEntity))
+//	//	{
+//	//		lightModel->setModel(apparatus->getAssetManager().findAsset<Model>("Model_PointLight"));
+//	//		lightModel->setParent(lightTransform);
+//	//	}
+//
+//	//	if (auto pointLightComponent = createComponent<PointLightComponent>(pointLightEntity))
+//	//	{
+//	//		pointLightComponent->setColor({ 1.0f, 1.0f, 1.0f });
+//	//	}
+//	//}
+//
+//	//// Spot light
+//	//if (Entity* spotLightEntity = createEntity("SpotLight"))
+//	//{
+//	//	auto lightTransform = createComponent<TransformComponent>(spotLightEntity);
+//
+//	//	if (auto lightModel = createComponent<ModelComponent>(spotLightEntity))
+//	//	{
+//	//		lightModel->setModel(apparatus->getAssetManager().findAsset<Model>("Model_SpotLight"));
+//	//		lightModel->setParent(lightTransform);
+//	//	}
+//
+//	//	if (auto pointLightComponent = createComponent<SpotLightComponent>(spotLightEntity))
+//	//	{
+//	//		pointLightComponent->setColor({ 1.0f, 0.0f, 1.0f });
+//	//	}
+//	//}
+//
+//	//for (size_t i = 0; i < 4; ++i)
+//	//{
+//	//	for (size_t j = 0; j < 4; ++j)
+//	//	{
+//	//		if (Entity* pointLightEntity = createEntity("PointLight"))
+//	//		{
+//	//			if (TransformComponent* lightTransform = createComponent<TransformComponent>(pointLightEntity))
+//	//			{
+//	//				lightTransform->setPosition({ i * 8, 6.0f, j * 8});
+//	//				// lightTransform->offsetPosition({ -8.0f, 0.0f, 0.0f });
+//	//				if (auto lightModel = createComponent<ModelComponent>(pointLightEntity))
+//	//				{
+//	//					lightModel->setModel(apparatus->getAssetManager().findAsset<Model>("Model_PointLight"));
+//	//					lightModel->setParent(lightTransform);
+//	//				}
+//
+//	//				LocalClient* localClient = apparatus->getPrimaryLocalClient();
+//
+//	//				if (auto pointLightComponent = createComponent<PointLightComponent>(pointLightEntity))
+//	//				{
+//	//					pointLightComponent->setColor({ 1.0f, 0.8f, 0.8f });
+//	//				}
+//	//			}
+//	//		}
+//	//	}
+//	//}
+//
+//	// In Editor for all entities except the player add SelectableComponent
+//	//for (std::unique_ptr<Entity>& entityPtr : getAllEntities())
+//	//{
+//	//	if (Entity* entity = entityPtr.get())
+//	//	{
+//	//		if (entity->getObjectName() != "Player")
+//	//		{
+//	//			entity->createComponent<SelectableComponent>(entity);
+//	//		}
+//	//	}
+//	//}
+//
+//	//for (auto mapIter = entityTemplates.begin(); mapIter != entityTemplates.end(); ++mapIter)
+//	//{
+//	//	if (Entity* entity = mapIter->second.get())
+//	//	{
+//	//		if (entity->getObjectName() != "Player")
+//	//		{
+//	//			entity->createComponent<SelectableComponent>(entity);
+//	//		}
+//	//	}
+//	//}
+//
+//	setupGizmoEntity();
+//}
+//
+//void EditorLocalServer::setupGizmoEntity()
+//{
+//	
+//}

@@ -1,16 +1,16 @@
 #pragma once
 
+#include <string>
+
 class Entity;
 class Client;
 
 #include "../Core/NameProvider.h"
 
-class Controller : public NameProvider
+class Controller
 {
 public:
-	Controller();
-	Controller(const std::string& name);
-
+	Controller(const std::string& controllerName);
 	virtual ~Controller() = default;
 
 	Controller(const Controller&) = delete;
@@ -18,11 +18,14 @@ public:
 	void operator=(Controller&) = delete;
 
 	virtual void setControlEntity(Entity* entity);
-	virtual void setupInput() {};
+	virtual void setupInput() = 0;
 
 	virtual void onActivate() = 0;
 	virtual void onDeactivate() = 0;
 
+	std::string getControllerName() const;
+
 protected:
-	Entity* controlledEntity;
+	Entity* controlEntity;
+	std::string controllerName;
 };

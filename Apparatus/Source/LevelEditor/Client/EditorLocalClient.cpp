@@ -5,119 +5,49 @@
 #include <Apparatus/Server/LocalServer.h>
 #include <Apparatus/Components/ModelComponent.h>
 #include <Apparatus/Components/TransformComponent.h>
+#include <Apparatus/Components/LightComponent/PointLightComponent.h>
+
 
 #include "EditorController.h"
 #include "../Components/SelectableComponent.h"
-#include "../Components/GizmoComponent.h"
+#include "../Server/EditorLocalServer.h"
 
-EditorLocalClient::EditorLocalClient(Apparatus* apparatus) :
-	LocalClient(apparatus),
-	inEditMode(false),
-	selectedEntity(nullptr),
-	gizmo(nullptr)
+EditorLocalClient::EditorLocalClient(Renderer* renderer) :
+	LocalClient(renderer),
+	inEditMode(false)
 {
-	assignDefaultObjectName();
 }
 
-void EditorLocalClient::selectEntity(Entity* entity)
+void EditorLocalClient::onLightCreation(std::shared_ptr<LightComponentCreationEvent> event)
 {
-	indicateSelection(selectedEntity, false);
-
-	this->selectedEntity = entity;
-
-	if (entity)
+	if (renderer)
 	{
-		indicateSelection(entity, true);
-	}
-
-	if (gizmo)
-	{
-		gizmo->attach(entity);
-		gizmo->setVisibility(entity != nullptr);
-	}
-}
-
-Entity* EditorLocalClient::getSelectedEntity()
-{
-	return selectedEntity;
-}
-
-GizmoComponent* EditorLocalClient::getGizmo()
-{
-	return gizmo;
-}
-
-void EditorLocalClient::indicateSelection(Entity* entity, bool selected)
-{
-	if (!entity)
-	{
-		return;
-	}
-
-	for (ModelComponent* modelComponent : entity->getAllComponentsOfClass<ModelComponent>())
-	{
-		if (!modelComponent)
+		if (event)
 		{
-			continue;
-		}
-
-		if (ModelInstance* modelInstance = modelComponent->getModelInstance())
-		{
-			if (Model* model = modelInstance->getModel())
+			if (PointLightComponent* pointLightComponent = event->pointLightComponent)
 			{
-				const size_t materialsNum = model->getMaterials().size();
-				for (size_t i = 0; i < materialsNum; ++i)
-				{
-					if (MaterialInstance* materialInstance = modelInstance->getMaterialInstance(i))
-					{
-						MaterialParameters& params = materialInstance->getMaterialParameters();
-
-						params.setVec4("selectionColor", { 1.0f, 0.0f, 0.0f, 1.0f });
-						params.setBool("selected", selected);
-					}
-				}
+				renderer->addPointLight(&pointLightComponent->getPointLight());
 			}
 		}
 	}
-
-	if (auto selectableComponent = entity->findComponent<SelectableComponent>())
-	{
-		selectableComponent->setSelected(selected);
-		selectableComponent->regenerateVisualBoundingBox();
-	}
-}
-
-void EditorLocalClient::assignDefaultObjectName()
-{
-	setObjectName("EditorLocalClient");
 }
 
 void EditorLocalClient::init()
 {
 	LocalClient::init();
 
-	createController<EditorController>(this);
+	createController<EditorController>("EditorController", *this);
 
 	setupGlobalEditorInput();
+
+	Apparatus::getEventDispatcher().bind<LightComponentCreationEvent>(std::bind(&EditorLocalClient::onLightCreation, this, std::placeholders::_1));
 }
 
-void EditorLocalClient::start()
+void EditorLocalClient::onGameStart()
 {
-	LocalClient::start();
+	LocalClient::onGameStart();
 
-	if (localServer)
-	{
-		if (Entity* gizmoEntity = localServer->findEntity(GizmoNames::Gizmo))
-		{
-			gizmo = gizmoEntity->findComponent<GizmoComponent>();
-			gizmo->setEditorLocalClient(this);
-		}
-	}
-
-	if (gizmo)
-	{
-		gizmo->setVisibility(false);
-	}
+	
 }
 
 void EditorLocalClient::onActiveControllerChanged()
@@ -133,27 +63,18 @@ void EditorLocalClient::toggleEditMode()
 void EditorLocalClient::setEditModeEnabled(bool enabled)
 {
 	inEditMode = enabled;
-	if (apparatus)
-	{
-		apparatus->setCursorWrapEnabled(!enabled);
-	}
+
+	Apparatus& app = Apparatus::get();
+
+	app.getWindow().setCursorWrapEnabled(!enabled);
 	
 	if (inEditMode)
 	{
 		setActiveController(findController<EditorController>("EditorController"));
-		if (Entity* playerEntity = localServer->findEntity("Player"))
-		{
-			setActiveEntity(playerEntity);
-		}
 	}
 	else
 	{
 		setActiveController(getDefaultController());
-	}
-
-	if (Entity* playerEntity = localServer->findEntity("Player"))
-	{
-		setActiveEntity(playerEntity);
 	}
 
 	if (Controller* activeController = getActiveController())

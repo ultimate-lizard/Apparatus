@@ -18,11 +18,12 @@ public:
 	virtual void init() = 0;
 
 	std::string getAssetName() const;
+	//AssetManager& getAssetManager();
 
 protected:
 	std::string assetName;
 
-	AssetManager* assetManager;
+	//AssetManager& assetManager;
 
 	friend class AssetManager;
 };

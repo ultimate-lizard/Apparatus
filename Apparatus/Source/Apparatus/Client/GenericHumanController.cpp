@@ -4,42 +4,31 @@
 
 #include <SDL2/SDL.h>
 
-#include "InputHandler.h"
+#include "../InputHandler.h"
 #include "LocalClient.h"
 #include "../Core/Logger.h"
 #include "../Components/DebugMovementComponent.h"
 #include "../Server/Entity.h"
 #include "../Apparatus.h"
 
-GenericHumanController::GenericHumanController(LocalClient* localClient) :
-	HumanControllerBase(localClient)
+GenericHumanController::GenericHumanController(const std::string& name, LocalClient& localClient) :
+	HumanControllerBase(controllerName, localClient)
 {
-	assignDefaultObjectName();
-}
-
-void GenericHumanController::assignDefaultObjectName()
-{
-	setObjectName("GenericHumanController");
 }
 
 void GenericHumanController::onActivate()
 {
-	HumanControllerBase::onActivate();
+	Apparatus& app = Apparatus::get();
+	Window& window = app.getWindow();
 
-	if (localClient)
-	{
-		if (Apparatus* apparatus = localClient->getApparatus())
-		{
-			apparatus->setCursorVisibleEnabled(false);
-		}
-	}
+	window.setCursorVisibleEnabled(false);
 }
 
 void GenericHumanController::onDeactivate()
 {
-	if (controlledEntity)
+	if (controlEntity)
 	{
-		if (auto movement = controlledEntity->findComponent<MovementComponent>())
+		if (auto movement = controlEntity->findComponent<MovementComponent>())
 		{
 			movement->moveX(0.0f);
 			movement->moveZ(0.0f);
@@ -81,14 +70,11 @@ void GenericHumanController::lookY(float value)
 
 void GenericHumanController::setupInput()
 {
-	if (!inputHandler)
-	{
-		return;
-	}
+	InputHandler& inputHandler = localClient.getInputHandler();
 
-	inputHandler->bindAxisAction("LookX", std::bind(&GenericHumanController::lookX, this, std::placeholders::_1));
-	inputHandler->bindAxisAction("LookY", std::bind(&GenericHumanController::lookY, this, std::placeholders::_1));
+	inputHandler.bindAxisAction("LookX", std::bind(&GenericHumanController::lookX, this, std::placeholders::_1));
+	inputHandler.bindAxisAction("LookY", std::bind(&GenericHumanController::lookY, this, std::placeholders::_1));
 
-	inputHandler->bindAxisAction("MoveZ", std::bind(&GenericHumanController::moveZ, this, std::placeholders::_1));
-	inputHandler->bindAxisAction("MoveX", std::bind(&GenericHumanController::moveX, this, std::placeholders::_1));
+	inputHandler.bindAxisAction("MoveZ", std::bind(&GenericHumanController::moveZ, this, std::placeholders::_1));
+	inputHandler.bindAxisAction("MoveX", std::bind(&GenericHumanController::moveX, this, std::placeholders::_1));
 }

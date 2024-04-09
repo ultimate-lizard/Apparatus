@@ -9,8 +9,11 @@
 class ModelComponent : public Component, public SceneNode
 {
 public:
-	ModelComponent(Entity* owner);
-	ModelComponent(Entity* owner, const std::string& name);
+	ModelComponent();
+	ModelComponent(const std::string& componentName);
+	ModelComponent(const ModelComponent& other);
+
+	virtual std::unique_ptr<Component> clone() override;
 
 	virtual void init() override;
 	virtual void update(float dt) override {}
@@ -28,8 +31,6 @@ public:
 	size_t getDepthBufferLayer() const;
 
 protected:
-	virtual void assignDefaultObjectName() override;
-
 	Model* model;
 	std::unique_ptr<ModelInstance> modelInstance;
 

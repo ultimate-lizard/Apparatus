@@ -5,14 +5,20 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../Core/Logger.h"
 #include "Mesh.h"
 #include "Material.h"
 #include "Model.h"
 #include "Camera.h"
 #include "Shader.h"
-#include "Light.h"
+#include "Light/DirectionalLight.h"
+#include "Light/PointLight.h"
+#include "Light/SpotLight.h"
 #include "../Components/ModelComponent.h"
+#include "../Components/TransformComponent.h"
+#include "../Components/LightComponent/PointLightComponent.h"
+#include "../Server/Entity.h"
+#include "../Core/Logger.h"
+#include "../Window.h"
 
 void GLAPIENTRY
 MessageCallback(GLenum source,
@@ -23,27 +29,29 @@ MessageCallback(GLenum source,
 	const GLchar* message,
 	const void* userParam)
 {
-	//fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-	//	(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-	//	type, severity, message);
-
 	LOG("GL CALLBACK: type = " + std::to_string(type) + " severity = " + std::to_string(severity) + " message = " + message, type == GL_DEBUG_TYPE_ERROR ? LogLevel::Error : LogLevel::Info);
 }
 
-Renderer::Renderer(SDL_Window* window) :
+Renderer::Renderer(Window& window) :
 	window(window),
-	context(nullptr)
+	context(nullptr),
+	uboPointLight(-1),
+	lightsIndex(-1),
+	activeCamera(nullptr)
 {
-	commandsArray.resize(8);
+	commandsContainer.resize(8);
 }
 
 void Renderer::init()
 {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+
+#ifdef _DEBUG
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-	
-	context = SDL_GL_CreateContext(window);
+#endif
+
+	context = SDL_GL_CreateContext(window.getSdlWindow());
 	if (!context)
 	{
 		LOG("Couldn't initialize GL context!", LogLevel::Error);
@@ -54,7 +62,7 @@ void Renderer::init()
 		LOG("Couldn't load GL loader!", LogLevel::Error);
 	}
 
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
@@ -67,25 +75,21 @@ void Renderer::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	if (!commandsArray.size())
+	if (!commandsContainer.size())
 	{
 		return;
 	}
 
-	for (std::queue<RenderCommand>& commands : commandsArray)
+	for (std::vector<RenderCommand>& commands : commandsContainer)
 	{
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		while (!commands.empty())
+		for (RenderCommand& command : commands)
 		{
-			RenderCommand command = commands.front();
-			commands.pop();
-
 			if (command.mesh)
 			{
 				command.mesh->bind();
 
-				// Material
 				if (command.materialInstance)
 				{
 					if (Material* material = command.materialInstance->getMaterial())
@@ -95,12 +99,14 @@ void Renderer::render()
 							material->bind();
 							shader->bind();
 
+							// TODO: Transform Uniform Buffer
 							shader->setUniform("world", command.worldMatrix);
+
+							// Camera
 							if (command.camera)
 							{
 								shader->setUniform("view", command.camera->getView());
 								shader->setUniform("projection", command.camera->getProjection());
-
 								shader->setUniform("cameraPos", command.camera->getWorldPosition());
 							}
 
@@ -126,65 +132,42 @@ void Renderer::render()
 								shader->setUniform("material." + mapIter.first, mapIter.second);
 							}
 
-							// Directional lights
-							shader->setUniform("directionalLightNum", static_cast<int>(command.lightingInfo.directionalLights.size()));
-							for (size_t i = 0; i < command.lightingInfo.directionalLights.size(); ++i)
+							//TODO: Optimize so there is no excess binds
+							if (UniformBufferObject* ubo = shader->findUniformBufferObject("LightUniformBuffer"))
 							{
-								DirectionalLight* light = command.lightingInfo.directionalLights[i];
-								if (!light)
+								const int lightsNum = static_cast<int>(pointLights.size());
+
+								ubo->bind();
+								ubo->copySubData(0, sizeof(int), &lightsNum);
+
+								int offset = 16;
+
+								for (PointLight* pointLight : pointLights)
 								{
-									continue;
+									if (!pointLight)
+									{
+										continue;
+									}
+
+									struct PointLightData
+									{
+										glm::vec3 color;
+										float compression;
+										glm::vec3 position;
+										float radius;
+									};
+
+									PointLightData data;
+									data.color = pointLight->getColor();
+									data.compression = pointLight->getCompression();
+									data.position = pointLight->getPosition();
+									data.radius = pointLight->getRadius();
+
+									ubo->copySubData(offset, sizeof(PointLightData), &data);
+									offset += sizeof(PointLightData);
 								}
 
-								shader->setUniform("directionalLight[" + std::to_string(i) + "].direction", light->getDirection());
-
-								shader->setUniform("directionalLight[" + std::to_string(i) + "].light.ambient", light->getAmbientColor());
-								shader->setUniform("directionalLight[" + std::to_string(i) + "].light.diffuse", light->getDiffuseColor());
-								shader->setUniform("directionalLight[" + std::to_string(i) + "].light.specular", light->getSpecularColor());
-							}
-
-							// Point lights
-							shader->setUniform("pointLightNum", static_cast<int>(command.lightingInfo.pointLights.size()));
-							for (size_t i = 0; i < command.lightingInfo.pointLights.size(); ++i)
-							{
-								PointLight* light = command.lightingInfo.pointLights[i];
-								if (!light)
-								{
-									continue;
-								}
-
-								shader->setUniform("pointLight[" + std::to_string(i) + "].position", light->getPosition());
-								
-								shader->setUniform("pointLight[" + std::to_string(i) + "].constant", light->getConstant());
-								shader->setUniform("pointLight[" + std::to_string(i) + "].linear", light->getLinear());
-								shader->setUniform("pointLight[" + std::to_string(i) + "].quadratic", light->getQuadratic());
-
-								shader->setUniform("pointLight[" + std::to_string(i) + "].light.ambient", light->getAmbientColor());
-								shader->setUniform("pointLight[" + std::to_string(i) + "].light.diffuse", light->getDiffuseColor());
-								shader->setUniform("pointLight[" + std::to_string(i) + "].light.specular", light->getSpecularColor());
-							}
-
-							// Spot lights
-							shader->setUniform("spotLightNum", static_cast<int>(command.lightingInfo.spotLights.size()));
-							for (size_t i = 0; i < command.lightingInfo.spotLights.size(); ++i)
-							{
-								SpotLight* light = command.lightingInfo.spotLights[i];
-								if (!light)
-								{
-									continue;
-								}
-
-								shader->setUniform("spotLight[" + std::to_string(i) + "].position", light->getPosition());
-								shader->setUniform("spotLight[" + std::to_string(i) + "].direction", light->getDirection());
-								shader->setUniform("spotLight[" + std::to_string(i) + "].cutOff", glm::radians(light->getCutOff()));
-
-								shader->setUniform("spotLight[" + std::to_string(i) + "].light.ambient", light->getAmbientColor());
-								shader->setUniform("spotLight[" + std::to_string(i) + "].light.diffuse", light->getDiffuseColor());
-								shader->setUniform("spotLight[" + std::to_string(i) + "].light.specular", light->getSpecularColor());
-
-								shader->setUniform("spotLight[" + std::to_string(i) + "].constant", light->getConstant());
-								shader->setUniform("spotLight[" + std::to_string(i) + "].linear", light->getLinear());
-								shader->setUniform("spotLight[" + std::to_string(i) + "].quadratic", light->getQuadratic());
+								ubo->unbind();
 							}
 						}
 					}
@@ -212,15 +195,17 @@ void Renderer::render()
 				}
 			}
 		}
+
+		commands.clear();
 	}
 }
 
-void Renderer::push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode, float drawSize, size_t depthBufferLayer, LightingInfo directionalLights)
+void Renderer::push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode, float drawSize, size_t depthBufferLayer)
 {
-	commandsArray[depthBufferLayer].push({ mesh, materialInstance, camera, worldMatrix, renderMode, drawSize, depthBufferLayer, std::forward<LightingInfo>(directionalLights) });
+	commandsContainer[depthBufferLayer].push_back({ mesh, materialInstance, camera, worldMatrix, renderMode, drawSize, depthBufferLayer });
 }
 
-void Renderer::push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix, LightingInfo directionalLights)
+void Renderer::push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix)
 {
 	if (!modelInstance)
 	{
@@ -251,7 +236,33 @@ void Renderer::push(ModelInstance* modelInstance, Camera* camera, const glm::mat
 		command.worldMatrix = worldMatrix;
 		command.renderMode = RenderMode::Triangles;
 		command.depthBufferLayer = modelInstance->getDepthBufferLayer();
-		command.lightingInfo = directionalLights;
-		commandsArray[command.depthBufferLayer].push(command);
+
+		commandsContainer[command.depthBufferLayer].push_back(command);
 	}
+}
+
+void Renderer::setActiveCamera(Camera* camera)
+{
+	this->activeCamera = camera;
+}
+
+Camera* Renderer::getActiveCamera()
+{
+	return activeCamera;
+}
+
+size_t Renderer::getMaxDepthBufferLayer()
+{
+	return 7;
+}
+
+void Renderer::addPointLight(PointLight* pointLight)
+{
+	pointLights.push_back(pointLight);
+}
+
+void Renderer::removeLight(PointLight* pointLight)
+{
+	auto iter = std::find(pointLights.begin(), pointLights.end(), pointLight);
+	pointLights.erase(iter);
 }

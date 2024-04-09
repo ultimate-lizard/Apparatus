@@ -1,49 +1,29 @@
 #include "TransformComponent.h"
 
-#include "../Rendering/Model.h"
-#include "../Server/LocalServer.h"
-
-TransformComponent::TransformComponent(Entity* owner) :
-	Component(owner),
-	debugModel(nullptr)
+TransformComponent::TransformComponent() :
+	Component("TransformComponent")
 {
-	assignDefaultObjectName();
+	
 }
 
-void TransformComponent::init()
+TransformComponent::TransformComponent(const std::string& componentName) :
+	Component(componentName)
 {
-	Component::init();
+}
 
-	if (debugModel)
-	{
-		debugModelInstance = debugModel->createModelInstance();
-	}
+TransformComponent::TransformComponent(const TransformComponent& other) :
+	Component(other),
+	SceneNode(other)
+{
+}
+
+std::unique_ptr<Component> TransformComponent::clone()
+{
+	std::unique_ptr<TransformComponent> newTransformComponentPtr = std::make_unique<TransformComponent>(*this);
+	return newTransformComponentPtr;
 }
 
 void TransformComponent::update(float dt)
 {
 	calculateTransform();
-}
-
-void TransformComponent::setDebugModel(Model* model)
-{
-	debugModel = model;
-}
-
-Model* TransformComponent::getDebugModel()
-{
-	return debugModel;
-}
-
-ModelInstance* TransformComponent::getDebugModelInstance()
-{
-	return debugModelInstance.get();
-}
-
-void TransformComponent::assignDefaultObjectName()
-{
-	if (owner)
-	{
-		setObjectName(owner->getObjectName() + "_TransformComponent");
-	}
 }

@@ -46,40 +46,65 @@ void Shader::bind() const
 	glUseProgram(program);
 }
 
-void Shader::setUniform(const std::string& name, const glm::mat4& matrix) const
+void Shader::setUniform(const std::string& name, const glm::mat4& matrix)
 {
 	unsigned int location = glGetUniformLocation(program, name.c_str());
 	glUniformMatrix4fv(location, 1, false, &matrix[0][0]);
 }
 
-void Shader::setUniform(const std::string& name, const glm::vec3& vector) const
+void Shader::setUniform(const std::string& name, const glm::vec3& vector)
 {
 	unsigned int location = glGetUniformLocation(program, name.c_str());
-	glUniform3fv(location, 1, &vector[0]);
+	glUniform3fv(location, 1, &vector[0]);	
 }
 
-void Shader::setUniform(const std::string& name, const glm::vec4& vector) const
+void Shader::setUniform(const std::string& name, const glm::vec4& vector)
 {
 	unsigned int location = glGetUniformLocation(program, name.c_str());
 	glUniform4fv(location, 1, &vector[0]);
 }
 
-void Shader::setUniform(const std::string& name, bool value) const
+void Shader::setUniform(const std::string& name, bool value)
 {
 	unsigned int location = glGetUniformLocation(program, name.c_str());
 	glUniform1i(location, value);
 }
 
-void Shader::setUniform(const std::string& name, float value) const
+void Shader::setUniform(const std::string& name, float value)
 {
 	unsigned int location = glGetUniformLocation(program, name.c_str());
 	glUniform1f(location, value);
 }
 
-void Shader::setUniform(const std::string& name, int value) const
+void Shader::setUniform(const std::string& name, int value)
 {
 	unsigned int location = glGetUniformLocation(program, name.c_str());
 	glUniform1i(location, value);
+}
+
+unsigned int Shader::getProgram() const
+{
+	return program;
+}
+
+UniformBufferObject* Shader::createUniformBufferObject(size_t size, const std::string& blockName, int bindingPoint)
+{
+	auto iter = ubos.emplace(blockName, std::make_unique<UniformBufferObject>(size));
+	if (iter.second == true)
+	{
+		if (UniformBufferObject* ubo = iter.first->second.get())
+		{
+			ubo->createBufferBlockBinding(this, blockName, bindingPoint);
+			return ubo;
+		}
+	}
+
+	return nullptr;
+}
+
+UniformBufferObject* Shader::findUniformBufferObject(const std::string& blockName)
+{
+	return ubos[blockName].get();
 }
 
 Shader::~Shader()

@@ -7,13 +7,34 @@ SceneNode::SceneNode() :
 	scale(1.0f),
 	parent(nullptr),
 	inheritRotation(true),
-	inheritScale(true)
+	inheritScale(true),
+	dirty(true)
+{
+
+}
+
+SceneNode::SceneNode(const SceneNode& other) :
+	transform(other.transform),
+	position(other.position),
+	rotator(other.rotator),
+	orientation(other.orientation),
+	scale(other.scale),
+	parent(other.parent),
+	children(other.children),
+	inheritRotation(other.inheritRotation),
+	inheritScale(other.inheritScale),
+	dirty(other.dirty)
 {
 
 }
 
 void SceneNode::calculateTransform()
 {
+	if (!dirty)
+	{
+		return;
+	}
+
 	glm::vec3 derivedPosition = getWorldPosition();
 	glm::quat derivedRotation = inheritRotation ? getWorldOrientation() : (orientation * rotator.asQuat());
 	glm::vec3 derivedScale = getWorldScale();
@@ -26,43 +47,53 @@ void SceneNode::calculateTransform()
 
 	for (SceneNode* child : children)
 	{
+		child->dirty = true;
 		child->calculateTransform();
 	}
+
+	dirty = false;
 }
 
 void SceneNode::setPosition(const glm::vec3& position)
 {
 	this->position = position;
+	dirty = true;
 }
 
 void SceneNode::setRotation(const Rotator& rotator)
 {
 	this->rotator = rotator;
+	dirty = true;
 }
 
 void SceneNode::setRotation(float degrees, Euler angle)
 {
 	rotator.set(degrees, angle);
+	dirty = true;
 }
 
 void SceneNode::setOrientation(const glm::quat& quat)
 {
 	this->orientation = quat;
+	dirty = true;
 }
 
 void SceneNode::setScale(const glm::vec3& scale)
 {
 	this->scale = scale;
+	dirty = true;
 }
 
 void SceneNode::offsetPosition(const glm::vec3& delta)
 {
 	this->position += delta;
+	dirty = true;
 }
 
 void SceneNode::offsetScale(const glm::vec3& delta)
 {
 	this->scale += delta;
+	dirty = true;
 }
 
 const glm::vec3& SceneNode::getPosition() const
@@ -123,6 +154,7 @@ glm::vec3 SceneNode::getWorldScale() const
 void SceneNode::rotate(float degrees, Euler angle)
 {
 	rotator.rotate(degrees, angle);
+	dirty = true;
 }
 
 glm::mat4 SceneNode::getTransform() const
@@ -144,12 +176,20 @@ void SceneNode::setParent(SceneNode* parent)
 	}
 
 	this->parent = parent;
-	parent->children.push_back(this);
+	this->parent->children.push_back(this);
+	this->parent->dirty = true;
+
+	dirty = true;
 }
 
-SceneNode* SceneNode::getParent()
+SceneNode* SceneNode::getParent() const
 {
 	return parent;
+}
+
+std::vector<SceneNode*> SceneNode::getChildren()
+{
+	return children;
 }
 
 void SceneNode::detachChild(SceneNode* child)
@@ -159,16 +199,23 @@ void SceneNode::detachChild(SceneNode* child)
 	{
 		children.erase(iter);
 	}
+
+	if (child)
+	{
+		child->dirty = true;
+	}
 }
 
 void SceneNode::setInheritRotation(bool inheritRotation)
 {
 	this->inheritRotation = inheritRotation;
+	dirty = true;
 }
 
 void SceneNode::setInheritScale(bool inheritScale)
 {
 	this->inheritScale = inheritScale;
+	dirty = true;
 }
 
 glm::vec3 SceneNode::getForward() const
@@ -199,4 +246,9 @@ glm::vec3 SceneNode::getLocalUp() const
 glm::vec3 SceneNode::getLocalRight() const
 {
 	return getRotator().asQuat() * glm::vec3(-1.0f, 0.0f, 0.0f);
+}
+
+bool SceneNode::isDirty() const
+{
+	return dirty;
 }

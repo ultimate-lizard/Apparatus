@@ -150,12 +150,20 @@
     <ClCompile Include="Source\Apparatus\Client\Controller.cpp" />
     <ClCompile Include="Source\Apparatus\Client\HumanControllerBase.cpp" />
     <ClCompile Include="Source\Apparatus\Client\GenericHumanController.cpp" />
-    <ClCompile Include="Source\Apparatus\Client\InputHandler.cpp" />
+    <ClCompile Include="Source\Apparatus\Event\EventDispatcher.cpp" />
+    <ClCompile Include="Source\Apparatus\InputHandler.cpp" />
     <ClCompile Include="Source\Apparatus\Client\LocalClient.cpp" />
-    <ClCompile Include="Source\Apparatus\Components\DirectionalLightComponent.cpp" />
-    <ClCompile Include="Source\Apparatus\Components\PointLightComponent.cpp" />
-    <ClCompile Include="Source\Apparatus\Components\SpotLightComponent.cpp" />
-    <ClCompile Include="Source\Apparatus\Rendering\Light.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\EntityRegistry.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\UniformBufferObject.cpp" />
+    <ClCompile Include="Source\Apparatus\Level.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\LightComponent\DirectionalLightComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\LightComponent\LightComponentBase.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\LightComponent\PointLightComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\LightComponent\SpotLightComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Light\DirectionalLight.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Light\LightBase.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Light\PointLight.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Light\SpotLight.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\MaterialParameter.cpp" />
     <ClCompile Include="Source\Apparatus\Util\BoundingBox.cpp" />
     <ClCompile Include="Source\Apparatus\Components\CameraComponent.cpp" />
@@ -169,7 +177,7 @@
     <ClCompile Include="Source\Apparatus\Core\Importer.cpp" />
     <ClCompile Include="Source\Apparatus\Core\Asset.cpp" />
     <ClCompile Include="Source\Apparatus\Core\AssetManager.cpp" />
-    <ClCompile Include="Source\Apparatus\Core\WindowEventHandler.cpp" />
+    <ClCompile Include="Source\Apparatus\WindowEventHandler.cpp" />
     <ClCompile Include="Source\Apparatus\Core\Logger.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Camera.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Material.cpp" />
@@ -189,6 +197,7 @@
     <ClCompile Include="Source\Apparatus\Server\Server.cpp" />
     <ClCompile Include="Source\Apparatus\Util\CollisionDetection.cpp" />
     <ClCompile Include="Source\Apparatus\Util\DebugPrimitive.cpp" />
+    <ClCompile Include="Source\Apparatus\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\DebugPrimitive.frag" />
@@ -202,12 +211,21 @@
     <ClInclude Include="Source\Apparatus\Client\Controller.h" />
     <ClInclude Include="Source\Apparatus\Client\HumanControllerBase.h" />
     <ClInclude Include="Source\Apparatus\Client\GenericHumanController.h" />
-    <ClInclude Include="Source\Apparatus\Client\InputHandler.h" />
+    <ClInclude Include="Source\Apparatus\Event\EventDispatcher.h" />
+    <ClInclude Include="Source\Apparatus\Event\Event.h" />
+    <ClInclude Include="Source\Apparatus\InputHandler.h" />
     <ClInclude Include="Source\Apparatus\Client\LocalClient.h" />
-    <ClInclude Include="Source\Apparatus\Components\DirectionalLightComponent.h" />
-    <ClInclude Include="Source\Apparatus\Components\PointLightComponent.h" />
-    <ClInclude Include="Source\Apparatus\Components\SpotLightComponent.h" />
-    <ClInclude Include="Source\Apparatus\Rendering\Light.h" />
+    <ClInclude Include="Source\Apparatus\Core\EntityRegistry.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\UniformBufferObject.h" />
+    <ClInclude Include="Source\Apparatus\Level.h" />
+    <ClInclude Include="Source\Apparatus\Components\LightComponent\DirectionalLightComponent.h" />
+    <ClInclude Include="Source\Apparatus\Components\LightComponent\LightComponentBase.h" />
+    <ClInclude Include="Source\Apparatus\Components\LightComponent\PointLightComponent.h" />
+    <ClInclude Include="Source\Apparatus\Components\LightComponent\SpotLightComponent.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Light\DirectionalLight.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Light\LightBase.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Light\PointLight.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Light\SpotLight.h" />
     <ClInclude Include="Source\Apparatus\Rendering\MaterialParameter.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Vector.h" />
     <ClInclude Include="Source\Apparatus\Util\BoundingBox.h" />
@@ -220,11 +238,11 @@
     <ClInclude Include="Source\Apparatus\Components\TransformComponent.h" />
     <ClInclude Include="Source\Apparatus\Core\NameProvider.h" />
     <ClInclude Include="Source\Apparatus\Core\Importer.h" />
-    <ClInclude Include="Source\Apparatus\Core\InputMap.h" />
+    <ClInclude Include="Source\Apparatus\InputMap.h" />
     <ClInclude Include="Source\Apparatus\Core\LifecycleInterface.h" />
     <ClInclude Include="Source\Apparatus\Core\Asset.h" />
     <ClInclude Include="Source\Apparatus\Core\AssetManager.h" />
-    <ClInclude Include="Source\Apparatus\Core\WindowEventHandler.h" />
+    <ClInclude Include="Source\Apparatus\WindowEventHandler.h" />
     <ClInclude Include="Source\Apparatus\Core\Logger.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Camera.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Material.h" />
@@ -245,6 +263,7 @@
     <ClInclude Include="Source\Apparatus\Util\Primitive.h" />
     <ClInclude Include="Source\Apparatus\Server\Server.h" />
     <ClInclude Include="Source\Apparatus\Util\DebugPrimitive.h" />
+    <ClInclude Include="Source\Apparatus\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

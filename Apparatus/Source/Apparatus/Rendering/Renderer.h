@@ -13,8 +13,9 @@ class Mesh;
 class MaterialInstance;
 class Camera;
 class ModelInstance;
-class DirectionalLight;
 class PointLight;
+class Window;
+class DirectionalLight;
 class SpotLight;
 
 enum RenderMode
@@ -27,9 +28,9 @@ enum RenderMode
 
 struct LightingInfo
 {
-	std::vector<DirectionalLight*> directionalLights;
-	std::vector<PointLight*> pointLights;
-	std::vector<SpotLight*> spotLights;
+	std::queue<DirectionalLight*> directionalLights;
+	std::queue<PointLight*> pointLights;
+	std::queue<SpotLight*> spotLights;
 };
 
 struct RenderCommand
@@ -41,13 +42,12 @@ struct RenderCommand
 	RenderMode renderMode = RenderMode::Triangles;
 	float drawSize = 1.0f;
 	size_t depthBufferLayer = 0;
-	LightingInfo lightingInfo;
 };
 
 class Renderer
 {
 public:
-	Renderer(SDL_Window* window);
+	Renderer(Window& window);
 	~Renderer() = default;
 
 	Renderer() = default;
@@ -58,17 +58,27 @@ public:
 
 	void render();
 
-	void push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode = RenderMode::Triangles, float drawSize = 1.0f, size_t depthBufferLayer = 0, LightingInfo directionalLights = LightingInfo());
-	void push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix, LightingInfo directionalLights = LightingInfo());
+	void push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode = RenderMode::Triangles, float drawSize = 1.0f, size_t depthBufferLayer = 0);
+	void push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix);
 
-	static size_t getMaxDepthBufferLayer()
-	{
-		return 7;
-	}
+	void setActiveCamera(Camera* camera);
+	Camera* getActiveCamera();
+
+	static size_t getMaxDepthBufferLayer();
+
+	void addPointLight(PointLight* pointLight);
+	void removeLight(PointLight* pointLight);
 
 private:
-	SDL_Window* window;
+	Window& window;
 	SDL_GLContext context;
 
-	std::vector<std::queue<RenderCommand>> commandsArray;
+	std::vector<std::vector<RenderCommand>> commandsContainer;
+
+	unsigned int uboPointLight;
+	unsigned int lightsIndex;
+
+	Camera* activeCamera;
+
+	std::vector<PointLight*> pointLights;
 };

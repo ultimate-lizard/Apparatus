@@ -3,21 +3,44 @@
 #include "../Server/Entity.h"
 #include "TransformComponent.h"
 
-CameraComponent::CameraComponent(Entity* owner) :
-	Component(owner)
+CameraComponent::CameraComponent() :
+	Component("CameraComponent")
 {
-	assignDefaultObjectName();
+
+}
+
+CameraComponent::CameraComponent(const std::string& componentName) :
+	Component(componentName)
+{
+}
+
+CameraComponent::CameraComponent(const CameraComponent& other) :
+	Component(other),
+	SceneNode(other),
+	camera(other.camera)
+{
+}
+
+std::unique_ptr<Component> CameraComponent::clone()
+{
+	std::unique_ptr<CameraComponent> newCameraComponent = std::make_unique<CameraComponent>(*this);
+	if (newCameraComponent)
+	{
+		Camera& newCamera = newCameraComponent->getCamera();
+		newCamera.setParent(newCameraComponent.get());
+	}
+
+	return newCameraComponent;
+}
+
+void CameraComponent::init()
+{
+	Component::init();
+
+	camera.setParent(this);
 }
 
 Camera& CameraComponent::getCamera()
 {
 	return camera;
-}
-
-void CameraComponent::assignDefaultObjectName()
-{
-	if (owner)
-	{
-		setObjectName(owner->getObjectName() + "_CameraComponent");
-	}
 }

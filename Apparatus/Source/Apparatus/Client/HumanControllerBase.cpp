@@ -4,28 +4,24 @@
 #include "../Server/Entity.h"
 #include "../Components/MovementComponent.h"
 
-HumanControllerBase::HumanControllerBase(LocalClient* localClient) :
+HumanControllerBase::HumanControllerBase(const std::string& controllerName, LocalClient& localClient) :
+	Controller(controllerName),
 	localClient(localClient),
-	inputHandler(nullptr),
 	movementComponent(nullptr)
 {
 
-}
-
-void HumanControllerBase::onActivate()
-{
-	if (localClient)
-	{
-		inputHandler = &localClient->getInputHandler();
-	}
 }
 
 void HumanControllerBase::setControlEntity(Entity* entity)
 {
 	Controller::setControlEntity(entity);
 
-	if (controlledEntity)
+	if (controlEntity)
 	{
-		movementComponent = controlledEntity->findComponent<MovementComponent>();
+		movementComponent = controlEntity->findComponent<MovementComponent>();
+	}
+	else
+	{
+		movementComponent = nullptr;
 	}
 }

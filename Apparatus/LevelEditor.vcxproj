@@ -149,7 +149,7 @@
     <ClCompile Include="Source\LevelEditor\Client\EditorLocalClient.cpp" />
     <ClCompile Include="Source\LevelEditor\Components\GizmoComponent.cpp" />
     <ClCompile Include="Source\LevelEditor\Components\SelectableComponent.cpp" />
-    <ClCompile Include="Source\LevelEditor\Editor.cpp" />
+    <ClCompile Include="Source\LevelEditor\Editor\Editor.cpp" />
     <ClCompile Include="Source\LevelEditor\Entry.cpp" />
     <ClCompile Include="Source\LevelEditor\Server\EditorLocalServer.cpp" />
   </ItemGroup>
@@ -158,7 +158,7 @@
     <ClInclude Include="Source\LevelEditor\Client\EditorLocalClient.h" />
     <ClInclude Include="Source\LevelEditor\Components\GizmoComponent.h" />
     <ClInclude Include="Source\LevelEditor\Components\SelectableComponent.h" />
-    <ClInclude Include="Source\LevelEditor\Editor.h" />
+    <ClInclude Include="Source\LevelEditor\Editor\Editor.h" />
     <ClInclude Include="Source\LevelEditor\Server\EditorLocalServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

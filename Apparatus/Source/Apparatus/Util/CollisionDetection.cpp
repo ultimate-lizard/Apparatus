@@ -5,6 +5,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
+#include "../Apparatus.h"
 #include "../Rendering/Mesh.h"
 #include "../Util/DebugPrimitive.h"
 #include "../Core/Logger.h"
@@ -144,4 +145,30 @@ glm::vec3 rayVsPlane(const glm::vec3& planeOrigin, const glm::vec3& planeNormal,
 	}
 	
 	return glm::vec3(std::numeric_limits<float>::quiet_NaN());
+}
+
+glm::vec2 getCursorToDevice()
+{
+	Apparatus& app = Apparatus::get();
+	const Window& window = app.getWindow();
+
+	const glm::ivec2& mousePos = window.getMouseCursorPosition();
+	const glm::vec2& windowSize = window.getWindowSize();
+
+	float normalX = (2.0f * mousePos.x) / windowSize.x - 1.0f;
+	float normalY = 1.0f - (2.0f * mousePos.y) / windowSize.y;
+
+	return glm::vec2(normalX, normalY);
+}
+
+glm::vec3 getCursorToWorldRay(const glm::mat4& view, const glm::mat4& projection)
+{
+	glm::vec2 normal = getCursorToDevice();
+
+	glm::vec4 rayClip(normal.x, normal.y, -1.0f, 1.0f);
+
+	glm::vec4 rayEye = glm::inverse(projection) * rayClip;
+	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+
+	return glm::normalize(glm::inverse(view) * rayEye);
 }

@@ -2,12 +2,7 @@
 
 #include <string>
 #include <fstream>
-
-//#ifdef _DEBUG
-//#define LOG(text, level) Logger::log(text, level)
-//#else
-//#define LOG(text, level)
-//#endif
+#include <exception>
 
 #define LOG(text, level) Logger::log(text, level)
 
@@ -22,6 +17,9 @@ enum LogLevel
 class Logger
 {
 public:
+	Logger(const Logger&) = delete;
+	Logger(Logger&&) = delete;
+
 	static void open(const std::string& folder);
 	static void close();
 

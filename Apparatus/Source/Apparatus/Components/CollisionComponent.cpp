@@ -6,10 +6,15 @@
 #include "../Server/Entity.h"
 #include "../Util/BoundingBox.h"
 
-CollisionComponent::CollisionComponent(Entity* owner) :
-	Component(owner)
+CollisionComponent::CollisionComponent() :
+	Component("CollisionComponent")
 {
-	assignDefaultObjectName();
+	
+}
+
+CollisionComponent::CollisionComponent(const std::string& componentName) :
+	Component(componentName)
+{
 }
 
 void CollisionComponent::init()
@@ -60,13 +65,5 @@ void CollisionComponent::regenerateAABB()
 			Box newBox = generateAABB(modelComponent->getModel(), modelComponent->getWorldPosition(), modelComponent->getWorldOrientation(), modelComponent->getWorldScale());
 			cachedAABBs.push_back({ newBox, modelComponent });
 		}
-	}
-}
-
-void CollisionComponent::assignDefaultObjectName()
-{
-	if (owner)
-	{
-		setObjectName(owner->getObjectName() + "_CollisionComponent");
 	}
 }

@@ -15,6 +15,16 @@ Camera::Camera() :
 
 }
 
+Camera::Camera(const Camera& other) : 
+	SceneNode(other),
+	view(other.view),
+	projection(other.projection),
+	aspect(other.aspect),
+	fov(other.fov)
+{
+
+}
+
 void Camera::calculateTransform()
 {
 	SceneNode::calculateTransform();

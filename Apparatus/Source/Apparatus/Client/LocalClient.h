@@ -6,59 +6,50 @@
 #include <vector>
 
 #include "Client.h"
-#include "../Rendering/Camera.h"
+#include "Controller.h"
+#include "../InputHandler.h"
+#include "../Util/Primitive.h"
 #include "../Rendering/Renderer.h"
+#include "../Rendering/Camera.h"
 #include "../Rendering/Mesh.h"
 #include "../Rendering/Material.h"
-#include "../Util/Primitive.h"
-#include "InputHandler.h"
-#include "Controller.h"
 
 class Entity;
 class LocalServer;
 class GenericHumanController;
+class Renderer;
 
 class LocalClient : public Client
 {
 public:
-	LocalClient(Apparatus* apparatus);
+	LocalClient(Renderer* renderer);
 	virtual ~LocalClient() = default;
 
 	LocalClient(const LocalClient&) = delete;
 	LocalClient(LocalClient&&) = delete;
 	void operator=(const LocalClient&) = delete;
 
+	// These should probably be replaced by the state. Like PlayingState->Start, MenuState->Start etc.
 	virtual void init() override;
+	virtual void onGameStart() override {}
 	virtual void update(float dt) override;
 
-	LocalServer* getLocalServer();
-
+	// TODO: RenderTarget
 	virtual Viewport* getViewport() override;
 	virtual Camera* getActiveCamera() override;
-
-	template <class ControllerType, typename ... Args>
-	ControllerType* createController(Args&& ... args);
 
 	template <class ControllerType>
 	ControllerType* findController(const std::string& name);
 
+	void setActiveController(Controller* controller);
+	Controller* getActiveController();
 	Controller* getDefaultController();
-
-	void setActiveEntity(Entity* entity);
-	Entity* getActiveEntity();
 
 	InputHandler& getInputHandler();
 
-	void setActiveController(Controller* controller);
-	Controller* getActiveController();
-
-	virtual void onActiveControllerChanged() {};
-
 protected:
-	virtual void assignDefaultObjectName() override;
-
 	// DEBUG STUFF
-	void composeDebugPrimitiveData();
+	void composeDebugPrimitiveRenderData();
 	void renderDebugPrimitives(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, std::map<float, Mesh*>& debugMeshCache, const std::string& assetNamePrefix, RenderMode renderMode, float drawSize);
 
 	std::map<float, Mesh*> cachedDebugPointMeshes;
@@ -70,19 +61,23 @@ protected:
 	size_t debugMeshBufferSize;
 	//////////////
 
-	void renderEntities();
+	template <class ControllerType, typename ... Args>
+	ControllerType* createController(Args&& ... args);
 
-	LocalServer* localServer;
+	virtual void onActiveEntitySet() override;
 
-private:
+	virtual void onActiveControllerChanged() {}
+
+	void composeEntityRenderData();
+
+	Renderer* renderer;
+
 	// All possible controllers that the client would need should be stored here
 	std::vector<std::unique_ptr<Controller>> controllers;
 
 	Controller* activeController;
 
 	GenericHumanController* defaultController;
-
-	Entity* activeEntity;
 
 	InputHandler inputHandler;
 
@@ -102,7 +97,7 @@ template <class ControllerType>
 inline ControllerType* LocalClient::findController(const std::string& name)
 {
 	auto iter = std::find_if(controllers.begin(), controllers.end(), [&name](const std::unique_ptr<Controller>& controller) {
-		return controller.get() != nullptr && dynamic_cast<ControllerType*>(controller.get()) != nullptr && controller.get()->getObjectName() == name;
+		return controller.get() != nullptr && dynamic_cast<ControllerType*>(controller.get()) != nullptr && controller.get()->getControllerName() == name;
 	});
 
 	// TODO: TOO MANY CASTS. BAD. FIX IT

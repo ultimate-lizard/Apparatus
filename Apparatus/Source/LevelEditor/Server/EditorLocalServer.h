@@ -2,17 +2,33 @@
 
 #include <Apparatus/Server/LocalServer.h>
 
+class GizmoComponent;
+
 class EditorLocalServer : public LocalServer
 {
 public:
-	EditorLocalServer(Apparatus* apparatus);
+	EditorLocalServer();
+
+	virtual void connect(const ConnectionInfo& info) override;
 
 	virtual void update(float dt) override;
+	virtual void start() override;
+
+	void selectEntity(Entity* entity);
+	Entity* getSelectedEntity();
+
+	//void setGizmo(GizmoComponent* gizmo);
+	//GizmoComponent* getGizmo();
+
+	void duplicateSelection();
 
 protected:
-	virtual void assignDefaultObjectName() override;
+	void indicateSelection(Entity* entity, bool selected);
+	void regenerateSelectionBoundingBox();
 
-	virtual void setupEntities() override;
+	Entity* selection;
+	GizmoComponent* gizmo;
 
-	void setupGizmoEntity();
+	glm::vec3 cachedSelectionPosition;
+	Box selectionBox;
 };

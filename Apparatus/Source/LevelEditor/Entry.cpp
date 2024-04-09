@@ -1,7 +1,7 @@
 #include <Apparatus/Apparatus.h>
 
 #include "Client/EditorLocalClient.h"
-#include "Editor.h"
+#include "Editor/Editor.h"
 
 int main(int argc, char** argv)
 {

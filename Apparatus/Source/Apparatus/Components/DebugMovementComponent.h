@@ -8,14 +8,13 @@
 class DebugCameraMovementComponent : public MovementComponent
 {
 public:
-	DebugCameraMovementComponent(Entity* owner);
+	DebugCameraMovementComponent();
+	DebugCameraMovementComponent(const std::string& componentName);
 
 	virtual void update(float dt) override;
 
 	void rotateRoll(float rate);
 
 protected:
-	virtual void assignDefaultObjectName() override;
-
 	int roll;
 };

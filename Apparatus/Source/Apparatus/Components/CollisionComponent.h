@@ -10,7 +10,8 @@ class ModelComponent;
 class CollisionComponent : public Component
 {
 public:
-	CollisionComponent(Entity* owner);
+	CollisionComponent();
+	CollisionComponent(const std::string& componentName);
 
 	virtual void init() override;
 	virtual void update(float dt) override {};
@@ -21,7 +22,5 @@ public:
 	void regenerateAABB();
 
 protected:
-	virtual void assignDefaultObjectName() override;
-
 	std::vector<std::pair<Box, const ModelComponent*>> cachedAABBs;
 };

@@ -1,17 +1,16 @@
 #include "Server.h"
 
-Server::Server(Apparatus* apparatus) :
-	apparatus(apparatus),
-	shuttingDown(false)
+Server::Server() :
+	stopping(false)
 {
 }
 
-void Server::shutdown()
+void Server::stop()
 {
-	shuttingDown = true;
+	stopping = true;
 }
 
-bool Server::isShuttingDown() const
+bool Server::isStopping() const
 {
-	return shuttingDown;
+	return stopping;
 }

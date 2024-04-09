@@ -7,11 +7,17 @@
 #include "CameraComponent.h"
 #include "../Core/Logger.h"
 
-DebugCameraMovementComponent::DebugCameraMovementComponent(Entity* owner) :
-	MovementComponent(owner),
+DebugCameraMovementComponent::DebugCameraMovementComponent() :
+	MovementComponent("DebugCameraMovementComponent"),
 	roll(0)
 {
-	assignDefaultObjectName();
+	
+}
+
+DebugCameraMovementComponent::DebugCameraMovementComponent(const std::string& componentName) :
+	MovementComponent(componentName),
+	roll(0)
+{
 }
 
 void DebugCameraMovementComponent::update(float dt)
@@ -27,12 +33,4 @@ void DebugCameraMovementComponent::update(float dt)
 void DebugCameraMovementComponent::rotateRoll(float rate)
 {
 	roll = static_cast<int>(rate);
-}
-
-void DebugCameraMovementComponent::assignDefaultObjectName()
-{
-	if (owner)
-	{
-		setObjectName(owner->getObjectName() + "_DebugCameraMovementComponent");
-	}
 }

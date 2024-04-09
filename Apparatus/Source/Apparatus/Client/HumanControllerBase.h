@@ -3,20 +3,19 @@
 #include "Controller.h"
 
 class InputHandler;
-class LocalClient;
 class MovementComponent;
+class LocalClient;
 
 class HumanControllerBase : public Controller
 {
 public:
-	HumanControllerBase(LocalClient* localClient);
+	HumanControllerBase(const std::string& controllerName, LocalClient& localClient);
 
-	virtual void onActivate() override;
+	virtual void onActivate() = 0;
 	virtual void setupInput() = 0;
 	virtual void setControlEntity(Entity* entity) override;
 
 protected:
-	LocalClient* localClient;
-	InputHandler* inputHandler;
+	LocalClient& localClient;
 	MovementComponent* movementComponent;
 };

@@ -1,17 +1,31 @@
 #include "Client.h"
 
-Client::Client(Apparatus* apparatus) :
-	apparatus(apparatus),
-	quitting(false)
+#include "../Server/Entity.h"
+
+Client::Client() :
+	stopping(false),
+	activeEntity(nullptr)
 {
 }
 
-void Client::quit()
+void Client::stop()
 {
-	quitting = true;
+	stopping = true;
 }
 
-Apparatus* Client::getApparatus()
+bool Client::isStopping() const
 {
-	return apparatus;
+	return stopping;
+}
+
+void Client::setActiveEntity(Entity* entity)
+{
+	activeEntity = entity;
+
+	onActiveEntitySet();
+}
+
+Entity* Client::getActiveEntity()
+{
+	return activeEntity;
 }

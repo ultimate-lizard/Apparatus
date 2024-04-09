@@ -1,29 +1,26 @@
 #pragma once
 
 #include <Apparatus/Client/LocalClient.h>
+#include <Apparatus/Event/EventDispatcher.h>
 
 class Entity;
 class GizmoComponent;
+class EditorContext;
+class PointLightComponent;
+class Component;
 
 class EditorLocalClient : public LocalClient
 {
 public:
-	EditorLocalClient(Apparatus* apparatus);
+	EditorLocalClient(Renderer* renderer);
 
-	void selectEntity(Entity* entity);
-	Entity* getSelectedEntity();
-
-	GizmoComponent* getGizmo();
+	void onLightCreation(std::shared_ptr<LightComponentCreationEvent> event);
 
 protected:
-	virtual void assignDefaultObjectName() override;
-
 	virtual void init() override;
-	virtual void start() override;
+	virtual void onGameStart() override;
 
 	virtual void onActiveControllerChanged() override;
-
-	void indicateSelection(Entity* entity, bool selected);
 
 	void toggleEditMode();
 
@@ -33,6 +30,4 @@ protected:
 	void setupGlobalEditorInput();
 
 	bool inEditMode;
-	Entity* selectedEntity;
-	GizmoComponent* gizmo;
 };

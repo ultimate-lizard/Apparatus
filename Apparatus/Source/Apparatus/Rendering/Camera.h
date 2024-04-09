@@ -8,11 +8,10 @@ class Camera : public SceneNode
 {
 public:
 	Camera();
+	Camera(const Camera& other);
 	~Camera() = default;
 
-	Camera(const Camera&) = delete;
 	Camera(Camera&&) = delete;
-	void operator=(const Camera&) = delete;
 
 	virtual void calculateTransform() override;
 
@@ -28,4 +27,6 @@ private:
 
 	float aspect;
 	float fov;
+
+	friend class CameraComponent;
 };

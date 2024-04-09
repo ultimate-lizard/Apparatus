@@ -8,8 +8,8 @@
 #include <Apparatus/Rendering/Rotator.h>
 
 class ModelComponent;
-class TransformComponent;
-class EditorLocalClient;
+class Window;
+class Camera;
 
 enum class InteractionMode
 {
@@ -45,15 +45,17 @@ namespace GizmoNames
 class GizmoComponent : public Component
 {
 public:
-	GizmoComponent(Entity* owner);
-	GizmoComponent(Entity* owner, const std::string& name);
-	~GizmoComponent() = default;
+	GizmoComponent();
+	GizmoComponent(const std::string& componentName);
+	GizmoComponent(const GizmoComponent& other);
+
+	virtual std::unique_ptr<Component> clone() override;
 
 	virtual void init() override;
 	virtual void update(float dt) override;
 
-	void setEditorLocalClient(EditorLocalClient* editorLocalClient);
-	void setSelectedGizmoModel(ModelComponent* modelComponent);
+	//void setEditorLocalClient(EditorLocalClient* editorLocalClient);
+	void setSelectedGizmoModel(const std::string& gizmoModelName);
 
 	InteractionMode getInteractionMode() const;
 	void setInteractionMode(InteractionMode interactionMode);
@@ -69,21 +71,17 @@ public:
 	void handleCursorMovement(float inputX, float inputY);
 
 protected:
-	virtual void assignDefaultObjectName();
-
 	void updateVisibility();
 
-	void handleTranslation();
-	void handleRotation();
-	void handleScale();
+	void handleTranslation(Window& window, Camera* camera);
+	void handleRotation(Window& window, Camera* camera);
+	void handleScale(Window& window, Camera* camera);
 
 	glm::vec3 getLocalUpForGimbal(const std::string& gimbalName) const;
 	Euler getEulerAngleOfGimbal(const std::string& gimbalName) const;
 	glm::vec2 projectOnPlane(const glm::vec3& position, const glm::vec3& normal) const;
 
 private:
-	EditorLocalClient* editorLocalClient;
-
 	InteractionMode interactionMode;
 
 	ModelComponent* selectedGizmoModel;
@@ -98,4 +96,6 @@ private:
 	glm::vec3 gizmoClickOffset;
 	glm::ivec2 lastCursorScreenPosition;
 	glm::vec2 clickCursorDevicePosition;
+
+	Entity* selectedEntity;
 };

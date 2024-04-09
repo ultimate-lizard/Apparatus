@@ -1,26 +1,34 @@
 #pragma once
 
 #include "../Core/LifecycleInterface.h"
-#include "../Core/NameProvider.h"
 
 class Apparatus;
+class Client;
 
-class Server : public LifecycleInterface, public NameProvider
+struct ConnectionInfo
+{
+	Client* client;
+};
+
+class Server
 {
 public:
-	Server(Apparatus* apparatus);
+	Server();
 	virtual ~Server() = default;
 
 	Server(const Server&) = delete;
 	Server(Server&&) = delete;
 	void operator=(const Server&) = delete;
 
+	virtual void init() = 0;
+	virtual void start() = 0;
 	virtual void update(float dt) = 0;
-	virtual void shutdown();
+	virtual void stop();
 
-	bool isShuttingDown() const;
+	bool isStopping() const;
+
+	virtual void connect(const ConnectionInfo& info) = 0;
 
 protected:
-	Apparatus* apparatus;
-	bool shuttingDown;
+	bool stopping;
 };

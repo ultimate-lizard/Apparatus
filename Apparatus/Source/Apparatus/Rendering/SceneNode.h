@@ -10,6 +10,9 @@ class SceneNode
 {
 public:
 	SceneNode();
+	SceneNode(const SceneNode& other);
+
+	SceneNode(SceneNode&&) = delete;
 
 	virtual void calculateTransform();
 
@@ -55,7 +58,9 @@ public:
 	glm::mat4 getTransform() const;
 
 	void setParent(SceneNode* parent);
-	SceneNode* getParent();
+	SceneNode* getParent() const;
+
+	std::vector<SceneNode*> getChildren();
 
 	void detachChild(SceneNode* child);
 
@@ -69,6 +74,8 @@ public:
 	glm::vec3 getLocalForward() const;
 	glm::vec3 getLocalUp() const;
 	glm::vec3 getLocalRight() const;
+
+	bool isDirty() const;
 
 protected:
 	glm::mat4 transform;
@@ -90,4 +97,6 @@ protected:
 
 	bool inheritRotation;
 	bool inheritScale;
+
+	bool dirty;
 };

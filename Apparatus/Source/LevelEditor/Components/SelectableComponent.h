@@ -6,7 +6,10 @@
 class SelectableComponent : public Component
 {
 public:
-	SelectableComponent(Entity* owner);
+	SelectableComponent();
+	SelectableComponent(const std::string& componentName);
+
+	virtual std::unique_ptr<Component> clone() override;
 
 	virtual void init() override;
 	virtual void update(float dt) override;
@@ -17,14 +20,11 @@ public:
 	Box getVisualBoundingBox() const;
 
 	void updateVisualBoundingBoxPosition();
-	void regenerateVisualBoundingBox();
 
 	void setBoxVisible(bool visible);
 	bool isBoxVisible() const;
 
 protected:
-	virtual void assignDefaultObjectName() override;
-
 	bool selected;
 	glm::vec3 cachedPosition;
 	Box box;

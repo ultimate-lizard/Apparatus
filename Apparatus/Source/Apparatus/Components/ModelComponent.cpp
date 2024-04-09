@@ -5,42 +5,56 @@
 #include "../Rendering/Model.h"
 #include "../Rendering/Material.h"
 
-ModelComponent::ModelComponent(Entity* owner) :
-	Component(owner),
+ModelComponent::ModelComponent() :
+	Component("ModelComponent"),
 	model(nullptr),
 	visible(true),
 	depthBufferLayer(0)
 {
-	assignDefaultObjectName();
+
 }
 
-ModelComponent::ModelComponent(Entity* owner, const std::string& name) :
-	Component(owner, name),
+ModelComponent::ModelComponent(const std::string& componentName) :
+	Component(componentName),
 	model(nullptr),
 	visible(true),
 	depthBufferLayer(0)
 {
-	
+}
+
+ModelComponent::ModelComponent(const ModelComponent& other) :
+	Component(other),
+	SceneNode(other),
+	model(nullptr),
+	visible(other.visible),
+	depthBufferLayer(other.depthBufferLayer)
+{
+	setModel(other.model);
+}
+
+std::unique_ptr<Component> ModelComponent::clone()
+{
+	return std::make_unique<ModelComponent>(*this);
 }
 
 void ModelComponent::init()
 {
 	Component::init();
+}
 
+void ModelComponent::setModel(Model* model)
+{
 	if (model)
 	{
-		modelInstance = std::move(model->createModelInstance());
+		this->model = model;
+
+		modelInstance = this->model->createModelInstance();
 
 		if (modelInstance)
 		{
 			modelInstance->setDepthBufferLayer(depthBufferLayer);
 		}
 	}
-}
-
-void ModelComponent::setModel(Model* model)
-{
-	this->model = model;
 }
 
 Model* ModelComponent::getModel()
@@ -87,12 +101,3 @@ size_t ModelComponent::getDepthBufferLayer() const
 	
 	return depthBufferLayer;
 }
-
-void ModelComponent::assignDefaultObjectName()
-{
-	if (owner)
-	{
-		setObjectName(owner->getObjectName() + "_ModelComponent");
-	}
-}
-
