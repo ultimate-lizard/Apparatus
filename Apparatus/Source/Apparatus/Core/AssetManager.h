@@ -50,7 +50,7 @@ inline ResourceType* AssetManager::createAsset(Args&& ... args)
 		if (searchIter != assetMap.end())
 		{
 			LOG("Tried to create an asset '" + newResource->getAssetName() + "' but the name is already occupied. Skipping...", LogLevel::Error);
-			return nullptr;
+			return findAsset<ResourceType>(newResource->getAssetName());
 		}
 
 		auto iter = assetMap.emplace(newResource->getAssetName(), std::move(newResource));

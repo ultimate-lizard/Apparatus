@@ -70,6 +70,18 @@ void Shader::setUniform(const std::string& name, bool value) const
 	glUniform1i(location, value);
 }
 
+void Shader::setUniform(const std::string& name, float value) const
+{
+	unsigned int location = glGetUniformLocation(program, name.c_str());
+	glUniform1f(location, value);
+}
+
+void Shader::setUniform(const std::string& name, int value) const
+{
+	unsigned int location = glGetUniformLocation(program, name.c_str());
+	glUniform1i(location, value);
+}
+
 Shader::~Shader()
 {
 	glDeleteProgram(program);

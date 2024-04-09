@@ -152,6 +152,10 @@
     <ClCompile Include="Source\Apparatus\Client\GenericHumanController.cpp" />
     <ClCompile Include="Source\Apparatus\Client\InputHandler.cpp" />
     <ClCompile Include="Source\Apparatus\Client\LocalClient.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\DirectionalLightComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\PointLightComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Components\SpotLightComponent.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Light.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\MaterialParameter.cpp" />
     <ClCompile Include="Source\Apparatus\Util\BoundingBox.cpp" />
     <ClCompile Include="Source\Apparatus\Components\CameraComponent.cpp" />
@@ -200,6 +204,10 @@
     <ClInclude Include="Source\Apparatus\Client\GenericHumanController.h" />
     <ClInclude Include="Source\Apparatus\Client\InputHandler.h" />
     <ClInclude Include="Source\Apparatus\Client\LocalClient.h" />
+    <ClInclude Include="Source\Apparatus\Components\DirectionalLightComponent.h" />
+    <ClInclude Include="Source\Apparatus\Components\PointLightComponent.h" />
+    <ClInclude Include="Source\Apparatus\Components\SpotLightComponent.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Light.h" />
     <ClInclude Include="Source\Apparatus\Rendering\MaterialParameter.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Vector.h" />
     <ClInclude Include="Source\Apparatus\Util\BoundingBox.h" />

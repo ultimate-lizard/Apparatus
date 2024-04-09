@@ -4,6 +4,9 @@
 #include <Apparatus/Rendering/Renderer.h>
 #include <Apparatus/Components/TransformComponent.h>
 #include <Apparatus/Components/ModelComponent.h>
+#include <Apparatus/Components/DirectionalLightComponent.h>
+#include <Apparatus/Components/PointLightComponent.h>
+#include <Apparatus/Components/SpotLightComponent.h>
 
 #include "../Components/SelectableComponent.h"
 #include "../Components/GizmoComponent.h"
@@ -89,6 +92,82 @@ void EditorLocalServer::setupEntities()
 				transformComponent->setPosition({ 0.0f, 2.0f, 0.0f });
 				transformComponent->setScale(glm::vec3(1.5f));
 			}
+		}
+	}
+
+	//// Directional light
+	//if (Entity* directionalLightEntity = createEntity("DirectionalLight"))
+	//{
+	//	auto lightTransform = createComponent<TransformComponent>(directionalLightEntity);
+	//	
+	//	if (auto lightModel = createComponent<ModelComponent>(directionalLightEntity))
+	//	{
+	//		lightModel->setModel(apparatus->getResourceManager().findAsset<Model>("Model_DirectionalLight"));
+	//		lightModel->setParent(lightTransform);
+	//	}
+
+	//	if (auto directionalLightComponent = createComponent<DirectionalLightComponent>(directionalLightEntity))
+	//	{
+	//		directionalLightComponent->setDiffuseColor({ 0.2f, 0.2f, 0.4f });
+	//		directionalLightComponent->setAmbientColor({ 0.0f, 0.0f, 0.1f });
+	//		directionalLightComponent->setSpecularColor({ 0.0f, 0.0f, 0.1f });
+	//	}
+	//}
+
+	//// Point light
+	//if (Entity* pointLightEntity = createEntity("PointLight"))
+	//{
+	//	auto lightTransform = createComponent<TransformComponent>(pointLightEntity);
+
+	//	if (auto lightModel = createComponent<ModelComponent>(pointLightEntity))
+	//	{
+	//		lightModel->setModel(apparatus->getResourceManager().findAsset<Model>("Model_PointLight"));
+	//		lightModel->setParent(lightTransform);
+	//	}
+
+	//	if (auto pointLightComponent = createComponent<PointLightComponent>(pointLightEntity))
+	//	{
+	//		pointLightComponent->setAmbientColor({ 0.5f, 0.3f, 0.0f });
+	//		pointLightComponent->setDiffuseColor({ 1.0f, 0.7f, 0.0f });
+	//		pointLightComponent->setSpecularColor({ 1.0f, 0.7f, 0.0f });
+	//	}
+	//}
+
+	//// Point light
+	if (Entity* pointLightEntity = createEntity("PointLight2"))
+	{
+		auto lightTransform = createComponent<TransformComponent>(pointLightEntity);
+
+		if (auto lightModel = createComponent<ModelComponent>(pointLightEntity))
+		{
+			lightModel->setModel(apparatus->getResourceManager().findAsset<Model>("Model_PointLight"));
+			lightModel->setParent(lightTransform);
+		}
+
+		if (auto pointLightComponent = createComponent<PointLightComponent>(pointLightEntity))
+		{
+			pointLightComponent->setAmbientColor({ 0.5f, 0.5f, 0.5f });
+			pointLightComponent->setDiffuseColor({ 1.0f, 0.0f, 1.0f });
+			pointLightComponent->setSpecularColor({ 1.0f, 0.0f, 1.0f });
+		}
+	}
+
+	// Spot light
+	if (Entity* spotLightEntity = createEntity("SpotLight"))
+	{
+		auto lightTransform = createComponent<TransformComponent>(spotLightEntity);
+
+		if (auto lightModel = createComponent<ModelComponent>(spotLightEntity))
+		{
+			lightModel->setModel(apparatus->getResourceManager().findAsset<Model>("Model_SpotLight"));
+			lightModel->setParent(lightTransform);
+		}
+
+		if (auto pointLightComponent = createComponent<SpotLightComponent>(spotLightEntity))
+		{
+			pointLightComponent->setAmbientColor({ 0.5f, 0.5f, 0.5f });
+			pointLightComponent->setDiffuseColor({ 1.0f, 1.0f, 0.8f });
+			pointLightComponent->setSpecularColor({ 1.0f, 1.0f, 0.8f });
 		}
 	}
 

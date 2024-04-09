@@ -6,6 +6,9 @@
 #include "../Components/TransformComponent.h"
 #include "../Components/ModelComponent.h"
 #include "../Components/CameraComponent.h"
+#include "../Components/DirectionalLightComponent.h"
+#include "../Components/PointLightComponent.h"
+#include "../Components/SpotLightComponent.h"
 #include "GenericHumanController.h"
 
 LocalClient::LocalClient(Apparatus* apparatus) :
@@ -385,6 +388,46 @@ void LocalClient::renderEntities()
 		return;
 	}
 
+	std::vector<DirectionalLight*> directionalLights;
+	std::vector<PointLight*> pointLights;
+	std::vector<SpotLight*> spotLights;
+
+	// Gather lights
+	for (DirectionalLightComponent* directionalLightComponent : localServer->getAllComponentsOfClass<DirectionalLightComponent>())
+	{
+		if (!directionalLightComponent)
+		{
+			continue;
+		}
+
+		directionalLights.push_back(&directionalLightComponent->getDirectionalLight());
+	}
+
+	for (PointLightComponent* pointLightComponent : localServer->getAllComponentsOfClass<PointLightComponent>())
+	{
+		if (!pointLightComponent)
+		{
+			continue;
+		}
+
+		pointLights.push_back(&pointLightComponent->getPointLight());
+	}
+
+	for (SpotLightComponent* spotLightsComponent : localServer->getAllComponentsOfClass<SpotLightComponent>())
+	{
+		if (!spotLightsComponent)
+		{
+			continue;
+		}
+
+		spotLights.push_back(&spotLightsComponent->getSpotLight());
+	}
+
+	LightingInfo lightingInfo;
+	lightingInfo.directionalLights = directionalLights;
+	lightingInfo.pointLights = pointLights;
+	lightingInfo.spotLights = spotLights;
+
 	// Render entities
 	for (const std::unique_ptr<Entity>& entity : localServer->getAllEntities())
 	{
@@ -408,7 +451,7 @@ void LocalClient::renderEntities()
 					{
 						// TODO: Frustum check. Probably need to put all the visible to the client entities into a separate
 						// vector inside the client
-						renderer->push(modelComponent->getModelInstance(), &cameraComponent->getCamera(), modelComponent->getTransform());
+						renderer->push(modelComponent->getModelInstance(), &cameraComponent->getCamera(), modelComponent->getTransform(), lightingInfo);
 					}
 				}
 			}

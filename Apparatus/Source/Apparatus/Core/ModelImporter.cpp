@@ -24,7 +24,7 @@ std::unique_ptr<Model> ModelImporter::import(const std::string& modelName, Shade
 	this->shader = shader;
 
 	Assimp::Importer import;
-	const aiScene * aiScene = import.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GlobalScale);
+	const aiScene * aiScene = import.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GlobalScale | aiProcess_GenSmoothNormals);
 
 	if (!aiScene)
 	{
@@ -122,7 +122,7 @@ void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
 					vertex.uv = glm::vec2(aiUvArray[i].x, aiUvArray[i].y);
 				}
 
-				if (aiMesh->HasNormals() && aiMesh->mNormals)
+				if (aiMesh->HasNormals())
 				{
 					aiVector3D aiNormal = aiMesh->mNormals[i];
 
@@ -130,8 +130,7 @@ void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
 					vertex.normal.y = aiNormal.y;
 					vertex.normal.z = aiNormal.z;
 
-					glm::vec4 newNormal = glm::vec4(vertex.normal, 1.0f);
-
+					glm::vec4 newNormal = glm::vec4(vertex.normal, 0.0f);
 					newNormal = newNormal * transform;
 					vertex.normal = glm::normalize(newNormal);
 				}
@@ -185,7 +184,7 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 		}
 
 		aiString materialName = aiMaterial->GetName();
-		if (auto newMaterial = assetManager->createAsset<Material>("Material_" + std::string(materialName.C_Str())))
+		if (Material* newMaterial = assetManager->createAsset<Material>("Material_" + std::string(materialName.C_Str())))
 		{
 			newMaterial->setShader(shader);
 			newMaterial->createBoolParameter("selected", false);
@@ -195,7 +194,29 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diff);
 
 			newMaterial->createVec4Parameter("backupColor", { diff.r, diff.g, diff.b, 1.0f });
-			
+
+			// Load phong parameters
+			aiColor3D ambientColor;
+			aiMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor);
+
+			aiColor3D diffuseColor;
+			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
+
+			aiColor3D specularColor;
+			aiMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
+
+			float shininess = 0.0f;
+			aiMaterial->Get(AI_MATKEY_SHININESS, shininess);
+
+			float shininessStrength = 1.0f;
+			aiMaterial->Get(AI_MATKEY_SHININESS_STRENGTH, shininessStrength);
+
+			// Phong
+			newMaterial->createVec3Parameter("ambient", glm::vec3(ambientColor.r, ambientColor.g, ambientColor.b));
+			newMaterial->createVec3Parameter("diffuse", glm::vec3(diffuseColor.r, diffuseColor.g, diffuseColor.b));
+			newMaterial->createVec3Parameter("specular", glm::vec3(specularColor.r * shininessStrength, specularColor.g * shininessStrength, specularColor.b * shininessStrength));
+			newMaterial->createFloatParameter("shininess", shininess);
+
 			for (unsigned int i = 0; i < aiMaterial->GetTextureCount(aiTextureType_DIFFUSE); ++i)
 			{
 				aiString texturePath;

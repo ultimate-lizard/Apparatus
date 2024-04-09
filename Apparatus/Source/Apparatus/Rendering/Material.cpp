@@ -58,6 +58,16 @@ void Material::createBoolParameter(const std::string& name, bool defaultValue)
 	parameters.createBool(name, defaultValue);
 }
 
+void Material::createFloatParameter(const std::string& name, float defaultValue)
+{
+	parameters.createFloat(name, defaultValue);
+}
+
+void Material::createVec3Parameter(const std::string& name, const glm::vec3& defaultValue)
+{
+	parameters.createVec3(name, defaultValue);
+}
+
 void Material::createVec4Parameter(const std::string& name, const glm::vec4& defaultValue)
 {
 	parameters.createVec4(name, defaultValue);

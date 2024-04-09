@@ -37,6 +37,8 @@ public:
 	std::unique_ptr<MaterialInstance> createMaterialInstance();
 
 	void createBoolParameter(const std::string& name, bool defaultValue);
+	void createFloatParameter(const std::string& name, float defaultValue);
+	void createVec3Parameter(const std::string& name, const glm::vec3& defaultValue);
 	void createVec4Parameter(const std::string& name, const glm::vec4& defaultValue);
 
 private:

@@ -60,6 +60,9 @@ public:
 	Entity* findEntity(const std::string& id);
 	std::vector<std::unique_ptr<Entity>>& getAllEntities();
 
+	template <class ComponentType>
+	std::vector<ComponentType*> getAllComponentsOfClass();
+
 	template <class ComponentType, typename ... Args>
 	ComponentType* createComponent(Args&& ... args);
 
@@ -87,6 +90,21 @@ protected:
 
 	static DebugPrimitives debugPrimitives;
 };
+
+template<class ComponentType>
+inline std::vector<ComponentType*> LocalServer::getAllComponentsOfClass()
+{
+	std::vector<ComponentType*> result;
+	for (std::unique_ptr<Component>& component : components)
+	{
+		if (ComponentType* foundComponent = dynamic_cast<ComponentType*>(component.get()))
+		{
+			result.push_back(foundComponent);
+		}
+	}
+
+	return result;
+}
 
 template<class ComponentType, typename ...Args>
 inline ComponentType* LocalServer::createComponent(Args&& ... args)

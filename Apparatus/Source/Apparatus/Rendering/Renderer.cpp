@@ -11,6 +11,7 @@
 #include "Model.h"
 #include "Camera.h"
 #include "Shader.h"
+#include "Light.h"
 #include "../Components/ModelComponent.h"
 
 void GLAPIENTRY
@@ -38,6 +39,10 @@ Renderer::Renderer(SDL_Window* window) :
 
 void Renderer::init()
 {
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+	
 	context = SDL_GL_CreateContext(window);
 	if (!context)
 	{
@@ -53,6 +58,7 @@ void Renderer::init()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
+
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
 }
@@ -94,18 +100,91 @@ void Renderer::render()
 							{
 								shader->setUniform("view", command.camera->getView());
 								shader->setUniform("projection", command.camera->getProjection());
+
+								shader->setUniform("cameraPos", command.camera->getWorldPosition());
 							}
 
 							MaterialParameters& params = command.materialInstance->getMaterialParameters();
 
 							for (auto mapIter : params.getAllBoolParameters())
 							{
-								shader->setUniform(mapIter.first, mapIter.second);
+								shader->setUniform("material." + mapIter.first, mapIter.second);
+							}
+
+							for (auto mapIter : params.getAllFloatParameters())
+							{
+								shader->setUniform("material." + mapIter.first, mapIter.second);
+							}
+
+							for (auto mapIter : params.getAllVec3Parameters())
+							{
+								shader->setUniform("material." + mapIter.first, mapIter.second);
 							}
 
 							for (auto mapIter : params.getAllVec4Parameters())
 							{
-								shader->setUniform(mapIter.first, mapIter.second);
+								shader->setUniform("material." + mapIter.first, mapIter.second);
+							}
+
+							// Directional lights
+							shader->setUniform("directionalLightNum", static_cast<int>(command.lightingInfo.directionalLights.size()));
+							for (size_t i = 0; i < command.lightingInfo.directionalLights.size(); ++i)
+							{
+								DirectionalLight* light = command.lightingInfo.directionalLights[i];
+								if (!light)
+								{
+									continue;
+								}
+
+								shader->setUniform("directionalLight[" + std::to_string(i) + "].direction", light->getDirection());
+
+								shader->setUniform("directionalLight[" + std::to_string(i) + "].light.ambient", light->getAmbientColor());
+								shader->setUniform("directionalLight[" + std::to_string(i) + "].light.diffuse", light->getDiffuseColor());
+								shader->setUniform("directionalLight[" + std::to_string(i) + "].light.specular", light->getSpecularColor());
+							}
+
+							// Point lights
+							shader->setUniform("pointLightNum", static_cast<int>(command.lightingInfo.pointLights.size()));
+							for (size_t i = 0; i < command.lightingInfo.pointLights.size(); ++i)
+							{
+								PointLight* light = command.lightingInfo.pointLights[i];
+								if (!light)
+								{
+									continue;
+								}
+
+								shader->setUniform("pointLight[" + std::to_string(i) + "].position", light->getPosition());
+								
+								shader->setUniform("pointLight[" + std::to_string(i) + "].constant", light->getConstant());
+								shader->setUniform("pointLight[" + std::to_string(i) + "].linear", light->getLinear());
+								shader->setUniform("pointLight[" + std::to_string(i) + "].quadratic", light->getQuadratic());
+
+								shader->setUniform("pointLight[" + std::to_string(i) + "].light.ambient", light->getAmbientColor());
+								shader->setUniform("pointLight[" + std::to_string(i) + "].light.diffuse", light->getDiffuseColor());
+								shader->setUniform("pointLight[" + std::to_string(i) + "].light.specular", light->getSpecularColor());
+							}
+
+							// Spot lights
+							shader->setUniform("spotLightNum", static_cast<int>(command.lightingInfo.spotLights.size()));
+							for (size_t i = 0; i < command.lightingInfo.spotLights.size(); ++i)
+							{
+								SpotLight* light = command.lightingInfo.spotLights[i];
+								if (!light)
+								{
+									continue;
+								}
+
+								shader->setUniform("spotLight[" + std::to_string(i) + "].position", light->getPosition());
+								shader->setUniform("spotLight[" + std::to_string(i) + "].direction", light->getDirection());
+								shader->setUniform("spotLight[" + std::to_string(i) + "].cutOff", glm::radians(light->getCutOff()));
+
+								shader->setUniform("spotLight[" + std::to_string(i) + "].light.ambient", light->getAmbientColor());
+								shader->setUniform("spotLight[" + std::to_string(i) + "].light.diffuse", light->getDiffuseColor());
+								shader->setUniform("spotLight[" + std::to_string(i) + "].light.specular", light->getSpecularColor());
+
+								shader->setUniform("spotLight[" + std::to_string(i) + "].constant", light->getConstant());
+								shader->setUniform("spotLight[" + std::to_string(i) + "].linear", light->getLinear());
+								shader->setUniform("spotLight[" + std::to_string(i) + "].quadratic", light->getQuadratic());
 							}
 						}
 					}
@@ -136,12 +215,12 @@ void Renderer::render()
 	}
 }
 
-void Renderer::push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode, float drawSize, size_t depthBufferLayer)
+void Renderer::push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode, float drawSize, size_t depthBufferLayer, LightingInfo directionalLights)
 {
-	commandsArray[depthBufferLayer].push({ mesh, materialInstance, camera, worldMatrix, renderMode, drawSize, depthBufferLayer });
+	commandsArray[depthBufferLayer].push({ mesh, materialInstance, camera, worldMatrix, renderMode, drawSize, depthBufferLayer, std::forward<LightingInfo>(directionalLights) });
 }
 
-void Renderer::push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix)
+void Renderer::push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix, LightingInfo directionalLights)
 {
 	if (!modelInstance)
 	{
@@ -172,6 +251,7 @@ void Renderer::push(ModelInstance* modelInstance, Camera* camera, const glm::mat
 		command.worldMatrix = worldMatrix;
 		command.renderMode = RenderMode::Triangles;
 		command.depthBufferLayer = modelInstance->getDepthBufferLayer();
+		command.lightingInfo = directionalLights;
 		commandsArray[command.depthBufferLayer].push(command);
 	}
 }

@@ -7,7 +7,6 @@ class EditorLocalServer : public LocalServer
 public:
 	EditorLocalServer(Apparatus* apparatus);
 
-	// virtual void init() override;
 	virtual void update(float dt) override;
 
 protected:

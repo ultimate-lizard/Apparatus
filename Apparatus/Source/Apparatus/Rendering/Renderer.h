@@ -13,6 +13,9 @@ class Mesh;
 class MaterialInstance;
 class Camera;
 class ModelInstance;
+class DirectionalLight;
+class PointLight;
+class SpotLight;
 
 enum RenderMode
 {
@@ -20,6 +23,13 @@ enum RenderMode
 	Lines = GL_LINES,
 	Triangles = GL_TRIANGLES,
 	Quads = GL_QUADS
+};
+
+struct LightingInfo
+{
+	std::vector<DirectionalLight*> directionalLights;
+	std::vector<PointLight*> pointLights;
+	std::vector<SpotLight*> spotLights;
 };
 
 struct RenderCommand
@@ -31,6 +41,7 @@ struct RenderCommand
 	RenderMode renderMode = RenderMode::Triangles;
 	float drawSize = 1.0f;
 	size_t depthBufferLayer = 0;
+	LightingInfo lightingInfo;
 };
 
 class Renderer
@@ -47,8 +58,8 @@ public:
 
 	void render();
 
-	void push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode = RenderMode::Triangles, float drawSize = 1.0f, size_t depthBufferLayer = 0);
-	void push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix);
+	void push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode = RenderMode::Triangles, float drawSize = 1.0f, size_t depthBufferLayer = 0, LightingInfo directionalLights = LightingInfo());
+	void push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix, LightingInfo directionalLights = LightingInfo());
 
 	static size_t getMaxDepthBufferLayer()
 	{
