@@ -87,7 +87,7 @@ std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, 
 
 glm::vec3 rayVsPolygon(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& normal, const glm::vec3& polygonOrigin)
 {
-	glm::vec3 p = rayVsPlane((a + b + c) / 3.0f, normal, rayOrigin, rayDirection);
+	glm::vec3 p = rayVsPlane(a, normal, rayOrigin, rayDirection);
 	if (glm::any(glm::isnan(p)))
 	{
 		return glm::vec3(std::numeric_limits<float>::quiet_NaN());
