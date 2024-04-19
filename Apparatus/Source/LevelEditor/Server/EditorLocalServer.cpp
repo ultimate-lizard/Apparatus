@@ -70,58 +70,39 @@ void EditorLocalServer::start()
 			}
 		}
 
-		//if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
-		//{
-		//	if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
-		//	{
-		//		modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CaveFloor"));
-		//	}
-		//}
-
-		//if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
-		//{
-		//	if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
-		//	{
-		//		modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CaveWall"));
-		//	}
-		//}
+		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		{
+			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CaveFloor"));
+			}
+		}
 
 		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_ChestBroken"));
-			}
-
-			auto trans = dungeonModel->findComponent<TransformComponent>();
-
-			if (Entity* dungeonModel2 = level->spawnEntity("ModelEntity"))
-			{
-				if (ModelComponent* modelComponent = dungeonModel2->findComponent<ModelComponent>())
-				{
-					modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Table"));
-					modelComponent->setParent(trans);
-				}
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CaveWall"));
 			}
 		}
 
-		//if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
-		//{
-		//	if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
-		//	{
-		//		modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CellDoor"));
-		//	}
-		//}
+		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		{
+			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CellDoor"));
+			}
+		}
 
-		//if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
-		//{
-		//	if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
-		//	{
-		//		modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Table"));
-		//	}
-		//}
+		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		{
+			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Table"));
+			}
+		}
 
-		/*if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
@@ -134,14 +115,6 @@ void EditorLocalServer::start()
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
 				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Cage"));
-			}
-		}*/
-
-		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
-		{
-			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
-			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Dragon"));
 			}
 		}
 

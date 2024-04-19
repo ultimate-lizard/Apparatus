@@ -105,7 +105,7 @@ std::vector<RayTraceResult> Level::traceRay(const glm::vec3& origin, const glm::
 			{
 				for (Mesh* mesh : model->getMeshes())
 				{
-					auto intersections = rayVsMesh(origin, direction, mesh, modelComponent->getTransform());
+					auto intersections = rayVsMesh(origin, direction, mesh, modelComponent->getTransform(), modelComponent->getWorldPosition());
 					for (const auto& intersectionPair : intersections)
 					{
 						RayTraceResult traceResult;
@@ -125,6 +125,13 @@ std::vector<RayTraceResult> Level::traceRay(const glm::vec3& origin, const glm::
 	std::sort(result.begin(), result.end(), [&origin](RayTraceResult& a, RayTraceResult& b) {
 		return glm::distance(a.near, origin) < glm::distance(b.near, origin);
 	});
+
+	for (int i = 0; i < result.size(); ++i)
+	{
+		LOG(result[i].modelComponent->getModel()->getAssetName(), LogLevel::Info);
+	}
+
+	LOG("\n", LogLevel::Info);
 
 	return result;
 }

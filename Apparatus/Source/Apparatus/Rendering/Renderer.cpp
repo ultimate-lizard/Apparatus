@@ -179,6 +179,9 @@ void Renderer::render()
 					glPointSize(command.drawSize);
 					glLineWidth(command.drawSize);
 
+					// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+
 					const GLenum mode = static_cast<GLenum>(command.renderMode);
 
 					if (indices.size())
