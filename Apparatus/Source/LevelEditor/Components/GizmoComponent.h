@@ -98,4 +98,6 @@ private:
 	glm::vec2 clickCursorDevicePosition;
 
 	Entity* selectedEntity;
+
+	Rotator smoothRotation;
 };

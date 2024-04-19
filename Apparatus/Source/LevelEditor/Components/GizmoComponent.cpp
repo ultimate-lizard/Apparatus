@@ -161,6 +161,8 @@ void GizmoComponent::attach(Entity* attachmentEntity)
 		return;
 	}
 
+	smoothRotation = selectedEntityTransform->getRotator();
+
 	// POSITION -------------------------------------------------------
 	// Set local position of gizmo to 0 so it will not look displaced relative to the parent
 	gizmoTransform->setPosition(glm::vec3(0.0f));
@@ -495,6 +497,10 @@ void GizmoComponent::handleTranslation(Window& window, Camera* camera)
 		newPosition.y = gizmoOriginLocal.y;
 	}
 
+	// round(position.x / step) * step;
+	const float step = 0.25f;
+	newPosition = glm::round(newPosition / step) * step;
+
 	selectedEntityTransform->setPosition(newPosition);
 }
 
@@ -545,14 +551,29 @@ void GizmoComponent::handleRotation(Window& window, Camera* camera)
 	}
 
 	// Sensitivity
-	deltaAngle *= 0.5f;
+	deltaAngle *= 0.1f;
 
 	const Euler gimbalAngle = getEulerAngleOfGimbal(selectedGizmoModel->getComponentName());
 
 	LOG(std::to_string(dragToGimbalProjection2d.x) + " " + std::to_string(dragToGimbalProjection2d.y), LogLevel::Info);
 
-	selectedEntityTransform->rotate(deltaAngle, gimbalAngle);
-	selectedGizmoModel->rotate(deltaAngle, gimbalAngle);
+	// deltaAngle *= 45.0f;
+	// deltaAngle = glm::round(deltaAngle / 5.0f) * 5.0f;
+	LOG(std::to_string(deltaAngle), LogLevel::Info);
+
+	smoothRotation.rotate(deltaAngle, gimbalAngle);
+	// selectedEntityTransform->rotate(deltaAngle, gimbalAngle);
+	// selectedGizmoModel->rotate(deltaAngle, gimbalAngle);
+
+	float rot = smoothRotation.get(gimbalAngle);
+	rot = glm::round(rot / 10.0f) * 10.0f;
+
+	LOG(std::to_string(rot), LogLevel::Info);
+
+	selectedEntityTransform->setRotation(rot, gimbalAngle);
+	selectedGizmoModel->setRotation(rot, gimbalAngle);
+
+	// float newRotation = selectedGizmoModel->getRotationAngle(gimbalAngle);
 
 	window.setCursorPosition(lastCursorScreenPosition);
 }
