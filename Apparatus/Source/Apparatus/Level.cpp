@@ -131,13 +131,6 @@ std::vector<RayTraceResult> Level::traceRay(const glm::vec3& origin, const glm::
 		LOG(result[i].modelComponent->getModel()->getAssetName(), LogLevel::Info);
 	}
 
-	LOG("\n", LogLevel::Info);
-
-	if (result.size())
-	{
-		drawDebugPoint(result[0].near, { 1.0f, 0.0f, 1.0f, 1.0f }, 25.0f, false, 5.0f);
-	}
-
 	return result;
 }
 
