@@ -37,7 +37,7 @@ std::pair<glm::vec3, glm::vec3> rayVsAABB(const glm::vec3& position, const glm::
 	return { position + (direction * nearT), position + (direction * farT) };
 }
 
-std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, const glm::vec3& direction, const Mesh* mesh, const glm::mat4& meshTransform, const glm::vec3& pos)
+std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, const glm::vec3& direction, const Mesh* mesh, const glm::mat4& meshTransform)
 {
 	std::vector<std::pair<glm::vec3, glm::vec3>> result;
 
@@ -61,7 +61,9 @@ std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, 
 		const glm::vec4 bNewPosition = meshTransform * glm::vec4(b.position, 1.0f);
 		const glm::vec4 cNewPosition = meshTransform * glm::vec4(c.position, 1.0f);
 
-		glm::vec3 intersection = rayVsPolygon(origin, direction, aNewPosition, bNewPosition, cNewPosition, a.normal, glm::vec3(0.0f));
+		const glm::vec3 normal = glm::normalize(meshTransform * glm::vec4(a.normal, 0.0f));
+
+		glm::vec3 intersection = rayVsPolygon(origin, direction, aNewPosition, bNewPosition, cNewPosition, normal);
 		if (!glm::any(glm::isnan(intersection)))
 		{
 			// drawDebugPoint(intersection, { 1.0f, 1.0f, 0.0f, 1.0f }, 25.0f, false, 5.0f);
@@ -85,22 +87,13 @@ std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, 
 	return result;
 }
 
-glm::vec3 rayVsPolygon(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& normal, const glm::vec3& polygonOrigin)
+glm::vec3 rayVsPolygon(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& normal)
 {
 	glm::vec3 p = rayVsPlane(a, normal, rayOrigin, rayDirection);
 	if (glm::any(glm::isnan(p)))
 	{
 		return glm::vec3(std::numeric_limits<float>::quiet_NaN());
 	}
-
-	//drawDebugPoint(p, { 1.0f, 0.0f, 0.0f, 1.0f }, 25.0f, false, 5.0f);
-	//drawDebugPoint((a + b + c) / 3.0f, { 1.0f, 1.0f, 0.0f, 1.0f }, 25.0f, false, 5.0f);
-
-	//float barA = (a.x * (c.y - a.y) + (p.y - a.y) * (c.x - a.x) - p.x * (c.y - a.y)) / ((b.y - a.y) * (c.x - a.x) - (b.x - a.x) * (c.y - a.y));
-	//float barB = (p.y - a.y - barA * (b.y - a.y)) / (c.y - a.y);
-
-	//LOG("A: " + std::to_string(barA), LogLevel::Info);
-	//LOG("B: " + std::to_string(barB), LogLevel::Info);
 
 	glm::vec3 v0 = b - a;
 	glm::vec3 v1 = c - a;
