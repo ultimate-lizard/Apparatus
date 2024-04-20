@@ -36,6 +36,8 @@ protected:
 	void onModifierReleased();
 	void onDuplicate();
 
+	void toggleSnapToGrid();
+
 	GizmoComponent* gizmo;
 	bool ctrlPressed;
 };

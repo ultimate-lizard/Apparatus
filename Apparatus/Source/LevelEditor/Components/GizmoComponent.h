@@ -42,6 +42,16 @@ namespace GizmoNames
 	static const std::string ScaleBack = "ScaleBack";
 }
 
+struct SnappingData
+{
+	bool snapToGrid = false;
+	Rotator unsnappedRotator;
+	glm::vec3 unsnappedScale {0.0f};
+	float translationStep = 0.25f;
+	float rotationStep = 10.0f;
+	float scaleStep = 0.1f;
+};
+
 class GizmoComponent : public Component
 {
 public:
@@ -54,7 +64,6 @@ public:
 	virtual void init() override;
 	virtual void update(float dt) override;
 
-	//void setEditorLocalClient(EditorLocalClient* editorLocalClient);
 	void setSelectedGizmoModel(const std::string& gizmoModelName);
 
 	InteractionMode getInteractionMode() const;
@@ -69,6 +78,8 @@ public:
 	bool isPressed() const;
 
 	void handleCursorMovement(float inputX, float inputY);
+
+	void setSnapToGridEnabled(bool enabled);
 
 protected:
 	void updateVisibility();
@@ -99,5 +110,6 @@ private:
 
 	Entity* selectedEntity;
 
-	Rotator smoothRotation;
+	// This is a rotation value used during rotation manipulation. A rounded version is used to set rotation when grid enabled
+	SnappingData snappingData;
 };

@@ -26,11 +26,11 @@ InputHandler::InputHandler()
 
 	keyActionMap.emplace(InputKey::Escape, "OpenMainMenu");
 
-	keyActionMap.emplace(InputKey::Ctrl, "EditorModifier");
-	keyActionMap.emplace(InputKey::D, "Duplicate");
-
 	// TODO: This is only for LevelEditor project!
 	keyActionMap.emplace(InputKey::Space, "ToggleEditMode");
+	keyActionMap.emplace(InputKey::G, "ToggleSnapToGrid");
+	keyActionMap.emplace(InputKey::Ctrl, "EditorModifier");
+	keyActionMap.emplace(InputKey::D, "Duplicate");
 
 	for (auto& pair : keyAsAxisActionMap)
 	{

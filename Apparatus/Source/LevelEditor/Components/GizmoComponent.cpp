@@ -62,7 +62,8 @@ GizmoComponent::GizmoComponent(const GizmoComponent& other) :
 	gizmoClickOffset(other.gizmoClickOffset),
 	lastCursorScreenPosition(other.lastCursorScreenPosition),
 	clickCursorDevicePosition(other.clickCursorDevicePosition),
-	selectedEntity(other.selectedEntity)
+	selectedEntity(other.selectedEntity),
+	snappingData(other.snappingData)
 {
 }
 
@@ -102,7 +103,6 @@ void GizmoComponent::update(float dt)
 	}
 }
 
-// TODO: This is very wrong
 void GizmoComponent::setSelectedGizmoModel(const std::string& gizmoModelName)
 {
 	if (!owner)
@@ -161,7 +161,8 @@ void GizmoComponent::attach(Entity* attachmentEntity)
 		return;
 	}
 
-	smoothRotation = selectedEntityTransform->getRotator();
+	snappingData.unsnappedRotator = selectedEntityTransform->getRotator();
+	snappingData.unsnappedScale = selectedEntityTransform->getScale();
 
 	// POSITION -------------------------------------------------------
 	// Set local position of gizmo to 0 so it will not look displaced relative to the parent
@@ -356,6 +357,11 @@ void GizmoComponent::handleCursorMovement(float inputX, float inputY)
 	}
 }
 
+void GizmoComponent::setSnapToGridEnabled(bool enabled)
+{
+	snappingData.snapToGrid = enabled;
+}
+
 void GizmoComponent::updateVisibility()
 {
 	if (!owner)
@@ -497,9 +503,11 @@ void GizmoComponent::handleTranslation(Window& window, Camera* camera)
 		newPosition.y = gizmoOriginLocal.y;
 	}
 
-	// round(position.x / step) * step;
-	const float step = 0.25f;
-	newPosition = glm::round(newPosition / step) * step;
+	// Snapping
+	if (snappingData.snapToGrid)
+	{
+		newPosition = glm::round(newPosition / snappingData.translationStep) * snappingData.translationStep;
+	}
 
 	selectedEntityTransform->setPosition(newPosition);
 }
@@ -553,27 +561,24 @@ void GizmoComponent::handleRotation(Window& window, Camera* camera)
 	// Sensitivity
 	deltaAngle *= 0.1f;
 
+	// Snapping
 	const Euler gimbalAngle = getEulerAngleOfGimbal(selectedGizmoModel->getComponentName());
 
-	LOG(std::to_string(dragToGimbalProjection2d.x) + " " + std::to_string(dragToGimbalProjection2d.y), LogLevel::Info);
+	snappingData.unsnappedRotator.rotate(deltaAngle, gimbalAngle);
 
-	// deltaAngle *= 45.0f;
-	// deltaAngle = glm::round(deltaAngle / 5.0f) * 5.0f;
-	LOG(std::to_string(deltaAngle), LogLevel::Info);
+	if (snappingData.snapToGrid)
+	{
+		float angleSnapped = snappingData.unsnappedRotator.get(gimbalAngle);
+		angleSnapped = glm::round(angleSnapped / snappingData.rotationStep) * snappingData.rotationStep;
 
-	smoothRotation.rotate(deltaAngle, gimbalAngle);
-	// selectedEntityTransform->rotate(deltaAngle, gimbalAngle);
-	// selectedGizmoModel->rotate(deltaAngle, gimbalAngle);
-
-	float rot = smoothRotation.get(gimbalAngle);
-	rot = glm::round(rot / 10.0f) * 10.0f;
-
-	LOG(std::to_string(rot), LogLevel::Info);
-
-	selectedEntityTransform->setRotation(rot, gimbalAngle);
-	selectedGizmoModel->setRotation(rot, gimbalAngle);
-
-	// float newRotation = selectedGizmoModel->getRotationAngle(gimbalAngle);
+		selectedEntityTransform->setRotation(angleSnapped, gimbalAngle);
+		selectedGizmoModel->setRotation(angleSnapped, gimbalAngle);
+	}
+	else
+	{
+		selectedEntityTransform->rotate(deltaAngle, gimbalAngle);
+		selectedGizmoModel->rotate(deltaAngle, gimbalAngle);
+	}
 
 	window.setCursorPosition(lastCursorScreenPosition);
 }
@@ -602,7 +607,7 @@ void GizmoComponent::handleScale(Window& window, Camera* camera)
 		glm::vec2 cursorDragPosition = getCursorToDevice();
 		glm::vec2 cursorDragOffset = (cursorDragPosition - clickCursorDevicePosition) * 2.0f;
 
-		newScale = selectedEntityTransform->getScale() * (cursorDragOffset.x + cursorDragOffset.y + 1.0f);
+		newScale = snappingData.unsnappedScale * (cursorDragOffset.x + cursorDragOffset.y + 1.0f);
 	}
 	else
 	{
@@ -634,9 +639,9 @@ void GizmoComponent::handleScale(Window& window, Camera* camera)
 		scaleOffset.y = scaleOffset[longestAxis];
 		scaleOffset.z = scaleOffset[longestAxis];
 
-		newScale = selectedEntityTransform->getScale() + scaleOffset;
+		newScale = snappingData.unsnappedScale + scaleOffset;
 
-		const glm::vec3 gizmoCurrentScale = selectedEntityTransform->getScale();
+		const glm::vec3 gizmoCurrentScale = snappingData.unsnappedScale;
 		if (selectedGizmoName == GizmoNames::ScaleUp || selectedGizmoName == GizmoNames::ScaleDown)
 		{
 			newScale.x = gizmoCurrentScale.x;
@@ -653,8 +658,18 @@ void GizmoComponent::handleScale(Window& window, Camera* camera)
 			newScale.y = gizmoCurrentScale.y;
 		}
 	}
+	
+	snappingData.unsnappedScale = newScale;
 
-	selectedEntityTransform->setScale(newScale);
+	if (snappingData.snapToGrid)
+	{
+		glm::vec3 snappedScale = glm::round(snappingData.unsnappedScale / snappingData.scaleStep) * snappingData.scaleStep;
+		selectedEntityTransform->setScale(snappedScale);
+	}
+	else
+	{
+		selectedEntityTransform->setScale(newScale);
+	}
 
 	window.setCursorPosition(lastCursorScreenPosition);
 }

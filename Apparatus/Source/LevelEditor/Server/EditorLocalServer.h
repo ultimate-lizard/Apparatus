@@ -17,10 +17,10 @@ public:
 	void selectEntity(Entity* entity);
 	Entity* getSelectedEntity();
 
-	//void setGizmo(GizmoComponent* gizmo);
-	//GizmoComponent* getGizmo();
-
 	void duplicateSelection();
+
+	void setSnapToGridEnabled(bool enabled);
+	bool isSnapToGridEnabled();
 
 protected:
 	void indicateSelection(Entity* entity, bool selected);
@@ -31,4 +31,6 @@ protected:
 
 	glm::vec3 cachedSelectionPosition;
 	Box selectionBox;
+
+	bool snapToGrid;
 };
