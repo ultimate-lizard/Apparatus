@@ -126,11 +126,6 @@ std::vector<RayTraceResult> Level::traceRay(const glm::vec3& origin, const glm::
 		return glm::distance(a.near, origin) < glm::distance(b.near, origin);
 	});
 
-	for (int i = 0; i < result.size(); ++i)
-	{
-		LOG(result[i].modelComponent->getModel()->getAssetName(), LogLevel::Info);
-	}
-
 	return result;
 }
 
