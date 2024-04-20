@@ -18,7 +18,9 @@ EditorLocalServer::EditorLocalServer() :
 	LocalServer(),
 	selection(nullptr),
 	gizmo(nullptr),
-	cachedSelectionPosition(0.0f)
+	cachedSelectionPosition(0.0f),
+	selectionBoxVisible(false),
+	snapToGrid(false)
 {
 }
 
@@ -45,7 +47,10 @@ void EditorLocalServer::update(float dt)
 			}
 		}
 
-		drawDebugBox(selectionBox, { 1.0f, 1.0f, 0.0f, 1.0f }, 1.0f);
+		if (isSelectionBoxVisible())
+		{
+			drawDebugBox(selectionBox, { 1.0f, 1.0f, 0.0f, 1.0f }, 1.0f);
+		}
 	}
 }
 
@@ -237,6 +242,16 @@ void EditorLocalServer::setSnapToGridEnabled(bool enabled)
 bool EditorLocalServer::isSnapToGridEnabled()
 {
 	return snapToGrid == true;
+}
+
+void EditorLocalServer::setSelectionBoxVisibility(bool visible)
+{
+	selectionBoxVisible = visible;
+}
+
+bool EditorLocalServer::isSelectionBoxVisible()
+{
+	return selectionBoxVisible == true;
 }
 
 void EditorLocalServer::indicateSelection(Entity* entity, bool selected)

@@ -278,14 +278,20 @@ void GizmoComponent::press(const glm::vec3& clickWorldPosition)
 	{
 		lastCursorScreenPosition = window.getMouseCursorPosition();
 		window.setCursorVisibleEnabled(false);
+
+		if (EditorLocalServer* editorLocalServer = app.getServer<EditorLocalServer>())
+		{
+			editorLocalServer->setSelectionBoxVisibility(false);
+		}
 	}
 }
 
 void GizmoComponent::release()
 {
+	Apparatus& app = Apparatus::get();
+
 	if (pressed)
 	{
-		Apparatus& app = Apparatus::get();
 		Window& window = app.getWindow();
 
 		if (getInteractionMode() == InteractionMode::Rotation)
@@ -316,6 +322,12 @@ void GizmoComponent::release()
 		{
 			window.setCursorVisibleEnabled(true);
 		}
+	}
+
+	if (EditorLocalServer* editorLocalServer = app.getServer<EditorLocalServer>())
+	{
+		editorLocalServer->regenerateSelectionBoundingBox();
+		editorLocalServer->setSelectionBoxVisibility(true);
 	}
 
 	this->pressed = false;

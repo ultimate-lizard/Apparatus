@@ -22,15 +22,20 @@ public:
 	void setSnapToGridEnabled(bool enabled);
 	bool isSnapToGridEnabled();
 
+	void setSelectionBoxVisibility(bool visible);
+	bool isSelectionBoxVisible();
+
+	void regenerateSelectionBoundingBox();
+
 protected:
 	void indicateSelection(Entity* entity, bool selected);
-	void regenerateSelectionBoundingBox();
 
 	Entity* selection;
 	GizmoComponent* gizmo;
 
 	glm::vec3 cachedSelectionPosition;
 	Box selectionBox;
+	bool selectionBoxVisible;
 
 	bool snapToGrid;
 };
