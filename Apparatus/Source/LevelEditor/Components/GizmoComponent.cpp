@@ -270,6 +270,8 @@ void GizmoComponent::press(const glm::vec3& clickWorldPosition)
 				glm::vec3 clickToGimbalProjection = rotationClickPosition - gizmoOriginLocal;
 				const glm::vec2 clickToGimbalProjection2d = projectOnPlane(clickToGimbalProjection, gimbalUpLocal);
 				rotationClickAngle = Rotator::normalizeAngle(glm::degrees(glm::atan(clickToGimbalProjection2d.x, clickToGimbalProjection2d.y)));
+
+				LOG(std::to_string(rotationClickAngle), LogLevel::Info);
 			}
 		}
 	}
@@ -563,7 +565,22 @@ void GizmoComponent::handleRotation(Window& window, Camera* camera)
 	const glm::vec2 dragToGimbalProjection2d = projectOnPlane(dragToGimbalProjection, gizmoUp);
 
 	float dragAngle = Rotator::normalizeAngle(glm::degrees(glm::atan(dragToGimbalProjection2d.x, dragToGimbalProjection2d.y)));
+
 	float deltaAngle = rotationClickAngle - dragAngle;
+
+	// We need to handle the case when comparing two numbers that stand to the left and right from 0 degrees
+	if (glm::abs(deltaAngle) > 180.0f)
+	{
+		if (deltaAngle < 0.0f)
+		{
+			deltaAngle = 360.0f - glm::abs(deltaAngle);
+		}
+		else
+		{
+			deltaAngle = 360.0f - glm::abs(deltaAngle);
+			deltaAngle = -deltaAngle;
+		}
+	}
 
 	if (selectedGizmoModel->getComponentName() == GizmoNames::Yaw)
 	{
