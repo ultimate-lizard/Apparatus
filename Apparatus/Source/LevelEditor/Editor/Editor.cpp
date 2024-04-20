@@ -42,6 +42,11 @@ void Editor::_createEntityTemplates()
 		}
 	}
 
+	if (Entity* selectionProxy = Apparatus::getEntityRegistry().createEntityTemplate("SelectionProxy"))
+	{
+		TransformComponent* proxyTransformComponent = Apparatus::getEntityRegistry().createComponent<TransformComponent>(selectionProxy);
+	}
+
 	if (Entity* gizmo = Apparatus::getEntityRegistry().createEntityTemplate("Gizmo"))
 	{
 		if (auto gizmoTransform = Apparatus::getEntityRegistry().createComponent<TransformComponent>(gizmo))

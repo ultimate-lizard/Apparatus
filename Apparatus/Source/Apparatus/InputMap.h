@@ -36,6 +36,7 @@ enum InputKey
 	Tab,
 	Space,
 	Ctrl = SDL_SCANCODE_LCTRL,
+	Shift,
 	F1 = SDL_SCANCODE_F1,
 	F2,
 	F3,

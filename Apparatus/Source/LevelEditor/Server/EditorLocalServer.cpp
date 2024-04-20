@@ -16,11 +16,13 @@
 
 EditorLocalServer::EditorLocalServer() :
 	LocalServer(),
-	selection(nullptr),
+	// selectedEntity(nullptr),
 	gizmo(nullptr),
+	selectionProxyTransformComponent(nullptr),
 	cachedSelectionPosition(0.0f),
 	selectionBoxVisible(false),
-	snapToGrid(false)
+	snapToGrid(false),
+	shiftPressed(false)
 {
 }
 
@@ -35,9 +37,9 @@ void EditorLocalServer::update(float dt)
 {
 	LocalServer::update(dt);
 
-	if (selection)
+	/*if (selectedEntity)
 	{
-		if (auto transform = selection->findComponent<TransformComponent>())
+		if (auto transform = selectedEntity->findComponent<TransformComponent>())
 		{
 			if (transform->getWorldPosition() != cachedSelectionPosition)
 			{
@@ -51,7 +53,7 @@ void EditorLocalServer::update(float dt)
 		{
 			drawDebugBox(selectionBox, { 1.0f, 1.0f, 0.0f, 1.0f }, 1.0f);
 		}
-	}
+	}*/
 }
 
 void EditorLocalServer::start()
@@ -60,6 +62,16 @@ void EditorLocalServer::start()
 
 	if (level)
 	{
+		if (Entity* selectionProxy = level->spawnEntity("SelectionProxy"))
+		{
+			selectionProxyTransformComponent = selectionProxy->findComponent<TransformComponent>();
+
+			if (ModelComponent* proxyModelComponent = selectionProxy->findComponent<ModelComponent>())
+			{
+				proxyModelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_ScaleAll"));
+			}
+		}
+
 		Entity* player = level->spawnEntity("Player");
 
 		if (Entity* gizmo = level->spawnEntity("Gizmo"))
@@ -192,41 +204,145 @@ void EditorLocalServer::start()
 
 void EditorLocalServer::selectEntity(Entity* entity)
 {
-	indicateSelection(selection, false);
+	if (!isShiftPressed())
+	{
+		for (Entity* selectedEntity : selectedEntities)
+		{
+			indicateSelection(selectedEntity, false);
 
-	this->selection = entity;
+			if (TransformComponent* selectionTransformComponent = selectedEntity->findComponent<TransformComponent>())
+			{
+				selectionTransformComponent->setPosition(selectionTransformComponent->getWorldPosition());
+
+				selectionTransformComponent->setParent(nullptr);
+
+				selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Pitch), Euler::Pitch);
+				selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Yaw), Euler::Yaw);
+				selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Roll), Euler::Roll);
+			}
+		}
+
+		selectionProxyTransformComponent->setRotation(Rotator());
+		selectionProxyTransformComponent->setPosition(glm::vec3(0.0f));
+
+		selectedEntities.clear();
+	}
+
+	if (entity)
+	{
+		selectedEntities.push_back(entity);
+	}
 
 	if (entity)
 	{
 		indicateSelection(entity, true);
-		regenerateSelectionBoundingBox();
+		// regenerateSelectionBoundingBox();
 	}
 
 	if (gizmo)
 	{
-		gizmo->attach(entity);
-		gizmo->setVisibility(entity != nullptr);
+		if (isShiftPressed())
+		{
+			for (Entity* selectedEntity : selectedEntities)
+			{
+				if (TransformComponent* selectionTransformComponent = selectedEntity->findComponent<TransformComponent>())
+				{
+					selectionTransformComponent->setPosition(selectionTransformComponent->getWorldPosition());
+
+					selectionTransformComponent->setParent(nullptr);
+
+					selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Pitch), Euler::Pitch);
+					selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Yaw), Euler::Yaw);
+					selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Roll), Euler::Roll);
+				}
+			}
+
+			glm::vec3 averagePosition(0.0f);
+			size_t transformCount = 0;
+
+			glm::vec3 averageRotator(0.0f);
+
+			for (Entity* selectedEntity : selectedEntities)
+			{
+				if (TransformComponent* selectionTransformComponent = selectedEntity->findComponent<TransformComponent>())
+				{
+					averagePosition += selectionTransformComponent->getWorldPosition();
+
+					Rotator rot = selectionTransformComponent->getRotator();
+					averageRotator.x = rot.get(Euler::Pitch);
+					averageRotator.y = rot.get(Euler::Yaw);
+					averageRotator.z = rot.get(Euler::Roll);
+
+					transformCount++;
+				}
+			}
+
+			averagePosition /= transformCount;
+
+			selectionProxyTransformComponent->setPosition(averagePosition);
+			selectionProxyTransformComponent->setRotation(Rotator());
+
+			Rotator newRotator(averageRotator.x, averageRotator.y, averageRotator.z);
+
+			for (Entity* selectedEntity : selectedEntities)
+			{
+				if (TransformComponent* selectionTransformComponent = selectedEntity->findComponent<TransformComponent>())
+				{
+					selectionTransformComponent->setParent(selectionProxyTransformComponent);
+					selectionTransformComponent->setPosition(selectionTransformComponent->getPosition() - selectionProxyTransformComponent->getWorldPosition());
+				}
+			}
+
+			gizmo->setSelectedEntity(selectionProxyTransformComponent->getOwner());
+			gizmo->attach(selectionProxyTransformComponent->getOwner());
+			gizmo->setVisibility(selectionProxyTransformComponent->getOwner() != nullptr);
+		}
+		else
+		{
+			gizmo->setSelectedEntity(entity);
+			gizmo->attach(entity);
+			gizmo->setVisibility(entity != nullptr);
+		}
 	}
 }
-
-Entity* EditorLocalServer::getSelectedEntity()
-{
-	return selection;
-}
+//
+//Entity* EditorLocalServer::getSelectedEntity()
+//{
+//	return selectedEntity;
+//}
 
 void EditorLocalServer::duplicateSelection()
 {
-	if (Entity* newSelection = Apparatus::getEntityRegistry().clone(selection))
+	std::vector<Entity*> selections = selectedEntities;
+
+	selectEntity(nullptr);
+
+	for (Entity* selectedEntity : selections)
 	{
-		newSelection->init();
-		newSelection->onSpawn();
-
-		if (level)
+		if (Entity* newSelection = Apparatus::getEntityRegistry().clone(selectedEntity))
 		{
-			level->addEntity(newSelection);
-		}
+			newSelection->init();
+			newSelection->onSpawn();
 
-		selectEntity(newSelection);
+			if (level)
+			{
+				level->addEntity(newSelection);
+			}
+
+			bool shiftWasPressed = isShiftPressed();
+
+			if (!shiftWasPressed)
+			{
+				setShiftPressed(true);
+			}
+
+			selectEntity(newSelection);
+
+			if (!shiftWasPressed)
+			{
+				setShiftPressed(false);
+			}
+		}
 	}
 }
 
@@ -296,12 +412,12 @@ void EditorLocalServer::indicateSelection(Entity* entity, bool selected)
 
 void EditorLocalServer::regenerateSelectionBoundingBox()
 {
-	if (!selection)
+	/*if (!selectedEntity)
 	{
 		return;
 	}
 
-	auto transformComponent = selection->findComponent<TransformComponent>();
+	auto transformComponent = selectedEntity->findComponent<TransformComponent>();
 	if (!transformComponent)
 	{
 		return;
@@ -309,7 +425,7 @@ void EditorLocalServer::regenerateSelectionBoundingBox()
 
 	cachedSelectionPosition = transformComponent->getWorldPosition();
 
-	std::vector<ModelComponent*> modelComponents = selection->getAllComponentsOfClass<ModelComponent>();
+	std::vector<ModelComponent*> modelComponents = selectedEntity->getAllComponentsOfClass<ModelComponent>();
 	if (modelComponents.size() > 1)
 	{
 		std::vector<Model*> models;
@@ -330,7 +446,17 @@ void EditorLocalServer::regenerateSelectionBoundingBox()
 	{
 		ModelComponent* modelComponent = modelComponents[0];
 		selectionBox = generateAABB(modelComponent->getModel(), modelComponent->getWorldPosition(), modelComponent->getWorldOrientation(), modelComponent->getWorldScale());
-	}
+	}*/
+}
+
+void EditorLocalServer::setShiftPressed(bool pressed)
+{
+	shiftPressed = pressed;
+}
+
+bool EditorLocalServer::isShiftPressed() const
+{
+	return shiftPressed == true;
 }
 
 //EditorContext& EditorLocalServer::getEditorContext()

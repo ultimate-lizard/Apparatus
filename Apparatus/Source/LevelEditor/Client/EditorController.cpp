@@ -72,6 +72,9 @@ void EditorController::setupInput()
 
 	inputHandler.bindKeyAction("Duplicate", KeyEventType::Press, std::bind(&EditorController::onDuplicate, this));
 	inputHandler.bindKeyAction("ToggleSnapToGrid", KeyEventType::Press, std::bind(&EditorController::toggleSnapToGrid, this));
+
+	inputHandler.bindKeyAction("Shift", KeyEventType::Press, std::bind(&EditorController::onShiftPressed, this));
+	inputHandler.bindKeyAction("Shift", KeyEventType::Release, std::bind(&EditorController::onShiftReleased, this));
 }
 
 void EditorController::pressSelect()
@@ -242,5 +245,23 @@ void EditorController::toggleSnapToGrid()
 	if (EditorLocalServer* editorLocalServer = app.getServer<EditorLocalServer>())
 	{
 		editorLocalServer->setSnapToGridEnabled(!editorLocalServer->isSnapToGridEnabled());
+	}
+}
+
+void EditorController::onShiftPressed()
+{
+	Apparatus& app = Apparatus::get();
+	if (EditorLocalServer* editorLocalServer = app.getServer<EditorLocalServer>())
+	{
+		editorLocalServer->setShiftPressed(true);
+	}
+}
+
+void EditorController::onShiftReleased()
+{
+	Apparatus& app = Apparatus::get();
+	if (EditorLocalServer* editorLocalServer = app.getServer<EditorLocalServer>())
+	{
+		editorLocalServer->setShiftPressed(false);
 	}
 }

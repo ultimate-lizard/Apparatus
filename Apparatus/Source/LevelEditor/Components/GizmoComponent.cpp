@@ -225,10 +225,10 @@ void GizmoComponent::press(const glm::vec3& clickWorldPosition)
 	Apparatus& app = Apparatus::get();
 	Window& window = app.getWindow();
 
-	if (EditorLocalServer* editor = app.getServer<EditorLocalServer>())
-	{
-		selectedEntity = editor->getSelectedEntity();
-	}
+	//if (EditorLocalServer* editor = app.getServer<EditorLocalServer>())
+	//{
+	//	selectedEntity = editor->getSelectedEntity();
+	//}
 
 	this->pressed = true;
 
@@ -374,6 +374,11 @@ void GizmoComponent::handleCursorMovement(float inputX, float inputY)
 void GizmoComponent::setSnapToGridEnabled(bool enabled)
 {
 	snappingData.snapToGrid = enabled;
+}
+
+void GizmoComponent::setSelectedEntity(Entity* selectedEntity)
+{
+	this->selectedEntity = selectedEntity;
 }
 
 void GizmoComponent::updateVisibility()

@@ -38,6 +38,9 @@ protected:
 
 	void toggleSnapToGrid();
 
+	void onShiftPressed();
+	void onShiftReleased();
+
 	GizmoComponent* gizmo;
 	bool ctrlPressed;
 };

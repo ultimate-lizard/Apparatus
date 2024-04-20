@@ -81,6 +81,8 @@ public:
 
 	void setSnapToGridEnabled(bool enabled);
 
+	void setSelectedEntity(Entity* selectedEntity);
+
 protected:
 	void updateVisibility();
 

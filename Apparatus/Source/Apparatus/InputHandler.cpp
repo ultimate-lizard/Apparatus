@@ -31,6 +31,7 @@ InputHandler::InputHandler()
 	keyActionMap.emplace(InputKey::G, "ToggleSnapToGrid");
 	keyActionMap.emplace(InputKey::Ctrl, "EditorModifier");
 	keyActionMap.emplace(InputKey::D, "Duplicate");
+	keyActionMap.emplace(InputKey::Shift, "Shift");
 
 	for (auto& pair : keyAsAxisActionMap)
 	{

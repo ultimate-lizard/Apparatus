@@ -3,6 +3,7 @@
 #include <Apparatus/Server/LocalServer.h>
 
 class GizmoComponent;
+class TransformComponent;
 
 class EditorLocalServer : public LocalServer
 {
@@ -15,7 +16,7 @@ public:
 	virtual void start() override;
 
 	void selectEntity(Entity* entity);
-	Entity* getSelectedEntity();
+	// Entity* getSelectedEntity();
 
 	void duplicateSelection();
 
@@ -27,15 +28,22 @@ public:
 
 	void regenerateSelectionBoundingBox();
 
+	void setShiftPressed(bool pressed);
+	bool isShiftPressed() const;
+
 protected:
 	void indicateSelection(Entity* entity, bool selected);
 
-	Entity* selection;
+	// Entity* selectedEntity;
+	std::vector<Entity*> selectedEntities;
+
 	GizmoComponent* gizmo;
+	TransformComponent* selectionProxyTransformComponent;
 
 	glm::vec3 cachedSelectionPosition;
 	Box selectionBox;
 	bool selectionBoxVisible;
 
 	bool snapToGrid;
+	bool shiftPressed;
 };
