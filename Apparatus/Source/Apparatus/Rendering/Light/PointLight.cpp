@@ -2,12 +2,13 @@
 
 PointLight::PointLight() :
 	position(0.0f),
-	radius(10.0f),
+	radius(5.0f),
 	compression(1.0f)
 {
 }
 
 PointLight::PointLight(const PointLight& other) :
+	LightBase(other),
 	position(other.position),
 	radius(other.radius),
 	compression(other.compression)

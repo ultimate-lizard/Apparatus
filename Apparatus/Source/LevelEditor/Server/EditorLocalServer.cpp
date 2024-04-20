@@ -74,15 +74,12 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CaveFloor"));
-			}
-		}
-
-		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
-		{
-			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
-			{
 				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CaveWall"));
+			}
+
+			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
+			{
+				transform->setPosition({ -2.0f, 1.0f, 0.0f });
 			}
 		}
 
@@ -92,6 +89,11 @@ void EditorLocalServer::start()
 			{
 				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CellDoor"));
 			}
+
+			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
+			{
+				transform->setPosition({ -1.0f, 1.0f, 0.0f });
+			}
 		}
 
 		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
@@ -100,13 +102,23 @@ void EditorLocalServer::start()
 			{
 				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Table"));
 			}
+
+			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
+			{
+				transform->setPosition({ 0.0f, 1.0f, 0.0f });
+			}
 		}
 
 		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Skull"));
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Shrine"));
+			}
+
+			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
+			{
+				transform->setPosition({ 1.0f, 1.0f, 0.0f });
 			}
 		}
 
@@ -115,6 +127,37 @@ void EditorLocalServer::start()
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
 				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Cage"));
+			}
+
+			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
+			{
+				transform->setPosition({ 2.0f, 1.0f, 0.0f });
+			}
+		}
+
+		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		{
+			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_LightPost"));
+			}
+
+			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
+			{
+				transform->setPosition({ 3.0f, 1.0f, 0.0f });
+			}
+		}
+
+		if (Entity* dungeonModel = level->spawnEntity("ModelEntity"))
+		{
+			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Chair"));
+			}
+
+			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
+			{
+				transform->setPosition({ 4.0f, 1.0f, 0.0f });
 			}
 		}
 
@@ -132,7 +175,13 @@ void EditorLocalServer::start()
 			}
 		}*/
 
-		Entity* pointLight = level->spawnEntity("PointLight");
+		if (Entity* pointLight = level->spawnEntity("PointLight"))
+		{
+			if (PointLightComponent* pointLightComponent = pointLight->findComponent<PointLightComponent>())
+			{
+				pointLightComponent->setColor({ 1.0f, 0.8f, 0.4f });
+			}
+		}
 	}
 }
 
@@ -174,6 +223,20 @@ void EditorLocalServer::duplicateSelection()
 
 		selectEntity(newSelection);
 	}
+}
+
+void EditorLocalServer::setSnapToGridEnabled(bool enabled)
+{
+	snapToGrid = enabled;
+	if (gizmo)
+	{
+		gizmo->setSnapToGridEnabled(enabled);
+	}
+}
+
+bool EditorLocalServer::isSnapToGridEnabled()
+{
+	return snapToGrid == true;
 }
 
 void EditorLocalServer::indicateSelection(Entity* entity, bool selected)

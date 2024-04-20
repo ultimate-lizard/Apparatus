@@ -8,6 +8,7 @@ layout (location = 3) in vec4 color;
 out vec2 texPos;
 out vec3 fragPos;
 out vec3 fragNormal;
+out mat4 fragTransform;
 
 uniform mat4 world;
 uniform mat4 view;
@@ -20,4 +21,5 @@ void main()
 	texPos = uv;
 	fragPos = vec3(world * vec4(position, 1.0));
 	fragNormal = normal;
+	fragTransform = world;
 }

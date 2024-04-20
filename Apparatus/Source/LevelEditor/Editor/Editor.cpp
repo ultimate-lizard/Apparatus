@@ -38,7 +38,6 @@ void Editor::_createEntityTemplates()
 
 		if (PointLightComponent* pointLightComponent = Apparatus::getEntityRegistry().createComponent<PointLightComponent>(pointLightEntity))
 		{
-			pointLightComponent->setColor({ 0.0f, 0.5f, 1.0f });
 			pointLightComponent->setParent(lightTransform);
 		}
 	}

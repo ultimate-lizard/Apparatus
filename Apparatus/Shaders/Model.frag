@@ -4,6 +4,7 @@ out vec4 FragColor;
 in vec2 texPos;
 in vec3 fragPos;
 in vec3 fragNormal;
+in mat4 fragTransform;
 
 uniform sampler2D textureSampler;
 
@@ -78,8 +79,13 @@ vec3 calculatePointLight(PointLight inLight, Material inMaterial);
 
 float linearizeDepth(float depth);
 
+vec3 fragNormalWorld;
+
 void main()
 {
+	// fragNormal = normalize(fragTransform * fragNormal).xyz;
+	fragNormalWorld = normalize(fragTransform * vec4(fragNormal, 0.0)).xyz;
+
 	vec4 objectColor;
 	
 	if (material.noTexture)
@@ -100,11 +106,15 @@ void main()
 	}
 	else
 	{
+		DirectionalLight l;
+		l.color = vec3(0.1, 0.08, 0.04);
+		l.direction = vec3(1.0, -0.5, 1.0);
+		resultColor += calculateDirectionalLight(l, material) * vec3(objectColor);
 		// Lighting mixing
-		for (int i = 0; i < directionalLightNum; ++i)
-		{
-			resultColor += calculateDirectionalLight(directionalLight[i], material) * vec3(objectColor);
-		}
+//		for (int i = 0; i < directionalLightNum; ++i)
+//		{
+//			resultColor += calculateDirectionalLight(directionalLight[i], material) * vec3(objectColor);
+//		}
 
 		for (int i = 0; i < pointLightNum; ++i)
 		{
@@ -136,11 +146,11 @@ vec3 calculateDirectionalLight(DirectionalLight inLight, Material inMaterial)
 
 	vec3 lightDir = normalize(-inLight.direction);
 
-	float diffuseValue = max(dot(fragNormal, lightDir), 0.0);
+	float diffuseValue = max(dot(fragNormalWorld, lightDir), 0.0);
 	vec3 diffuseColor = inLight.color * (diffuseValue * inMaterial.diffuse);
 
 	vec3 viewDir = normalize(cameraPos - fragPos);
-	vec3 reflectionDir = reflect(-lightDir, fragNormal);
+	vec3 reflectionDir = reflect(-lightDir, fragNormalWorld);
 	float specularValue = pow(max(dot(viewDir, reflectionDir), 0.0), int(inMaterial.shininess));
 	vec3 specularColor = inLight.color * (specularValue * inMaterial.specular);
 
@@ -150,10 +160,10 @@ vec3 calculateDirectionalLight(DirectionalLight inLight, Material inMaterial)
 vec3 calculatePointLight(PointLight inLight, Material inMaterial)
 {
 	vec3 lightDir = normalize(inLight.position - fragPos);
-	float diffuseValue = max(dot(fragNormal, lightDir), 0.0);
+	float diffuseValue = max(dot(fragNormalWorld, lightDir), 0.0);
 
 	vec3 viewDir = normalize(cameraPos - fragPos);
-	vec3 reflectionDir = reflect(-lightDir, fragNormal);
+	vec3 reflectionDir = reflect(-lightDir, fragNormalWorld);
 	float specularValue = pow(max(dot(viewDir, reflectionDir), 0.0), int(inMaterial.shininess));
 
 	// Attenuation

@@ -7,6 +7,7 @@ class Level;
 class LightBase
 {
 public:
+	LightBase(const LightBase& other);
 	virtual ~LightBase() = default;
 
 	const glm::vec3& getColor() const;
