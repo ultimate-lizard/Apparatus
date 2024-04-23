@@ -6,10 +6,7 @@
 #include <Apparatus/Client/LocalClient.h>
 #include <Apparatus/Components/TransformComponent.h>
 #include <Apparatus/Components/ModelComponent.h>
-#include <Apparatus/Components/LightComponent/DirectionalLightComponent.h>
-#include <Apparatus/Components/LightComponent/PointLightComponent.h>
-#include <Apparatus/Components/LightComponent/SpotLightComponent.h>
-
+#include <Apparatus/Components/LightComponent.h>
 #include "../Components/SelectableComponent.h"
 #include "../Components/GizmoComponent.h"
 #include "../Editor/Editor.h"
@@ -184,41 +181,28 @@ void EditorLocalServer::start()
 			}
 		}
 
-		/*for (size_t i = 0; i < 11; ++i)
-		{
-			for (size_t j = 0; j < 11; ++j)
-			{
-				if (Entity* pointLight = level->spawnEntity("PointLight"))
-				{
-					if (TransformComponent* lightTransform = pointLight->findComponent<TransformComponent>())
-					{
-						lightTransform->setPosition({ i * 4.0f, 5.0f, j * 4.0f });
-					}
-				}
-			}
-		}*/
-
-		if (Entity* pointLight = level->spawnEntity("PointLight"))
-		{
-			if (PointLightComponent* pointLightComponent = pointLight->findComponent<PointLightComponent>())
-			{
-				pointLightComponent->setColor({ 1.0f, 0.8f, 0.4f });
-			}
-		}
-
 		if (Entity* spotLight = level->spawnEntity("SpotLight"))
 		{
-			if (SpotLightComponent* pointLightComponent = spotLight->findComponent<SpotLightComponent>())
+			if (LightComponent* pointLightComponent = spotLight->findComponent<LightComponent>())
 			{
 				pointLightComponent->setColor({ 1.0f, 0.0f, 0.0f });
+				pointLightComponent->setRadius(20.0f);
 			}
 		}
 
 		if (Entity* directionalLight = level->spawnEntity("DirectionalLight"))
 		{
-			if (DirectionalLightComponent* pointLightComponent = directionalLight->findComponent<DirectionalLightComponent>())
+			if (LightComponent* pointLightComponent = directionalLight->findComponent<LightComponent>())
 			{
-				pointLightComponent->setColor({ 0.0f, 0.0f, 1.0f });
+				pointLightComponent->setColor({ 0.0f, 0.0f, 0.1f });
+			}
+		}
+
+		if (Entity* pointLight = level->spawnEntity("PointLight"))
+		{
+			if (LightComponent* pointLightComponent = pointLight->findComponent<LightComponent>())
+			{
+				pointLightComponent->setColor({ 1.0f, 0.8f, 0.4f });
 			}
 		}
 	}
@@ -542,7 +526,7 @@ bool EditorLocalServer::isShiftPressed() const
 //	//		lightModel->setParent(lightTransform);
 //	//	}
 //
-//	//	if (auto directionalLightComponent = directionalLightEntity->createComponent<DirectionalLightComponent>(directionalLightEntity))
+//	//	if (auto directionalLightComponent = directionalLightEntity->createComponent<LightComponent>(directionalLightEntity))
 //	//	{
 //	//		directionalLightComponent->setColor({ 0.2f, 0.2f, 0.2f });
 //	//	}
@@ -562,7 +546,7 @@ bool EditorLocalServer::isShiftPressed() const
 //	//		lightModel->setParent(lightTransform);
 //	//	}
 //
-//	//	if (auto pointLightComponent = createComponent<PointLightComponent>(pointLightEntity))
+//	//	if (auto pointLightComponent = createComponent<LightComponent>(pointLightEntity))
 //	//	{
 //	//		pointLightComponent->setColor({ 1.0f, 1.0f, 1.0f });
 //	//	}
@@ -579,7 +563,7 @@ bool EditorLocalServer::isShiftPressed() const
 //	//		lightModel->setParent(lightTransform);
 //	//	}
 //
-//	//	if (auto pointLightComponent = createComponent<SpotLightComponent>(spotLightEntity))
+//	//	if (auto pointLightComponent = createComponent<LightComponent>(spotLightEntity))
 //	//	{
 //	//		pointLightComponent->setColor({ 1.0f, 0.0f, 1.0f });
 //	//	}
@@ -603,7 +587,7 @@ bool EditorLocalServer::isShiftPressed() const
 //
 //	//				LocalClient* localClient = apparatus->getPrimaryLocalClient();
 //
-//	//				if (auto pointLightComponent = createComponent<PointLightComponent>(pointLightEntity))
+//	//				if (auto pointLightComponent = createComponent<LightComponent>(pointLightEntity))
 //	//				{
 //	//					pointLightComponent->setColor({ 1.0f, 0.8f, 0.8f });
 //	//				}

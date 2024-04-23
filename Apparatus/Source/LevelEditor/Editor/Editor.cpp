@@ -2,10 +2,7 @@
 
 #include <Apparatus/Components/TransformComponent.h>
 #include <Apparatus/Components/ModelComponent.h>
-#include <Apparatus/Components/LightComponent/PointLightComponent.h>
-#include <Apparatus/Components/LightComponent/SpotLightComponent.h>
-#include <Apparatus/Components/LightComponent/DirectionalLightComponent.h>
-
+#include <Apparatus/Components/LightComponent.h>
 #include "../Server/EditorLocalServer.h"
 #include "../Client/EditorLocalClient.h"
 #include "../Components/GizmoComponent.h"
@@ -37,7 +34,7 @@ void Editor::_createEntityTemplates()
 			lightModel->setParent(lightTransform);
 		}
 
-		if (PointLightComponent* pointLightComponent = Apparatus::getEntityRegistry().createComponent<PointLightComponent>(pointLightEntity))
+		if (LightComponent* pointLightComponent = Apparatus::getEntityRegistry().createComponent<LightComponent>(pointLightEntity, LightType::PointLight))
 		{
 			pointLightComponent->setParent(lightTransform);
 		}
@@ -53,9 +50,9 @@ void Editor::_createEntityTemplates()
 			lightModel->setParent(lightTransform);
 		}
 
-		if (SpotLightComponent* pointLightComponent = Apparatus::getEntityRegistry().createComponent<SpotLightComponent>(spotLightEntity))
+		if (LightComponent* spotLightComponent = Apparatus::getEntityRegistry().createComponent<LightComponent>(spotLightEntity, LightType::SpotLight))
 		{
-			pointLightComponent->setParent(lightTransform);
+			spotLightComponent->setParent(lightTransform);
 		}
 	}
 
@@ -69,7 +66,10 @@ void Editor::_createEntityTemplates()
 			lightModel->setParent(lightTransform);
 		}
 
-		DirectionalLightComponent* directionalLightComponent = Apparatus::getEntityRegistry().createComponent<DirectionalLightComponent>(directionalLightEntity);
+		if (LightComponent* directionalLightComponent = Apparatus::getEntityRegistry().createComponent<LightComponent>(directionalLightEntity, LightType::DirectionalLight))
+		{
+			directionalLightComponent->setParent(lightTransform);
+		}
 	}
 
 	if (Entity* selectionProxy = Apparatus::getEntityRegistry().createEntityTemplate("SelectionProxy"))

@@ -1,9 +1,11 @@
 #include "Level.h"
 
+#include <algorithm>
+
 #include "Server/Entity.h"
 #include "Server/LocalServer.h"
 #include "Rendering/Renderer.h"
-#include "Rendering/Light/PointLight.h"
+#include "Rendering/Light.h"
 #include "Components/TransformComponent.h"
 #include "Components/ModelComponent.h"
 #include "Core/EntityRegistry.h"

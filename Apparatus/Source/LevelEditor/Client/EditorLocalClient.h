@@ -3,12 +3,6 @@
 #include <Apparatus/Client/LocalClient.h>
 #include <Apparatus/Event/EventDispatcher.h>
 
-class Entity;
-class GizmoComponent;
-class EditorContext;
-class PointLightComponent;
-class Component;
-
 class EditorLocalClient : public LocalClient
 {
 public:

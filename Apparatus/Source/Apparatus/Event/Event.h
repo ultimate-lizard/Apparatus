@@ -1,6 +1,6 @@
 #pragma once
 
-class PointLightComponent;
+class LightComponent;
 
 class Event
 {
@@ -11,5 +11,14 @@ public:
 class LightComponentCreationEvent : public Event
 {
 public:
-	PointLightComponent* pointLightComponent = nullptr;
+	LightComponentCreationEvent(LightComponent* lightComponent);
+	virtual ~LightComponentCreationEvent() = default;
+	LightComponent* getLightComponent();
+
+	LightComponentCreationEvent() = delete;
+	LightComponentCreationEvent(const LightComponentCreationEvent&) = delete;
+	LightComponentCreationEvent(LightComponentCreationEvent&&) = delete;
+
+private:
+	LightComponent* lightComponent = nullptr;
 };

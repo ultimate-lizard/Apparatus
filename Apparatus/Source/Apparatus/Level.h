@@ -6,10 +6,7 @@
 
 #include <glm/glm.hpp>
 
-class Renderer;
 class Entity;
-class LocalServer;
-class PointLight;
 class ModelComponent;
 
 struct RayTraceResult

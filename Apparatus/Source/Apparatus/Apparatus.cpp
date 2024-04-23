@@ -249,7 +249,7 @@ void Apparatus::_createAssets()
 
 		if (ModelImporter* importer = assetManager.getImporter<ModelImporter>())
 		{
-			// assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "../Models/scene.fbx")));
+			//assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "../Models/scene.fbx")));
 			assetManager.createAsset(std::move(importer->import("Model_NewScene", modelShader, "../Models/NewScene.fbx")));
 			assetManager.createAsset(std::move(importer->import("Model_Dragon", modelShader, "../Models/Dragon.fbx")));
 			assetManager.createAsset(std::move(importer->import("Model_Makarov", modelShader, "../Models/makarov.fbx")));

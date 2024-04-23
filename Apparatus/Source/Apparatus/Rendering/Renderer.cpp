@@ -10,12 +10,9 @@
 #include "Model.h"
 #include "Camera.h"
 #include "Shader.h"
-#include "Light/DirectionalLight.h"
-#include "Light/PointLight.h"
-#include "Light/SpotLight.h"
+#include "Light.h"
 #include "../Components/ModelComponent.h"
 #include "../Components/TransformComponent.h"
-#include "../Components/LightComponent/PointLightComponent.h"
 #include "../Server/Entity.h"
 #include "../Core/Logger.h"
 #include "../Window.h"
@@ -132,39 +129,53 @@ void Renderer::render()
 								shader->setUniform("material." + mapIter.first, mapIter.second);
 							}
 
-							//TODO: Optimize so there is no excess binds
 							if (UniformBufferObject* ubo = shader->findUniformBufferObject("LightUniformBuffer"))
 							{
-								const int lightsNum = static_cast<int>(pointLights.size());
+								const int lightsNum = static_cast<int>(lights.size());
 
 								ubo->bind();
 								ubo->copySubData(0, sizeof(int), &lightsNum);
 
+								struct LightData
+								{
+									glm::vec3 color;
+									float compression;
+
+									glm::vec3 position;
+									float radius;
+
+									glm::vec3 direction;
+
+									float cutOff;
+									float outerCutOff;
+									int type;
+								};
+
 								int offset = 16;
 
-								for (PointLight* pointLight : pointLights)
+								for (Light* light : lights)
 								{
-									if (!pointLight)
+									if (!light)
 									{
 										continue;
 									}
 
-									struct PointLightData
-									{
-										glm::vec3 color;
-										float compression;
-										glm::vec3 position;
-										float radius;
-									};
+									LightData data;
 
-									PointLightData data;
-									data.color = pointLight->getColor();
-									data.compression = pointLight->getCompression();
-									data.position = pointLight->getPosition();
-									data.radius = pointLight->getRadius();
+									data.color = light->getColor();
+									data.position = light->getPosition();
 
-									ubo->copySubData(offset, sizeof(PointLightData), &data);
-									offset += sizeof(PointLightData);
+									data.radius = light->getRadius();
+									data.compression = light->getCompression();
+
+									data.direction = glm::normalize(light->getDirection());
+									data.cutOff = glm::cos(glm::radians(light->getCutOff()));
+									data.outerCutOff = glm::cos(glm::radians(light->getOuterCutOff()));
+
+									data.type = light->getType();
+
+									ubo->copySubData(offset, 64, &data);
+									offset += 64;
 								}
 
 								ubo->unbind();
@@ -180,7 +191,6 @@ void Renderer::render()
 					glLineWidth(command.drawSize);
 
 					// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
 
 					const GLenum mode = static_cast<GLenum>(command.renderMode);
 
@@ -259,13 +269,13 @@ size_t Renderer::getMaxDepthBufferLayer()
 	return 7;
 }
 
-void Renderer::addPointLight(PointLight* pointLight)
+void Renderer::addLight(Light* light)
 {
-	pointLights.push_back(pointLight);
+	lights.push_back(light);
 }
 
-void Renderer::removeLight(PointLight* pointLight)
+void Renderer::removeLight(Light* light)
 {
-	auto iter = std::find(pointLights.begin(), pointLights.end(), pointLight);
-	pointLights.erase(iter);
+	auto iter = std::find(lights.begin(), lights.end(), light);
+	lights.erase(iter);
 }

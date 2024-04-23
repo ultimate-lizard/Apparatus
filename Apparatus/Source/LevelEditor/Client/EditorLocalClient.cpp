@@ -5,9 +5,7 @@
 #include <Apparatus/Server/LocalServer.h>
 #include <Apparatus/Components/ModelComponent.h>
 #include <Apparatus/Components/TransformComponent.h>
-#include <Apparatus/Components/LightComponent/PointLightComponent.h>
-
-
+#include <Apparatus/Components/LightComponent.h>
 #include "EditorController.h"
 #include "../Components/SelectableComponent.h"
 #include "../Server/EditorLocalServer.h"
@@ -24,9 +22,9 @@ void EditorLocalClient::onLightCreation(std::shared_ptr<LightComponentCreationEv
 	{
 		if (event)
 		{
-			if (PointLightComponent* pointLightComponent = event->pointLightComponent)
+			if (LightComponent* pointLightComponent = event->getLightComponent())
 			{
-				renderer->addPointLight(&pointLightComponent->getPointLight());
+				renderer->addLight(&pointLightComponent->getLight());
 			}
 		}
 	}

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <queue>
 
 #include <glm/glm.hpp>
 #include <glad/glad.h>
@@ -13,10 +12,8 @@ class Mesh;
 class MaterialInstance;
 class Camera;
 class ModelInstance;
-class PointLight;
+class Light;
 class Window;
-class DirectionalLight;
-class SpotLight;
 
 enum RenderMode
 {
@@ -24,13 +21,6 @@ enum RenderMode
 	Lines = GL_LINES,
 	Triangles = GL_TRIANGLES,
 	Quads = GL_QUADS
-};
-
-struct LightingInfo
-{
-	std::queue<DirectionalLight*> directionalLights;
-	std::queue<PointLight*> pointLights;
-	std::queue<SpotLight*> spotLights;
 };
 
 struct RenderCommand
@@ -66,8 +56,8 @@ public:
 
 	static size_t getMaxDepthBufferLayer();
 
-	void addPointLight(PointLight* pointLight);
-	void removeLight(PointLight* pointLight);
+	void addLight(Light* light);
+	void removeLight(Light* light);
 
 private:
 	Window& window;
@@ -80,5 +70,5 @@ private:
 
 	Camera* activeCamera;
 
-	std::vector<PointLight*> pointLights;
+	std::vector<Light*> lights;
 };
