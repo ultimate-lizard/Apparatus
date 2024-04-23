@@ -204,6 +204,8 @@
     <None Include="Shaders\DebugPrimitive.vert" />
     <None Include="Shaders\Model.frag" />
     <None Include="Shaders\Model.vert" />
+    <None Include="Shaders\SolidColorNoLight.frag" />
+    <None Include="Shaders\SolidColorNoLight.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Apparatus\Apparatus.h" />

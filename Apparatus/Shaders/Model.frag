@@ -86,46 +86,29 @@ void main()
 	// fragNormal = normalize(fragTransform * fragNormal).xyz;
 	fragNormalWorld = normalize(fragTransform * vec4(fragNormal, 0.0)).xyz;
 
-	vec4 objectColor;
-	
-	if (material.noTexture)
-	{
-		objectColor = material.backupColor;
-	}
-	else
-	{
-		objectColor = texture(textureSampler, texPos);
-	}
+	vec4 objectColor = texture(textureSampler, texPos);
 
 	vec3 resultColor = vec3(0.0, 0.0, 0.0);
 
-	if (material.noTexture)
-	{
-		// No lighting
-		resultColor = (material.diffuse + material.ambient + material.specular) * vec3(objectColor);
-	}
-	else
-	{
-		DirectionalLight l;
-		l.color = vec3(0.1, 0.08, 0.04);
-		l.direction = vec3(1.0, -0.5, 1.0);
-		resultColor += calculateDirectionalLight(l, material) * vec3(objectColor);
-		// Lighting mixing
-//		for (int i = 0; i < directionalLightNum; ++i)
-//		{
-//			resultColor += calculateDirectionalLight(directionalLight[i], material) * vec3(objectColor);
-//		}
+	DirectionalLight l;
+	l.color = vec3(0.1, 0.08, 0.04);
+	l.direction = vec3(1.0, -0.5, 1.0);
+	resultColor += calculateDirectionalLight(l, material) * vec3(objectColor);
+	// Lighting mixing
+//	for (int i = 0; i < directionalLightNum; ++i)
+//	{
+//		resultColor += calculateDirectionalLight(directionalLight[i], material) * vec3(objectColor);
+//	}
 
-		for (int i = 0; i < pointLightNum; ++i)
-		{
-			resultColor += calculatePointLight(pointLight[i], material) * vec3(objectColor);
-		}
-
-//		for (int i = 0; i < spotLightNum; ++i)
-//		{
-//			resultColor += calculateSpotLight(spotLight[i], material) * vec3(objectColor);
-//		}
+	for (int i = 0; i < pointLightNum; ++i)
+	{
+		resultColor += calculatePointLight(pointLight[i], material) * vec3(objectColor);
 	}
+
+//	for (int i = 0; i < spotLightNum; ++i)
+//	{
+//		resultColor += calculateSpotLight(spotLight[i], material) * vec3(objectColor);
+//	}
 
 	if (material.selected)
 	{

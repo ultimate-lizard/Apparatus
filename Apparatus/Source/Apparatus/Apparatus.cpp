@@ -222,34 +222,40 @@ void Apparatus::_createAssets()
 			debugPrimitiveMaterial->setShader(debugPrimitiveShader);
 		}
 	}
-	
-	if (Shader* modelShader = assetManager.createAsset<Shader>("Shader_DefaultModel", "../Shaders/Model.vert", "../Shaders/Model.frag"))
+
+	if (Shader* solidColorShader = assetManager.createAsset<Shader>("Shader_SolidColorNoLight", "../Shaders/SolidColorNoLight.vert", "../Shaders/SolidColorNoLight.frag"))
 	{
-		modelShader->createUniformBufferObject(4096, "LightUniformBuffer", 0);
-
-		ModelImporter* importer = assetManager.getImporter<ModelImporter>();
-
-		if (modelShader && importer)
+		if (ModelImporter* importer = assetManager.getImporter<ModelImporter>())
 		{
-			// assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "../Models/scene.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_NewScene", modelShader, "../Models/NewScene.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_Dragon", modelShader, "../Models/Dragon.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_Makarov", modelShader, "../Models/makarov.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_DirectionalLight", modelShader, "../Models/DirectionalLight.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_PointLight", modelShader, "../Models/PointLight.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_SpotLight", modelShader, "../Models/SpotLight.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_Error", modelShader, "../Models/Error.fbx")));
-			auto gizmoModels = importer->importMultiple(modelShader, "../Models/Gizmo.fbx");
-			for (auto& model : gizmoModels)
+			assetManager.createAsset(std::move(importer->import("Model_DirectionalLight", solidColorShader, "../Models/DirectionalLight.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_PointLight", solidColorShader, "../Models/PointLight.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_SpotLight", solidColorShader, "../Models/SpotLight.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_Error", solidColorShader, "../Models/Error.fbx")));
+
+			std::list<std::unique_ptr<Model>> gizmoModels = importer->importMultiple(solidColorShader, "../Models/Gizmo.fbx");
+			for (std::unique_ptr<Model>& model : gizmoModels)
 			{
 				if (model)
 				{
 					assetManager.createAsset(std::move(model));
 				}
 			}
+		}
+	}
+	
+	if (Shader* modelShader = assetManager.createAsset<Shader>("Shader_DefaultModel", "../Shaders/Model.vert", "../Shaders/Model.frag"))
+	{
+		modelShader->createUniformBufferObject(4096, "LightUniformBuffer", 0);
 
-			auto dungeonModels = importer->importMultiple(modelShader, "../Models/Dungeon.fbx");
-			for (auto& model : dungeonModels)
+		if (ModelImporter* importer = assetManager.getImporter<ModelImporter>())
+		{
+			// assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "../Models/scene.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_NewScene", modelShader, "../Models/NewScene.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_Dragon", modelShader, "../Models/Dragon.fbx")));
+			assetManager.createAsset(std::move(importer->import("Model_Makarov", modelShader, "../Models/makarov.fbx")));
+
+			std::list<std::unique_ptr<Model>> dungeonModels = importer->importMultiple(modelShader, "../Models/Dungeon.fbx");
+			for (std::unique_ptr<Model>& model : dungeonModels)
 			{
 				if (model)
 				{
