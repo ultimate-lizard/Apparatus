@@ -15,25 +15,37 @@ SpotLightComponent::SpotLightComponent(const std::string& componentName) :
 {
 }
 
+SpotLightComponent::SpotLightComponent(const SpotLightComponent& other) :
+	LightComponentBase(other),
+	SceneNode(other),
+	spotLight(spotLight)
+{
+}
+
 std::unique_ptr<Component> SpotLightComponent::clone()
 {
-	std::unique_ptr<SpotLightComponent> newSpotLightComponent = std::make_unique<SpotLightComponent>(getComponentName());
-
-	if (newSpotLightComponent)
-	{
-		newSpotLightComponent->spotLight = spotLight;
-	}
-
-	return newSpotLightComponent;
+	return std::make_unique<SpotLightComponent>(getComponentName());
 }
 
 void SpotLightComponent::update(float dt)
 {
-	LightComponentBase::update(dt);
+	Component::update(dt);
 
 	if (!owner)
 	{
 		return;
+	}
+
+	if (ModelComponent* modelComponent = owner->findComponent<ModelComponent>())
+	{
+		if (ModelInstance* modelInstance = modelComponent->getModelInstance())
+		{
+			if (MaterialInstance* matInstance = modelInstance->getMaterialInstance(1))
+			{
+				MaterialParameters& params = matInstance->getMaterialParameters();
+				params.setVec3("diffuse", getColor());
+			}
+		}
 	}
 
 	if (TransformComponent* transform = owner->findComponent<TransformComponent>())

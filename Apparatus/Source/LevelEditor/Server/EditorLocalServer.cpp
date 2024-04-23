@@ -72,7 +72,13 @@ void EditorLocalServer::start()
 			}
 		}
 
-		Entity* player = level->spawnEntity("Player");
+		if (Entity* player = level->spawnEntity("Player"))
+		{
+			if (TransformComponent* transformComponent = player->findComponent<TransformComponent>())
+			{
+				//transformComponent->rotate(180.0f, Euler::Yaw);
+			}
+		}
 
 		if (Entity* gizmo = level->spawnEntity("Gizmo"))
 		{
@@ -197,6 +203,22 @@ void EditorLocalServer::start()
 			if (PointLightComponent* pointLightComponent = pointLight->findComponent<PointLightComponent>())
 			{
 				pointLightComponent->setColor({ 1.0f, 0.8f, 0.4f });
+			}
+		}
+
+		if (Entity* spotLight = level->spawnEntity("SpotLight"))
+		{
+			if (SpotLightComponent* pointLightComponent = spotLight->findComponent<SpotLightComponent>())
+			{
+				pointLightComponent->setColor({ 1.0f, 0.0f, 0.0f });
+			}
+		}
+
+		if (Entity* directionalLight = level->spawnEntity("DirectionalLight"))
+		{
+			if (DirectionalLightComponent* pointLightComponent = directionalLight->findComponent<DirectionalLightComponent>())
+			{
+				pointLightComponent->setColor({ 0.0f, 0.0f, 1.0f });
 			}
 		}
 	}

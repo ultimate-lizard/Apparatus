@@ -20,6 +20,9 @@ ModelImporter::ModelImporter() :
 
 std::unique_ptr<Model> ModelImporter::import(const std::string& modelName, Shader * shader, const std::string & path)
 {
+	meshes.clear();
+	materials.clear();
+
 	this->modelName = modelName;
 	this->shader = shader;
 
@@ -184,7 +187,7 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 		}
 
 		aiString materialName = aiMaterial->GetName();
-		if (Material* newMaterial = assetManager->createAsset<Material>("Material_" + std::string(materialName.C_Str())))
+		if (Material* newMaterial = assetManager->createAsset<Material>(std::string(materialName.C_Str())))
 		{
 			newMaterial->setShader(shader);
 			newMaterial->createBoolParameter("selected", false);

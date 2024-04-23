@@ -3,6 +3,8 @@
 #include <Apparatus/Components/TransformComponent.h>
 #include <Apparatus/Components/ModelComponent.h>
 #include <Apparatus/Components/LightComponent/PointLightComponent.h>
+#include <Apparatus/Components/LightComponent/SpotLightComponent.h>
+#include <Apparatus/Components/LightComponent/DirectionalLightComponent.h>
 
 #include "../Server/EditorLocalServer.h"
 #include "../Client/EditorLocalClient.h"
@@ -32,7 +34,6 @@ void Editor::_createEntityTemplates()
 		if (ModelComponent* lightModel = Apparatus::getEntityRegistry().createComponent<ModelComponent>(pointLightEntity))
 		{
 			lightModel->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_PointLight"));
-
 			lightModel->setParent(lightTransform);
 		}
 
@@ -40,6 +41,35 @@ void Editor::_createEntityTemplates()
 		{
 			pointLightComponent->setParent(lightTransform);
 		}
+	}
+
+	if (Entity* spotLightEntity = Apparatus::getEntityRegistry().createEntityTemplate("SpotLight"))
+	{
+		TransformComponent* lightTransform = Apparatus::getEntityRegistry().createComponent<TransformComponent>(spotLightEntity);
+
+		if (ModelComponent* lightModel = Apparatus::getEntityRegistry().createComponent<ModelComponent>(spotLightEntity))
+		{
+			lightModel->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_SpotLight"));
+			lightModel->setParent(lightTransform);
+		}
+
+		if (SpotLightComponent* pointLightComponent = Apparatus::getEntityRegistry().createComponent<SpotLightComponent>(spotLightEntity))
+		{
+			pointLightComponent->setParent(lightTransform);
+		}
+	}
+
+	if (Entity* directionalLightEntity = Apparatus::getEntityRegistry().createEntityTemplate("DirectionalLight"))
+	{
+		TransformComponent* lightTransform = Apparatus::getEntityRegistry().createComponent<TransformComponent>(directionalLightEntity);
+
+		if (ModelComponent* lightModel = Apparatus::getEntityRegistry().createComponent<ModelComponent>(directionalLightEntity))
+		{
+			lightModel->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_DirectionalLight"));
+			lightModel->setParent(lightTransform);
+		}
+
+		DirectionalLightComponent* directionalLightComponent = Apparatus::getEntityRegistry().createComponent<DirectionalLightComponent>(directionalLightEntity);
 	}
 
 	if (Entity* selectionProxy = Apparatus::getEntityRegistry().createEntityTemplate("SelectionProxy"))

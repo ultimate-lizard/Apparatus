@@ -40,7 +40,24 @@ void DirectionalLightComponent::onEntitySpawn()
 
 void DirectionalLightComponent::update(float dt)
 {
-	LightComponentBase::update(dt);
+	Component::update(dt);
+
+	if (!owner)
+	{
+		return;
+	}
+
+	if (ModelComponent* modelComponent = owner->findComponent<ModelComponent>())
+	{
+		if (ModelInstance* modelInstance = modelComponent->getModelInstance())
+		{
+			if (MaterialInstance* matInstance = modelInstance->getMaterialInstance(0))
+			{
+				MaterialParameters& params = matInstance->getMaterialParameters();
+				params.setVec3("diffuse", getColor());
+			}
+		}
+	}
 
 	if (TransformComponent* transform = owner->findComponent<TransformComponent>())
 	{
