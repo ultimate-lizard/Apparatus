@@ -22,19 +22,16 @@ public:
 	void setSnapToGridEnabled(bool enabled);
 	bool isSnapToGridEnabled();
 
-	void setSelectionBoxVisibility(bool visible);
-	bool isSelectionBoxVisible();
-
-	void regenerateSelectionBoundingBox();
-
 	void setShiftPressed(bool pressed);
 	bool isShiftPressed() const;
 
 protected:
 	void indicateSelection(Entity* entity, bool selected);
+	void applyMultiselectTransform();
+	void resetProxyTransform();
+	glm::vec3 calculateAverageSelectionPosition();
 
-	// Entity* selectedEntity;
-	std::vector<Entity*> selectedEntities;
+	std::vector<TransformComponent*> selectedTransformComponents;
 
 	GizmoComponent* gizmo;
 	TransformComponent* selectionProxyTransformComponent;

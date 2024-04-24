@@ -189,115 +189,69 @@ void EditorLocalServer::start()
 
 void EditorLocalServer::selectEntity(Entity* entity)
 {
+	if (!selectionProxyTransformComponent)
+	{
+		return;
+	}
+
+	Entity* entityToSelect = entity;
+
 	if (!isShiftPressed())
 	{
-		for (Entity* selectedEntity : selectedEntities)
+		for (TransformComponent* selectedTransformComponent : selectedTransformComponents)
 		{
-			indicateSelection(selectedEntity, false);
-
-			if (TransformComponent* selectionTransformComponent = selectedEntity->findComponent<TransformComponent>())
-			{
-				selectionTransformComponent->setPosition(selectionTransformComponent->getWorldPosition());
-
-				selectionTransformComponent->setParent(nullptr);
-
-				selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Pitch), Euler::Pitch);
-				selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Yaw), Euler::Yaw);
-				selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Roll), Euler::Roll);
-			}
+			indicateSelection(selectedTransformComponent->getOwner(), false);
 		}
 
-		selectionProxyTransformComponent->setRotation(Rotator());
-		selectionProxyTransformComponent->setPosition(glm::vec3(0.0f));
+		applyMultiselectTransform();
+		resetProxyTransform();
 
-		selectedEntities.clear();
+		selectedTransformComponents.clear();
 	}
 
-	if (entity)
+	if (entityToSelect)
 	{
-		selectedEntities.push_back(entity);
+		indicateSelection(entityToSelect, true);
+
+		if (TransformComponent* transformComponent = entityToSelect->findComponent<TransformComponent>())
+		{
+			selectedTransformComponents.push_back(transformComponent);
+		}
 	}
 
-	if (entity)
+	if (isShiftPressed())
 	{
-		indicateSelection(entity, true);
+		entityToSelect = selectionProxyTransformComponent->getOwner();
+
+		applyMultiselectTransform();
+		resetProxyTransform();
+		selectionProxyTransformComponent->setPosition(calculateAverageSelectionPosition());
+
+		for (TransformComponent* selectedTransformComponent : selectedTransformComponents)
+		{
+			selectedTransformComponent->setParent(selectionProxyTransformComponent);
+			selectedTransformComponent->setPosition(selectedTransformComponent->getPosition() - selectionProxyTransformComponent->getWorldPosition());
+		}
 	}
 
 	if (gizmo)
 	{
-		if (isShiftPressed())
-		{
-			for (Entity* selectedEntity : selectedEntities)
-			{
-				if (TransformComponent* selectionTransformComponent = selectedEntity->findComponent<TransformComponent>())
-				{
-					selectionTransformComponent->setPosition(selectionTransformComponent->getWorldPosition());
-
-					selectionTransformComponent->setParent(nullptr);
-
-					selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Pitch), Euler::Pitch);
-					selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Yaw), Euler::Yaw);
-					selectionTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Roll), Euler::Roll);
-				}
-			}
-
-			glm::vec3 averagePosition(0.0f);
-			size_t transformCount = 0;
-
-			glm::vec3 averageRotator(0.0f);
-
-			for (Entity* selectedEntity : selectedEntities)
-			{
-				if (TransformComponent* selectionTransformComponent = selectedEntity->findComponent<TransformComponent>())
-				{
-					averagePosition += selectionTransformComponent->getWorldPosition();
-
-					Rotator rot = selectionTransformComponent->getRotator();
-					averageRotator.x = rot.get(Euler::Pitch);
-					averageRotator.y = rot.get(Euler::Yaw);
-					averageRotator.z = rot.get(Euler::Roll);
-
-					transformCount++;
-				}
-			}
-
-			averagePosition /= transformCount;
-
-			selectionProxyTransformComponent->setPosition(averagePosition);
-			selectionProxyTransformComponent->setRotation(Rotator());
-
-			Rotator newRotator(averageRotator.x, averageRotator.y, averageRotator.z);
-
-			for (Entity* selectedEntity : selectedEntities)
-			{
-				if (TransformComponent* selectionTransformComponent = selectedEntity->findComponent<TransformComponent>())
-				{
-					selectionTransformComponent->setParent(selectionProxyTransformComponent);
-					selectionTransformComponent->setPosition(selectionTransformComponent->getPosition() - selectionProxyTransformComponent->getWorldPosition());
-				}
-			}
-
-			gizmo->setSelectedEntity(selectionProxyTransformComponent->getOwner());
-			gizmo->attach(selectionProxyTransformComponent->getOwner());
-			gizmo->setVisibility(selectionProxyTransformComponent->getOwner() != nullptr);
-		}
-		else
-		{
-			gizmo->setSelectedEntity(entity);
-			gizmo->attach(entity);
-			gizmo->setVisibility(entity != nullptr);
-		}
+		gizmo->setSelectedEntity(entityToSelect);
+		gizmo->attach(entityToSelect);
+		gizmo->setVisibility(entityToSelect != nullptr);
 	}
 }
 
 void EditorLocalServer::duplicateSelection()
 {
-	std::vector<Entity*> selections = selectedEntities;
+	std::vector<TransformComponent*> selections = selectedTransformComponents;
 
 	selectEntity(nullptr);
 
-	for (Entity* selectedEntity : selections)
+	for (TransformComponent* selectedTransformComponent : selections)
 	{
+		Entity* selectedEntity = selectedTransformComponent->getOwner();
+
 		if (Entity* newSelection = Apparatus::getEntityRegistry().clone(selectedEntity))
 		{
 			newSelection->init();
@@ -371,6 +325,44 @@ void EditorLocalServer::indicateSelection(Entity* entity, bool selected)
 			}
 		}
 	}
+}
+
+void EditorLocalServer::applyMultiselectTransform()
+{
+	for (TransformComponent* selectedTransformComponent : selectedTransformComponents)
+	{
+		// Adding a new entity to the selection list. Apply all changes
+		selectedTransformComponent->setPosition(selectedTransformComponent->getWorldPosition());
+		selectedTransformComponent->setScale(selectedTransformComponent->getWorldScale());
+		selectedTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Pitch), Euler::Pitch);
+		selectedTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Yaw), Euler::Yaw);
+		selectedTransformComponent->rotate(selectionProxyTransformComponent->getRotationAngle(Euler::Roll), Euler::Roll);
+
+		selectedTransformComponent->setParent(nullptr);
+	}
+}
+
+void EditorLocalServer::resetProxyTransform()
+{
+	selectionProxyTransformComponent->setRotation(Rotator());
+	selectionProxyTransformComponent->setScale(glm::vec3(1.0f));
+	selectionProxyTransformComponent->setPosition(glm::vec3(0.0f));
+}
+
+glm::vec3 EditorLocalServer::calculateAverageSelectionPosition()
+{
+	glm::vec3 averagePosition(0.0f);
+	size_t transformCount = 0;
+
+	for (TransformComponent* selectedTransformComponent : selectedTransformComponents)
+	{
+		averagePosition += selectedTransformComponent->getWorldPosition();
+		transformCount++;
+	}
+
+	averagePosition /= transformCount;
+
+	return averagePosition;
 }
 
 void EditorLocalServer::setShiftPressed(bool pressed)
