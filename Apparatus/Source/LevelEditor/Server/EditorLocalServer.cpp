@@ -23,8 +23,6 @@ EditorLocalServer::EditorLocalServer() :
 void EditorLocalServer::connect(const ConnectionInfo& info)
 {
 	LocalServer::connect(info);
-
-
 }
 
 void EditorLocalServer::update(float dt)
@@ -67,7 +65,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CaveWall"));
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_CaveWall"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -80,7 +78,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_CellDoor"));
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_CellDoor"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -93,7 +91,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Table"));
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Table"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -106,7 +104,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Shrine"));
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Shrine"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -119,7 +117,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Cage"));
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Cage"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -132,7 +130,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_LightPost"));
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_LightPost"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -145,7 +143,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_Chair"));
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Chair"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())

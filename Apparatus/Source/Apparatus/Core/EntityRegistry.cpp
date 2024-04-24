@@ -125,11 +125,12 @@ Entity* EntityRegistry::clone(Entity* entity)
 
 			Entity* newEntity = newEntityPtr.get();
 
-			auto searchIter = entityMap.find(newEntityPtr->getEntityName());
-			if (searchIter != entityMap.end())
-			{
-				newEntityPtr->setEntityName(newEntityPtr->getEntityName() + "_Copy");
-			}
+			// TODO: Implement some sort of id system
+			//auto searchIter = entityMap.find(newEntityPtr->getEntityName());
+			//if (searchIter != entityMap.end())
+			//{
+			//	newEntityPtr->setEntityName(newEntityPtr->getEntityName() + "_Copy");
+			//}
 
 			entityMap[newEntityPtr->getEntityName()].push_back(std::move(newEntityPtr));
 

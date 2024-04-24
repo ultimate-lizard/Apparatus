@@ -153,15 +153,15 @@ void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
 
 			unsigned int materialIndex = aiMesh->mMaterialIndex;
 
-			std::string assetName;
-			if (!modelName.empty())
-			{
-				assetName = "Mesh_" + modelName + "_" + meshName.C_Str();
-			}
-			else
-			{
-				assetName = "Mesh_" + std::string(meshName.C_Str());
-			}
+			std::string assetName = meshName.C_Str();
+			//if (!modelName.empty())
+			//{
+			//	assetName = "Mesh_" + modelName + "_" + meshName.C_Str();
+			//}
+			//else
+			//{
+			//	assetName = "Mesh_" + std::string(meshName.C_Str());
+			//}
 
 			if (Mesh* mesh = assetManager->createAsset<Mesh>(assetName, vertices, indices, materialIndex))
 			{
