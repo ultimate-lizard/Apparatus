@@ -66,22 +66,28 @@ std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, 
 		glm::vec3 intersection = rayVsPolygon(origin, direction, aNewPosition, bNewPosition, cNewPosition, normal);
 		if (!glm::any(glm::isnan(intersection)))
 		{
-			// drawDebugPoint(intersection, { 1.0f, 1.0f, 0.0f, 1.0f }, 25.0f, false, 5.0f);
 			intersections.push_back(intersection);
 		}
 	}
 
+	// Sort the nears and fars
+	std::sort(intersections.begin(), intersections.end(), [&origin](glm::vec3& a, glm::vec3& b) {
+		return glm::distance(a, origin) < glm::distance(b, origin);
+	});
+
+	bool near = true;
 	for (unsigned int i = 0; i < intersections.size(); ++i)
 	{
 		if (i + 1 < intersections.size())
 		{
 			result.push_back({ intersections[i], intersections[i + 1] });
-			++i;
+			i++;
 		}
 		else
 		{
-			result.push_back({ intersections[i], glm::vec3(std::numeric_limits<float>::quiet_NaN()) });
+			result.push_back({ intersections[i], glm::vec3(std::numeric_limits<float>::quiet_NaN())});
 		}
+		
 	}
 
 	return result;
@@ -89,7 +95,8 @@ std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, 
 
 glm::vec3 rayVsPolygon(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& normal)
 {
-	glm::vec3 p = rayVsPlane(a, normal, rayOrigin, rayDirection);
+	glm::vec3 p = rayVsPlane((a + b + c) / 3.0f, normal, rayOrigin, rayDirection);
+
 	if (glm::any(glm::isnan(p)))
 	{
 		return glm::vec3(std::numeric_limits<float>::quiet_NaN());
@@ -112,61 +119,10 @@ glm::vec3 rayVsPolygon(const glm::vec3& rayOrigin, const glm::vec3& rayDirection
 
 	if (barA >= 0.0f && barA < 1.0f && barB >= 0.0f && barB < 1.0f && barC >= 0.0f && barC < 1.0f)
 	{
-		//LOG("A: " + std::to_string(barA), LogLevel::Info);
-		//LOG("B: " + std::to_string(barB), LogLevel::Info);
-		//LOG("C: " + std::to_string(barC), LogLevel::Info);
-
-		//drawDebugPoint(p, { 1.0f, 0.0f, 0.0f, 1.0f }, 25.0f, false, 5.0f);
-		//drawDebugLine(glm::vec3(0.0f), normal, { 0.0f, 1.0f, 0.0f, 1.0f }, 5.0f, false, 5.0f);
-		//
-		//drawDebugPoint(a, { 0.0f, 1.0f, 0.0f, 1.0f }, 25.0f, false, 5.0f);
-		//drawDebugPoint(b, { 1.0f, 0.0f, 0.0f, 1.0f }, 25.0f, false, 5.0f);
-		//drawDebugPoint(c, { 0.0f, 0.0f, 1.0f, 1.0f }, 25.0f, false, 5.0f);
-
 		return p;
 	}
 
 	return glm::vec3(std::numeric_limits<float>::quiet_NaN());
-
-	//glm::vec3 edgeA = b - a;
-	//glm::vec3 edgeB = c - a;
-
-	//const glm::vec3 pvec = glm::cross(direction, edgeB);
-	//float determinant = glm::dot(edgeA, pvec);
-
-	//const float EPSILON = 0.000001f;
-	//if (determinant > -EPSILON && determinant < EPSILON)
-	//{
-	//	return glm::vec3(std::numeric_limits<float>::quiet_NaN());
-	//}
-
-	//// Inverting determinant to avoid multiple float divisionsq
-	//determinant = 1.0f / determinant;
-
-	//const glm::vec3 originToA = origin - a;
-
-	//float baryU = glm::dot(originToA, pvec) * determinant;
-	//if (baryU < 0.0f || baryU > 1.0f)
-	//{
-	//	return glm::vec3(std::numeric_limits<float>::quiet_NaN());
-	//}
-
-	//const glm::vec3 crossOAvsEdge1 = glm::cross(originToA, edgeA);
-
-	//float baryV = glm::dot(direction, crossOAvsEdge1) * determinant;
-	//if (baryV < 0.0f || baryU + baryV > 1.0f)
-	//{
-	//	return glm::vec3(std::numeric_limits<float>::quiet_NaN());
-	//}
-
-	//const float intersect = glm::dot(edgeB, crossOAvsEdge1) * determinant;
-
-	//if (intersect < EPSILON)
-	//{
-	//	return glm::vec3(std::numeric_limits<float>::quiet_NaN());
-	//}
-	//
-	//return glm::vec3(origin + (direction * intersect));
 }
 
 glm::vec3 rayVsPlane(const glm::vec3& planeOrigin, const glm::vec3& planeNormal, const glm::vec3& rayOrigin, const glm::vec3& rayDirection)
