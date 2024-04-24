@@ -23,6 +23,7 @@ class Apparatus
 		EntityRegistry* entityRegistry;
 		AssetManager* assetManager;
 		EventDispatcher* eventDispatcher;
+		Window* window;
 	};
 
 public:
@@ -51,13 +52,12 @@ public:
 	// At the moment the method returns the first available LocalClient
 	LocalClient* getPrimaryLocalClient();
 
-	Window& getWindow();
-
 	Level* getLevel();
 
 	static EntityRegistry& getEntityRegistry();
 	static AssetManager& getAssetManager();
 	static EventDispatcher& getEventDispatcher();
+	static Window& getWindow();
 
 protected:
 	virtual void init();

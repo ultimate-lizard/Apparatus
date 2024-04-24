@@ -16,8 +16,7 @@ public:
 	virtual void start() override;
 
 	void selectEntity(Entity* entity);
-	// Entity* getSelectedEntity();
-
+	
 	void duplicateSelection();
 
 	void setSnapToGridEnabled(bool enabled);
@@ -39,10 +38,6 @@ protected:
 
 	GizmoComponent* gizmo;
 	TransformComponent* selectionProxyTransformComponent;
-
-	glm::vec3 cachedSelectionPosition;
-	Box selectionBox;
-	bool selectionBoxVisible;
 
 	bool snapToGrid;
 	bool shiftPressed;

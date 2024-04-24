@@ -30,6 +30,7 @@ Apparatus::Apparatus(const std::string& gameTitle) :
 	globalState.entityRegistry = &entityRegistry;
 	globalState.assetManager = &assetManager;
 	globalState.eventDispatcher = &eventDispatcher;
+	globalState.window = &window;
 }
 
 Apparatus& Apparatus::get()
@@ -87,11 +88,6 @@ LocalClient* Apparatus::getPrimaryLocalClient()
 	return nullptr;
 }
 
-Window& Apparatus::getWindow()
-{
-	return window;
-}
-
 Level* Apparatus::getLevel()
 {
 	return level.get();
@@ -110,6 +106,11 @@ AssetManager& Apparatus::getAssetManager()
 EventDispatcher& Apparatus::getEventDispatcher()
 {
 	return *globalState.eventDispatcher;
+}
+
+Window& Apparatus::getWindow()
+{
+	return *globalState.window;
 }
 
 void Apparatus::init()

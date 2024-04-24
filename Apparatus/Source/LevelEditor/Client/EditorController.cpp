@@ -15,6 +15,10 @@
 #include "EditorLocalClient.h"
 #include "../Components/SelectableComponent.h"
 #include "../Components/GizmoComponent.h"
+#include "../Components/GizmoComponent/GizmoNames.h"
+#include "../Components/GizmoComponent/GizmoState/GizmoTranslationState.h"
+#include "../Components/GizmoComponent/GizmoState/GizmoRotationState.h"
+#include "../Components/GizmoComponent/GizmoState/GizmoScaleState.h"
 #include "../Server/EditorLocalServer.h"
 #include "../Editor/Editor.h"
 
@@ -153,7 +157,7 @@ void EditorController::enableTranslationMode()
 {
 	if (gizmo)
 	{
-		gizmo->setInteractionMode(InteractionMode::Translation);
+		gizmo->changeState<GizmoTranslationState>();
 	}
 }
 
@@ -161,7 +165,7 @@ void EditorController::enableRotationMode()
 {
 	if (gizmo)
 	{
-		gizmo->setInteractionMode(InteractionMode::Rotation);
+		gizmo->changeState<GizmoRotationState>();
 	}
 }
 
@@ -169,24 +173,12 @@ void EditorController::enableScaleMode()
 {
 	if (gizmo)
 	{
-		gizmo->setInteractionMode(InteractionMode::Scale);
+		gizmo->changeState<GizmoScaleState>();
 	}
 }
 
 void EditorController::releaseSelect()
 {
-	//if (editorLocalClient)
-	//{
-	//	if (Entity* selectedEntity = editorLocalClient->getSelectedEntity())
-	//	{
-	//		if (auto selectableComponent = selectedEntity->findComponent<SelectableComponent>())
-	//		{
-	//			selectableComponent->regenerateVisualBoundingBox();
-	//			selectableComponent->setBoxVisible(true);
-	//		}
-	//	}
-	//}
-
 	if (gizmo)
 	{
 		gizmo->release();

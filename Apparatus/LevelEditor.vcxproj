@@ -148,6 +148,10 @@
     <ClCompile Include="Source\LevelEditor\Client\EditorController.cpp" />
     <ClCompile Include="Source\LevelEditor\Client\EditorLocalClient.cpp" />
     <ClCompile Include="Source\LevelEditor\Components\GizmoComponent.cpp" />
+    <ClCompile Include="Source\LevelEditor\Components\GizmoComponent\GizmoState\GizmoRotationState.cpp" />
+    <ClCompile Include="Source\LevelEditor\Components\GizmoComponent\GizmoState\GizmoScaleState.cpp" />
+    <ClCompile Include="Source\LevelEditor\Components\GizmoComponent\GizmoState\GizmoState.cpp" />
+    <ClCompile Include="Source\LevelEditor\Components\GizmoComponent\GizmoState\GizmoTranslationState.cpp" />
     <ClCompile Include="Source\LevelEditor\Components\SelectableComponent.cpp" />
     <ClCompile Include="Source\LevelEditor\Editor\Editor.cpp" />
     <ClCompile Include="Source\LevelEditor\Entry.cpp" />
@@ -157,7 +161,13 @@
     <ClInclude Include="Source\LevelEditor\Client\EditorController.h" />
     <ClInclude Include="Source\LevelEditor\Client\EditorLocalClient.h" />
     <ClInclude Include="Source\LevelEditor\Components\GizmoComponent.h" />
+    <ClInclude Include="Source\LevelEditor\Components\GizmoComponent\GizmoNames.h" />
+    <ClInclude Include="Source\LevelEditor\Components\GizmoComponent\GizmoState\GizmoRotationState.h" />
+    <ClInclude Include="Source\LevelEditor\Components\GizmoComponent\GizmoState\GizmoScaleState.h" />
+    <ClInclude Include="Source\LevelEditor\Components\GizmoComponent\GizmoState\GizmoState.h" />
+    <ClInclude Include="Source\LevelEditor\Components\GizmoComponent\GizmoState\GizmoTranslationState.h" />
     <ClInclude Include="Source\LevelEditor\Components\SelectableComponent.h" />
+    <ClInclude Include="Source\LevelEditor\Components\GizmoComponent\SnappingData.h" />
     <ClInclude Include="Source\LevelEditor\Editor\Editor.h" />
     <ClInclude Include="Source\LevelEditor\Server\EditorLocalServer.h" />
   </ItemGroup>
