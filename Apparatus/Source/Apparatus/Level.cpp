@@ -43,6 +43,27 @@ Entity* Level::spawnEntity(const std::string& templateName)
     return nullptr;
 }
 
+Entity* Level::spawnEntity(const std::string& templateName, const glm::vec3& position, const Rotator& rotator)
+{
+	if (Entity* spawnedEntity = Apparatus::getEntityRegistry().createEntityFromTemplate(templateName))
+	{
+		if (TransformComponent* transformComponent = spawnedEntity->findComponent<TransformComponent>())
+		{
+			transformComponent->setPosition(position);
+			transformComponent->setRotation(rotator);
+		}
+
+		spawnedEntity->init();
+		spawnedEntity->onSpawn();
+
+		spawnedEntities.push_back(std::move(spawnedEntity));
+
+		return spawnedEntity;
+	}
+
+	return nullptr;
+}
+
 Entity* Level::findEntity(const std::string& name)
 {
 	auto searchIter = std::find_if(spawnedEntities.begin(), spawnedEntities.end(), [name](Entity* entity) {

@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+#include "Rendering/Rotator.h"
+
 class Entity;
 class ModelComponent;
 
@@ -35,6 +37,7 @@ public:
 	void update(float dt);
 
 	Entity* spawnEntity(const std::string& templateName);
+	Entity* spawnEntity(const std::string& templateName, const glm::vec3& position, const Rotator& rotator);
 	Entity* findEntity(const std::string& name);
 	const Entity* findEntity(const std::string& name) const;
 	void addEntity(Entity* entity);

@@ -48,13 +48,7 @@ void EditorLocalServer::start()
 			}
 		}
 
-		if (Entity* player = level->spawnEntity("Player"))
-		{
-			if (TransformComponent* transformComponent = player->findComponent<TransformComponent>())
-			{
-				//transformComponent->rotate(180.0f, Euler::Yaw);
-			}
-		}
+		Entity* player = level->spawnEntity("Player", glm::vec3(3.0f, 5.0f, 3.0f), Rotator(45.0f, 180.0f + 45.0f, 0.0f));
 
 		if (Entity* gizmo = level->spawnEntity("Gizmo"))
 		{
