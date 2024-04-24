@@ -7,7 +7,7 @@
 #include "../InputHandler.h"
 #include "LocalClient.h"
 #include "../Core/Logger.h"
-#include "../Components/DebugMovementComponent.h"
+#include "../Components/MovementComponent.h"
 #include "../Server/Entity.h"
 #include "../Apparatus.h"
 

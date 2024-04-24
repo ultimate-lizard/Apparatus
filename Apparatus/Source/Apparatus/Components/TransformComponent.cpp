@@ -19,8 +19,7 @@ TransformComponent::TransformComponent(const TransformComponent& other) :
 
 std::unique_ptr<Component> TransformComponent::clone()
 {
-	std::unique_ptr<TransformComponent> newTransformComponentPtr = std::make_unique<TransformComponent>(*this);
-	return newTransformComponentPtr;
+	return std::make_unique<TransformComponent>(*this);
 }
 
 void TransformComponent::update(float dt)

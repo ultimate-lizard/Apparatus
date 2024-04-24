@@ -8,11 +8,9 @@ class SelectableComponent : public Component
 public:
 	SelectableComponent();
 	SelectableComponent(const std::string& componentName);
+	SelectableComponent(const SelectableComponent& other);
 
 	virtual std::unique_ptr<Component> clone() override;
-
-	virtual void init() override;
-	virtual void update(float dt) override;
 
 	void setSelected(bool selected);
 	bool isSelected() const;

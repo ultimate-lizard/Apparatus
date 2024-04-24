@@ -20,18 +20,17 @@ MovementComponent::MovementComponent(const std::string& componentName) :
 {
 }
 
+MovementComponent::MovementComponent(const MovementComponent& other) :
+	Component(other),
+	forward(other.forward),
+	sideways(other.sideways)
+{
+	
+}
+
 std::unique_ptr<Component> MovementComponent::clone()
 {
-	std::unique_ptr<MovementComponent> newMovementComponent = std::make_unique<MovementComponent>(getComponentName());
-
-	if (newMovementComponent)
-	{
-		newMovementComponent->forward = forward;
-		newMovementComponent->sideways = sideways;
-		newMovementComponent->headRotator = headRotator;
-	}
-
-	return newMovementComponent;
+	return std::make_unique<MovementComponent>(*this);
 }
 
 void MovementComponent::init()

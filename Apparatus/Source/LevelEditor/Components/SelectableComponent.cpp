@@ -22,29 +22,17 @@ SelectableComponent::SelectableComponent(const std::string& componentName) :
 {
 }
 
+SelectableComponent::SelectableComponent(const SelectableComponent& other) :
+	Component(other),
+	selected(other.selected),
+	cachedPosition(other.cachedPosition),
+	boxVisible(other.boxVisible)
+{
+}
+
 std::unique_ptr<Component> SelectableComponent::clone()
 {
-	std::unique_ptr<SelectableComponent> newSelectableComponent = std::make_unique<SelectableComponent>(getComponentName());
-
-	if (newSelectableComponent)
-	{
-		newSelectableComponent->selected = selected;
-		newSelectableComponent->cachedPosition = cachedPosition;
-		newSelectableComponent->box = box;
-		newSelectableComponent->boxVisible = boxVisible;
-	}
-
-	return newSelectableComponent;
-}
-
-void SelectableComponent::init()
-{
-
-}
-
-void SelectableComponent::update(float dt)
-{
-
+	return std::make_unique<SelectableComponent>(*this);
 }
 
 void SelectableComponent::setSelected(bool selected)

@@ -8,6 +8,7 @@ class MovementComponent : public Component
 public:
 	MovementComponent();
 	MovementComponent(const std::string& componentName);
+	MovementComponent(const MovementComponent& other);
 
 	virtual std::unique_ptr<Component> clone() override;
 
