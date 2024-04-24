@@ -9,7 +9,6 @@
 #include "../Util/CollisionDetection.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/CameraComponent.h"
-#include "../Components/DebugMovementComponent.h"
 #include "../Components/ModelComponent.h"
 
 DebugPrimitives LocalServer::debugPrimitives;

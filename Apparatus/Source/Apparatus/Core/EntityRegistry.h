@@ -5,7 +5,6 @@
 #include <functional>
 
 #include "../Server/Entity.h"
-// #include "../Components/Component.h"
 
 class Component;
 
@@ -32,8 +31,6 @@ private:
 	std::map<std::string, std::vector<std::unique_ptr<Entity>>> entityMap;
 
 	std::unordered_map<std::type_index, std::vector<std::unique_ptr<Component>>> componentMap;
-
-	std::unordered_map<std::type_index, std::vector<std::function<void(Component*)>>> creationBinds;
 };
 
 template<class ComponentType, typename ...Args>
@@ -44,11 +41,11 @@ inline ComponentType* EntityRegistry::createComponent(Entity* entity, Args&& ...
 
 	componentMap[typeid(ComponentType)].push_back(std::move(newComponentPtr));
 
-	// TODO:
-	// std::string newComponentName = newComponent->getComponentName();
-	// If entity->findComponent(newComponent->getComponentName(newComponentName)
-	//     newComponent->rename
-	// entity->addComponent(newComponent)
+	if (entity->findComponent(component->getComponentName()) != nullptr)
+	{
+		// TODO: This is a temporary solution
+		throw std::exception();
+	}
 	
 	entity->addComponent(component);
 

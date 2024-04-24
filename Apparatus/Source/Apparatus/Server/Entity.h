@@ -24,17 +24,10 @@ public:
 	virtual void onSpawn();
 	virtual void update(float dt);
 
-	// virtual std::unique_ptr<Entity> clone();
-
 	void setEntityName(const std::string& entityName);
 	std::string getEntityName() const;
 
 	std::vector<Component*> getComponents();
-
-	//template <class ComponentType, typename ... Args>
-	//ComponentType* createComponent(Args&& ... args);
-
-	//Component* addComponent(std::unique_ptr<Component> component);
 
 	void addComponent(Component* component);
 
