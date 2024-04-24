@@ -2,8 +2,19 @@
 
 in vec4 vertColor;
 
-uniform bool selected;
-uniform vec4 selectionColor;
+struct Material
+{
+	sampler2D diffuseMap;
+	vec3 specular;
+	float shininess;
+
+	bool selected;
+	vec4 selectionColor;
+
+	vec3 color;
+};
+
+uniform Material material;
 
 float linearizeDepth(float depth);
 
@@ -12,9 +23,9 @@ float far = 10000.0;
 
 void main()
 {
-	if (selected)
+	if (material.selected)
 	{
-		gl_FragColor = selectionColor;
+		gl_FragColor = material.selectionColor;
 	}
 	else
 	{

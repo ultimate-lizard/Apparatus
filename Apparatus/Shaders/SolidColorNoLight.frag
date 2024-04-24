@@ -2,9 +2,6 @@
 
 in vec4 vertColor;
 
-//uniform bool selected;
-//uniform vec4 selectionColor;
-
 float linearizeDepth(float depth);
 
 float near = 10.0;
@@ -12,33 +9,29 @@ float far = 10000.0;
 
 struct Material
 {
-	// Phong
-	vec3 ambient;
-	vec3 diffuse;
+	sampler2D diffuseMap;
 	vec3 specular;
 	float shininess;
 
 	bool selected;
-	bool noTexture;
-
 	vec4 selectionColor;
-	vec4 backupColor;
+
+	vec3 color;
 };
 
 uniform Material material;
 
 void main()
 {
-	vec4 objectColor = material.backupColor;
-	vec3 resultColor = material.diffuse * vec3(objectColor);
+	vec4 resultColor = vec4(material.color, 1.0);
 
 	if (material.selected)
 	{
-		gl_FragColor = mix(vec4(resultColor, 1.0), material.selectionColor, 0.5);
+		gl_FragColor = mix(resultColor, material.selectionColor, 0.5);
 	}
 	else
 	{
-		gl_FragColor = vec4(resultColor, 1.0);
+		gl_FragColor = resultColor;
 	}
 
 	float depth = linearizeDepth(gl_FragCoord.z) / far;

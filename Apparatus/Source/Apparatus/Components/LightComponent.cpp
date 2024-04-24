@@ -68,7 +68,7 @@ void LightComponent::update(float dt)
 			if (MaterialInstance* matInstance = modelInstance->getMaterialInstance(materialIndex))
 			{
 				MaterialParameters& params = matInstance->getMaterialParameters();
-				params.setVec3("diffuse", getColor());
+				params.setVec3("color", getColor());
 			}
 		}
 	}

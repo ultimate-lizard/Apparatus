@@ -44,5 +44,6 @@ public:
 private:
 	Shader* shader;
 	std::vector<Texture*> diffuseMaps;
+	// TODO: Specular maps
 	MaterialParameters parameters;
 };

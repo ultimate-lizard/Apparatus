@@ -193,17 +193,9 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 			newMaterial->createBoolParameter("selected", false);
 			newMaterial->createVec4Parameter("selectionColor", { 1.0f, 0.0f, 0.0f, 1.0f });
 
-			aiColor3D diff;
-			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diff);
-
-			newMaterial->createVec4Parameter("backupColor", { diff.r, diff.g, diff.b, 1.0f });
-
-			// Load phong parameters
-			aiColor3D ambientColor;
-			aiMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor);
-
 			aiColor3D diffuseColor;
 			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
+			newMaterial->createVec3Parameter("color", { diffuseColor.r, diffuseColor.g, diffuseColor.b });
 
 			aiColor3D specularColor;
 			aiMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
@@ -214,10 +206,9 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 			float shininessStrength = 1.0f;
 			aiMaterial->Get(AI_MATKEY_SHININESS_STRENGTH, shininessStrength);
 
-			// Phong
-			newMaterial->createVec3Parameter("ambient", glm::vec3(ambientColor.r, ambientColor.g, ambientColor.b));
-			newMaterial->createVec3Parameter("diffuse", glm::vec3(diffuseColor.r, diffuseColor.g, diffuseColor.b));
+			// TODO: This will be replaced by the specular map in the future
 			newMaterial->createVec3Parameter("specular", glm::vec3(specularColor.r * shininessStrength, specularColor.g * shininessStrength, specularColor.b * shininessStrength));
+
 			newMaterial->createFloatParameter("shininess", shininess);
 
 			for (unsigned int i = 0; i < aiMaterial->GetTextureCount(aiTextureType_DIFFUSE); ++i)
@@ -229,15 +220,6 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 				{
 					newMaterial->addDiffuseTexture(newTexture);
 				}
-			}
-
-			if (newMaterial->getDiffuseMaps().empty())
-			{
-				newMaterial->createBoolParameter("noTexture", true);
-			}
-			else
-			{
-				newMaterial->createBoolParameter("noTexture", false);
 			}
 
 			materials.push_back(newMaterial);

@@ -29,6 +29,7 @@ void Material::bind() const
 	{
 		if (tex)
 		{
+			// TODO: glActiveTexture(GL_TEXTURE + i);
 			tex->bind();
 		}
 	}
