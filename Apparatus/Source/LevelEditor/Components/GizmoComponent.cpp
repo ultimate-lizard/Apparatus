@@ -84,6 +84,11 @@ void GizmoComponent::update(float dt)
 			}
 		}
 	}
+
+	if (gizmoState)
+	{
+		gizmoState->updateVisibility();
+	}
 }
 
 void GizmoComponent::setSelectedGizmoModel(const std::string& gizmoModelName)

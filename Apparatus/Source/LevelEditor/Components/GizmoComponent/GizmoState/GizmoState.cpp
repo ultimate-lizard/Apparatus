@@ -21,5 +21,4 @@ ModelComponent* GizmoState::getSelectedGizmoModelComponent() const
 void GizmoState::setGizmoVisibility(bool visible)
 {
 	gizmoVisible = visible;
-	updateVisibility();
 }
