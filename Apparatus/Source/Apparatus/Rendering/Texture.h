@@ -7,7 +7,7 @@
 class Texture : public Asset
 {
 public:
-	Texture(const std::string& resourceName, const std::string& texturePath);
+	Texture(const std::string& assetName, int width, int height, int bytesPerPixel, const void* pixels);
 	~Texture();
 
 	Texture() = delete;
@@ -15,11 +15,13 @@ public:
 	Texture(const Texture&) = delete;
 	void operator=(const Texture&) = delete;
 
-	virtual void init() override;
+	virtual void init() override {}
 
 	void bind() const;
 
 private:
 	std::string texturePath;
 	unsigned int id;
+
+	friend class TextureImporter;
 };

@@ -150,6 +150,7 @@
     <ClCompile Include="Source\Apparatus\Client\Controller.cpp" />
     <ClCompile Include="Source\Apparatus\Client\HumanControllerBase.cpp" />
     <ClCompile Include="Source\Apparatus\Client\GenericHumanController.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\TextureImporter.cpp" />
     <ClCompile Include="Source\Apparatus\Event\Event.cpp" />
     <ClCompile Include="Source\Apparatus\Event\EventDispatcher.cpp" />
     <ClCompile Include="Source\Apparatus\InputHandler.cpp" />
@@ -206,6 +207,7 @@
     <ClInclude Include="Source\Apparatus\Client\Controller.h" />
     <ClInclude Include="Source\Apparatus\Client\HumanControllerBase.h" />
     <ClInclude Include="Source\Apparatus\Client\GenericHumanController.h" />
+    <ClInclude Include="Source\Apparatus\Core\TextureImporter.h" />
     <ClInclude Include="Source\Apparatus\Event\EventDispatcher.h" />
     <ClInclude Include="Source\Apparatus\Event\Event.h" />
     <ClInclude Include="Source\Apparatus\InputHandler.h" />

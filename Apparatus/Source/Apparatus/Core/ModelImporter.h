@@ -27,7 +27,7 @@ public:
 	// Imports multiple meshes from a single fbx file as a single model
 	std::unique_ptr<Model> import(const std::string& modelName, Shader* shader, const std::string& path);
 
-	// Imports multiple meshes from a single fbx file as multiple models. The name automatically assigns from meshes' name
+	// Imports multiple meshes from a single fbx file as multiple models
 	std::list<std::unique_ptr<Model>> importMultiple(Shader* shader, const std::string& path);
 
 private:

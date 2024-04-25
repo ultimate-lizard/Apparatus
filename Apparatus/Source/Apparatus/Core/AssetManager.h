@@ -43,12 +43,10 @@ inline ResourceType* AssetManager::createAsset(Args&& ... args)
 {
 	if (std::unique_ptr<Asset> newResource = std::make_unique<ResourceType>(std::forward<Args>(args)...))
 	{
-		//newResource->assetManager = this;
-
 		auto searchIter = assetMap.find(newResource->getAssetName());
 		if (searchIter != assetMap.end())
 		{
-			LOG("Tried to create an asset '" + newResource->getAssetName() + "' but the name is already occupied. Skipping...", LogLevel::Error);
+			LOG("Detected duplicate asset '" + newResource->getAssetName() + "'. Skipping...", LogLevel::Info);
 			return findAsset<ResourceType>(newResource->getAssetName());
 		}
 
@@ -70,7 +68,6 @@ inline ResourceType* AssetManager::createAsset(std::unique_ptr<ResourceType> ass
 	if (asset)
 	{
 		ResourceType* resourcePtr = asset.get();
-		//asset->assetManager = this;
 		auto iter = assetMap.emplace(asset->getAssetName(), std::move(asset));
 		if (iter.second)
 		{

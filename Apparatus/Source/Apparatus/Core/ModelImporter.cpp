@@ -12,6 +12,7 @@
 #include "../Rendering/Material.h"
 #include "Logger.h"
 #include "AssetManager.h"
+#include "TextureImporter.h"
 
 ModelImporter::ModelImporter() :
 	shader(nullptr)
@@ -153,17 +154,7 @@ void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
 
 			unsigned int materialIndex = aiMesh->mMaterialIndex;
 
-			std::string assetName = meshName.C_Str();
-			//if (!modelName.empty())
-			//{
-			//	assetName = "Mesh_" + modelName + "_" + meshName.C_Str();
-			//}
-			//else
-			//{
-			//	assetName = "Mesh_" + std::string(meshName.C_Str());
-			//}
-
-			if (Mesh* mesh = assetManager->createAsset<Mesh>(assetName, vertices, indices, materialIndex))
+			if (Mesh* mesh = assetManager->createAsset<Mesh>(meshName.C_Str(), vertices, indices, materialIndex))
 			{
 				meshes.push_back(mesh);
 			}
@@ -216,9 +207,17 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 				aiString texturePath;
 				aiMaterial->GetTexture(aiTextureType_DIFFUSE, i, &texturePath);
 
-				if (Texture* newTexture = assetManager->createAsset<Texture>("Texture_" + std::string(materialName.C_Str()), "../Models/" + std::string(texturePath.C_Str())))
+				if (TextureImporter* textureImporter = assetManager->getImporter<TextureImporter>())
 				{
-					newMaterial->addDiffuseTexture(newTexture);
+					std::string textureName = "Texture_";
+					textureName += materialName.C_Str();
+					if (std::unique_ptr<Texture> newTexturePtr = textureImporter->import(textureName, "../Models/" + std::string(texturePath.C_Str())))
+					{
+						if (Texture* newTexture = assetManager->createAsset<Texture>(std::move(newTexturePtr)))
+						{
+							newMaterial->addDiffuseTexture(newTexture);
+						}
+					}
 				}
 			}
 
