@@ -41,8 +41,8 @@ Renderer::Renderer(Window& window) :
 
 void Renderer::init()
 {
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
 #ifdef _DEBUG
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
@@ -104,7 +104,7 @@ void Renderer::render()
 							{
 								shader->setUniform("view", command.camera->getView());
 								shader->setUniform("projection", command.camera->getProjection());
-								shader->setUniform("cameraPos", command.camera->getWorldPosition());
+								shader->setUniform("cameraPos", command.camera->getPosition());
 							}
 
 							MaterialParameters& params = command.materialInstance->getMaterialParameters();

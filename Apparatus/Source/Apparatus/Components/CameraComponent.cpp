@@ -21,23 +21,28 @@ CameraComponent::CameraComponent(const CameraComponent& other) :
 {
 }
 
-std::unique_ptr<Component> CameraComponent::clone()
+void CameraComponent::calculateTransform()
 {
-	std::unique_ptr<CameraComponent> newCameraComponent = std::make_unique<CameraComponent>(*this);
-	if (newCameraComponent)
+	if (isDirty())
 	{
-		Camera& newCamera = newCameraComponent->getCamera();
-		newCamera.setParent(newCameraComponent.get());
+		camera.position = getWorldPosition();
+		camera.forward = getForward();
+		camera.up = getUp();
+
+		camera.calculateView();
 	}
 
-	return newCameraComponent;
+	SceneNode::calculateTransform();
+}
+
+std::unique_ptr<Component> CameraComponent::clone()
+{
+	return std::make_unique<CameraComponent>(*this);
 }
 
 void CameraComponent::init()
 {
 	Component::init();
-
-	camera.setParent(this);
 }
 
 Camera& CameraComponent::getCamera()

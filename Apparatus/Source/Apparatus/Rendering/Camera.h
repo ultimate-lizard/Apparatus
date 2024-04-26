@@ -2,9 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "SceneNode.h"
-
-class Camera : public SceneNode
+class Camera
 {
 public:
 	Camera();
@@ -13,7 +11,14 @@ public:
 
 	Camera(Camera&&) = delete;
 
-	virtual void calculateTransform() override;
+	void calculateView();
+	
+	void setPerspective(float fov, float aspect, float near, float far);
+	void setOrthographic(float left, float right, float top, float bottom, float near, float far);
+
+	const glm::vec3& getPosition() const;
+	const glm::vec3& getForward() const;
+	const glm::vec3& getUp() const;
 
 	void setFOV(float fov);
 	void setAspect(float aspect);
@@ -25,8 +30,14 @@ private:
 	glm::mat4 view;
 	glm::mat4 projection;
 
-	float aspect;
+	glm::vec3 position;
+	glm::vec3 forward;
+	glm::vec3 up;
+
 	float fov;
+	float aspect;
+	float near;
+	float far;
 
 	friend class CameraComponent;
 };

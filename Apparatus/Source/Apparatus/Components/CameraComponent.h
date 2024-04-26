@@ -14,6 +14,8 @@ public:
 	CameraComponent(CameraComponent&&) = delete;
 	void operator=(const CameraComponent&) = delete;
 
+	virtual void calculateTransform() override;
+
 	virtual std::unique_ptr<Component> clone() override;
 
 	virtual void init() override;

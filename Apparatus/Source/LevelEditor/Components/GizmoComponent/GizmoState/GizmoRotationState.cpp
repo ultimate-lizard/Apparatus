@@ -48,8 +48,8 @@ void GizmoRotationState::handleGizmoClick(const glm::vec3& clickWorldPosition)
 		if (Camera* camera = localClient->getActiveCamera())
 		{
 			glm::vec3 rayDirectionLocal = glm::normalize(getCursorToWorldRay(camera->getView(), camera->getProjection()));
-			glm::vec3 rayOriginLocal = camera->getWorldPosition();
-			glm::vec3 camRightLocal = camera->getRight();
+			glm::vec3 rayOriginLocal = camera->getPosition();
+			glm::vec3 camRightLocal = glm::cross(camera->getForward(), camera->getUp());
 
 			// Convert to gimbal's local space
 			if (SceneNode* parent = selectedGizmoModelComponent->getParent())
@@ -104,7 +104,7 @@ void GizmoRotationState::handleCursorMovement(const glm::ivec2& cursorPosition, 
 	}
 
 	glm::vec3 rayDirection = glm::normalize(getCursorToWorldRay(camera->getView(), camera->getProjection()));
-	glm::vec3 rayOrigin = camera->getWorldPosition();
+	glm::vec3 rayOrigin = camera->getPosition();
 	glm::vec3 gizmoOrigin = selectedGizmoModelComponent->getPosition();
 	glm::vec3 gizmoUp = getLocalUpForGimbal(selectedGizmoModelComponent->getComponentName());
 

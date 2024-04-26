@@ -141,7 +141,8 @@ void WindowEventHandler::handleWindowEvent()
 			if (Camera* camera = client->getActiveCamera())
 			{
 				glm::ivec2 windowSize = window.getWindowSize();
-				camera->setAspect(windowSize.x / static_cast<float>(windowSize.y));
+				const float aspect = windowSize.x / static_cast<float>(windowSize.y);
+				camera->setPerspective(90.0f, aspect, 0.01f, 1000.0f);
 			}
 		}
 	}

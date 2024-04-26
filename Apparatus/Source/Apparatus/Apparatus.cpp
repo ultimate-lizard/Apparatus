@@ -276,6 +276,7 @@ void Apparatus::_createEntityTemplates()
 			if (auto cameraComponent = entityRegistry.createComponent<CameraComponent>(playerEntity))
 			{
 				cameraComponent->setParent(transformComponent);
+				cameraComponent->getCamera().setPerspective(90.0f, 800.0f / 600.0f, 0.01f, 1000.0f);
 			}
 		}
 

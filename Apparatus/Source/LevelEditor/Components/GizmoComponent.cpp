@@ -79,7 +79,7 @@ void GizmoComponent::update(float dt)
 
 			if (TransformComponent* ownerTransform = owner->findComponent<TransformComponent>())
 			{
-				float distanceToCamera = glm::distance(camera->getWorldPosition(), ownerTransform->getWorldPosition()) * 0.075f;
+				float distanceToCamera = glm::distance(camera->getPosition(), ownerTransform->getWorldPosition()) * 0.075f;
 				ownerTransform->setScale(glm::vec3(distanceToCamera));
 			}
 		}

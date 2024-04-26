@@ -73,7 +73,7 @@ void GizmoScaleState::handleCursorMovement(const glm::ivec2& cursorPosition, Cam
 	else
 	{
 		// Convert all required vectors into gizmo's local space for the easier creation of the gizmo axis normals
-		glm::vec3 rayOrigin = camera->getWorldPosition();
+		glm::vec3 rayOrigin = camera->getPosition();
 		glm::vec3 rayDirection = glm::normalize(getCursorToWorldRay(camera->getView(), camera->getProjection()));
 
 		glm::vec3 axisPlaneNormal = glm::normalize(rayOrigin - clickPosition);

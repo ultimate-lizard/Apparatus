@@ -52,7 +52,7 @@ void GizmoTranslationState::handleCursorMovement(const glm::ivec2& cursorPositio
 	}
 
 	// Convert all required vectors into gizmo's local space for the easier creation of the gizmo axis normals
-	glm::vec3 rayOriginLocal = camera->getWorldPosition();
+	glm::vec3 rayOriginLocal = camera->getPosition();
 	glm::vec3 rayDirectionLocal = glm::normalize(getCursorToWorldRay(camera->getView(), camera->getProjection()));
 	glm::vec3 gizmoOriginLocal = selectedEntityTransformComponent->getWorldPosition();
 	glm::vec3 gizmoSelectPositionOriginLocal = positionDuringClick;

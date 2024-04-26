@@ -5,32 +5,65 @@
 
 #include "../Core/Logger.h"
 
-
 Camera::Camera() :
 	view(1.0f),
 	projection(1.0f),
+	position(0.0f),
+	forward(0.0f, 0.0f, 1.0f),
+	up(0.0f, 1.0f, 1.0f),
+	fov(90.0f),
 	aspect(800.0f / 600.0f),
-	fov(90.0f)
+	near(0.01f),
+	far(10000.0f)
 {
-
 }
 
-Camera::Camera(const Camera& other) : 
-	SceneNode(other),
+Camera::Camera(const Camera& other) :
 	view(other.view),
 	projection(other.projection),
+	position(other.position),
+	forward(other.forward),
+	up(other.up),
+	fov(other.fov),
 	aspect(other.aspect),
-	fov(other.fov)
+	near(other.near),
+	far(other.near)
 {
+}
+
+void Camera::calculateView()
+{
+	view = glm::lookAt(position, position + forward, up);
+}
+
+void Camera::setPerspective(float fov, float aspect, float near, float far)
+{
+	projection = glm::perspective(glm::radians(fov), aspect, near, far);
+	this->fov = fov;
+	this->aspect = aspect;
+	this->near = near;
+	this->far = far;
 
 }
 
-void Camera::calculateTransform()
+void Camera::setOrthographic(float left, float right, float top, float bottom, float, float)
 {
-	SceneNode::calculateTransform();
+	projection = glm::ortho(left, right, bottom, top, near, far);
+}
 
-	view = glm::lookAt(getWorldPosition(), getWorldPosition() + getForward(), getUp());
-	projection = glm::perspective(glm::radians(fov), aspect, 0.01f, 1000.0f);
+const glm::vec3& Camera::getPosition() const
+{
+	return position;
+}
+
+const glm::vec3& Camera::getForward() const
+{
+	return forward;
+}
+
+const glm::vec3& Camera::getUp() const
+{
+	return up;
 }
 
 void Camera::setFOV(float fov)

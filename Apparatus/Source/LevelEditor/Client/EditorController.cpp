@@ -98,7 +98,7 @@ void EditorController::pressSelect()
 	}
 
 	glm::vec3 direction = getCursorToWorldRay(camera->getView(), camera->getProjection());
-	glm::vec3 origin = camera->getWorldPosition();
+	glm::vec3 origin = camera->getPosition();
 
 	if (Level* level = app.getLevel())
 	{
