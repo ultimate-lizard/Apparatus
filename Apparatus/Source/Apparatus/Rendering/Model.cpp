@@ -4,7 +4,7 @@ Model::Model(const std::string& resourceName, Shader* shader, std::vector<Mesh*>
 	Asset(resourceName),
 	shader(shader),
 	meshes(std::forward<std::vector<Mesh*>>(meshes)),
-	materials(std::forward<std::vector<Material*>>(materials))
+	materialSlots(std::forward<std::vector<Material*>>(materials))
 {
 
 }
@@ -14,17 +14,22 @@ void Model::init()
 
 }
 
-std::unique_ptr<ModelInstance> Model::createModelInstance()
-{
-	return std::make_unique<ModelInstance>(this);
-}
-
 const std::vector<Mesh*>& Model::getMeshes() const
 {
 	return meshes;
 }
 
-const std::vector<Material*>& Model::getMaterials() const
+const std::vector<Material*>& Model::getMaterialSlots() const
 {
-	return materials;
+	return materialSlots;
+}
+
+Material* Model::getMaterialSlot(size_t index)
+{
+	if (index < materialSlots.size())
+	{
+		return materialSlots[index];
+	}
+
+	return nullptr;
 }

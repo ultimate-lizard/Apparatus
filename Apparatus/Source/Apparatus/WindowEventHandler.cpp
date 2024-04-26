@@ -44,7 +44,11 @@ void WindowEventHandler::handleEvents()
 
 		case SDL_WINDOWEVENT:
 			// TODO: Look up in LocalServer
-			handleWindowEvent();
+			if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+			{
+				handleWindowEvent();
+			}
+			
 			break;
 		}
 	}
@@ -128,6 +132,8 @@ void WindowEventHandler::handleWindowEvent()
 {
 	Apparatus& app = Apparatus::get();
 	Window& window = app.getWindow();
+
+	Apparatus::getEventDispatcher().dispatch(std::make_shared<WindowResizeEvent>(window.getWindowSize()));
 
 	for (Client* client : app.getClients())
 	{

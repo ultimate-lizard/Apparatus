@@ -46,9 +46,11 @@ void Camera::setPerspective(float fov, float aspect, float near, float far)
 
 }
 
-void Camera::setOrthographic(float left, float right, float top, float bottom, float, float)
+void Camera::setOrthographic(float left, float right, float top, float bottom, float near, float far)
 {
 	projection = glm::ortho(left, right, bottom, top, near, far);
+	this->near = near;
+	this->far = far;
 }
 
 const glm::vec3& Camera::getPosition() const

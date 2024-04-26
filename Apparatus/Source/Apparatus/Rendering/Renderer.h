@@ -5,15 +5,17 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
+#include "Camera.h"
+
 using SDL_GLContext = void*; // forward declaration
 struct SDL_Window;
 
 class Mesh;
-class MaterialInstance;
-class Camera;
-class ModelInstance;
+class Material;
+class Model;
 class Light;
 class Window;
+class Sprite;
 
 enum RenderMode
 {
@@ -26,7 +28,7 @@ enum RenderMode
 struct RenderCommand
 {
 	const Mesh* mesh = nullptr;
-	MaterialInstance* materialInstance = nullptr;
+	Material* material = nullptr;
 	const Camera* camera = nullptr;
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
 	RenderMode renderMode = RenderMode::Triangles;
@@ -48,8 +50,8 @@ public:
 
 	void render();
 
-	void push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode = RenderMode::Triangles, float drawSize = 1.0f, size_t depthBufferLayer = 0);
-	void push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix);
+	void push(Mesh* mesh, Material* material, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode = RenderMode::Triangles, float drawSize = 1.0f, size_t depthBufferLayer = 0);
+	void push(Model* model, Camera* camera, const glm::mat4& worldMatrix, size_t depthBufferLayer = 0);
 
 	void setActiveCamera(Camera* camera);
 	Camera* getActiveCamera();
@@ -71,4 +73,6 @@ private:
 	Camera* activeCamera;
 
 	std::vector<Light*> lights;
+
+	Camera spriteCamera;
 };

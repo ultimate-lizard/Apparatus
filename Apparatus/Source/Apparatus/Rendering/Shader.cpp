@@ -52,6 +52,12 @@ void Shader::setUniform(const std::string& name, const glm::mat4& matrix)
 	glUniformMatrix4fv(location, 1, false, &matrix[0][0]);
 }
 
+void Shader::setUniform(const std::string& name, const glm::vec2& vector)
+{
+	unsigned int location = glGetUniformLocation(program, name.c_str());
+	glUniform2fv(location, 1, &vector[0]);
+}
+
 void Shader::setUniform(const std::string& name, const glm::vec3& vector)
 {
 	unsigned int location = glGetUniformLocation(program, name.c_str());

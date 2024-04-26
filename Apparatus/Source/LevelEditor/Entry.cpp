@@ -5,9 +5,7 @@
 
 int main(int argc, char** argv)
 {
-	Editor app("LevelEditor");
-	
-
+	Editor app("Apparatus Editor");
 
 	return app.launch(argc, argv);
 }

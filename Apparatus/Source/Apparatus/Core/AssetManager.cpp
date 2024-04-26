@@ -21,3 +21,13 @@ void AssetManager::initAssets()
 		}
 	}
 }
+
+void AssetManager::removeAsset(const std::string& name)
+{
+	auto searchIter = assetMap.find(name);
+	if (searchIter != assetMap.end())
+	{
+		assetMap.erase(searchIter);
+		LOG("Successfully removed '" + name + "'", LogLevel::Info);
+	}
+}

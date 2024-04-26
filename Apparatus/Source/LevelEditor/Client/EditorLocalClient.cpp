@@ -10,8 +10,8 @@
 #include "../Components/SelectableComponent.h"
 #include "../Server/EditorLocalServer.h"
 
-EditorLocalClient::EditorLocalClient(Renderer* renderer) :
-	LocalClient(renderer),
+EditorLocalClient::EditorLocalClient(Renderer* renderer, SpriteRenderer* spriteRenderer) :
+	LocalClient(renderer, spriteRenderer),
 	inEditMode(false)
 {
 }
@@ -79,9 +79,6 @@ void EditorLocalClient::setEditModeEnabled(bool enabled)
 	{
 		activeController->setControlEntity(getActiveEntity());
 	}
-
-	// TODO: Replace with UI
-	LOG(enabled ? "Edit mode" : "Free camera mode", LogLevel::Info);
 }
 
 bool EditorLocalClient::isInEditMode() const

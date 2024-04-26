@@ -130,6 +130,11 @@ Renderer* Apparatus::getRenderer()
 	return renderer.get();
 }
 
+SpriteRenderer* Apparatus::getSpriteRenderer()
+{
+	return spriteRenderer.get();
+}
+
 int Apparatus::initEngineInternal()
 {
 	Logger::open("../Logs/");
@@ -162,6 +167,8 @@ int Apparatus::initEngineInternal()
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Unable to initialize Renderer!", nullptr);
 		return 1;
 	}
+
+	spriteRenderer = std::make_unique<SpriteRenderer>();
 
 	// SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "0");
 
@@ -252,7 +259,6 @@ void Apparatus::_createAssets()
 		{
 			//assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "../Models/scene.fbx")));
 			assetManager.createAsset(std::move(importer->import("Model_NewScene", modelShader, "../Models/NewScene.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_Dragon", modelShader, "../Models/Dragon.fbx")));
 			assetManager.createAsset(std::move(importer->import("Model_Makarov", modelShader, "../Models/makarov.fbx")));
 
 			std::list<std::unique_ptr<Model>> dungeonModels = importer->importMultiple(modelShader, "../Models/Dungeon.fbx");
@@ -348,21 +354,16 @@ void Apparatus::startGameLoop()
 		// Renderer
 		if (renderer)
 		{
-			renderer->render();
+			glClear(GL_COLOR_BUFFER_BIT);
 
-			window.swap();
+			renderer->render();
+			spriteRenderer->render();
 		}
+
+		window.swap();
 
 		// TODO: Shutdown
 	}
 
 	Logger::close();
-}
-
-void Apparatus::onWindowResized()
-{
-	// TODO: Renderer->GetActiveCameras->setAspect
-	// TODO: Renderer->GetViewports->setSize
-
-
 }

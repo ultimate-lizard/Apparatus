@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <memory>
+
+#include <glm/glm.hpp>
 
 #include "../Core/Asset.h"
 
@@ -18,10 +21,15 @@ public:
 	virtual void init() override {}
 
 	void bind() const;
+	void unbind() const;
+
+	const glm::ivec2& getSize() const;
 
 private:
 	std::string texturePath;
 	unsigned int id;
+	int bytesPerPixel;
+	glm::ivec2 size;
 
 	friend class TextureImporter;
 };

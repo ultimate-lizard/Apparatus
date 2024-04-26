@@ -299,20 +299,17 @@ void EditorLocalServer::indicateSelection(Entity* entity, bool selected)
 			continue;
 		}
 
-		if (ModelInstance* modelInstance = modelComponent->getModelInstance())
+		if (Model* model = modelComponent->getModel())
 		{
-			if (Model* model = modelInstance->getModel())
+			const size_t materialsNum = model->getMaterialSlots().size();
+			for (size_t i = 0; i < materialsNum; ++i)
 			{
-				const size_t materialsNum = model->getMaterials().size();
-				for (size_t i = 0; i < materialsNum; ++i)
+				if (Material* material = model->getMaterialSlot(i))
 				{
-					if (MaterialInstance* materialInstance = modelInstance->getMaterialInstance(i))
-					{
-						MaterialParameters& params = materialInstance->getMaterialParameters();
+					MaterialParameters& params = material->getParameters();
 
-						params.setVec4("selectionColor", { 1.0f, 0.0f, 0.0f, 1.0f });
-						params.setBool("selected", selected);
-					}
+					params.setVec4("selectionColor", { 1.0f, 0.0f, 0.0f, 1.0f });
+					params.setBool("selected", selected);
 				}
 			}
 		}

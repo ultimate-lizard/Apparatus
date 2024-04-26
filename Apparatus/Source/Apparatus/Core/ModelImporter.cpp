@@ -215,7 +215,7 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 					{
 						if (Texture* newTexture = assetManager->createAsset<Texture>(std::move(newTexturePtr)))
 						{
-							newMaterial->addDiffuseTexture(newTexture);
+							newMaterial->createTextureParameter("diffuseTexture", newTexture);
 						}
 					}
 				}

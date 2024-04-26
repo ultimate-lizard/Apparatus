@@ -27,6 +27,8 @@ public:
 	template <class ResourceType, typename ... Args>
 	ResourceType* createAsset(std::unique_ptr<ResourceType> asset);
 
+	void removeAsset(const std::string& name);
+
 	template <class ImporterType>
 	ImporterType* getImporter();
 
@@ -67,6 +69,13 @@ inline ResourceType* AssetManager::createAsset(std::unique_ptr<ResourceType> ass
 {
 	if (asset)
 	{
+		auto searchIter = assetMap.find(asset->getAssetName());
+		if (searchIter != assetMap.end())
+		{
+			LOG("Tried to register an asset that already exist! No changes were made", LogLevel::Error);
+			return nullptr;
+		}
+
 		ResourceType* resourcePtr = asset.get();
 		auto iter = assetMap.emplace(asset->getAssetName(), std::move(asset));
 		if (iter.second)

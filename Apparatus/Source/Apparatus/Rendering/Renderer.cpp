@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Shader.h"
 #include "Light.h"
+#include "Sprite.h"
 #include "../Components/ModelComponent.h"
 #include "../Components/TransformComponent.h"
 #include "../Server/Entity.h"
@@ -41,8 +42,8 @@ Renderer::Renderer(Window& window) :
 
 void Renderer::init()
 {
-	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
 #ifdef _DEBUG
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
@@ -62,7 +63,10 @@ void Renderer::init()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
 	glEnable(GL_CULL_FACE);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
@@ -70,8 +74,6 @@ void Renderer::init()
 
 void Renderer::render()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	if (!commandsContainer.size())
 	{
 		return;
@@ -87,13 +89,12 @@ void Renderer::render()
 			{
 				command.mesh->bind();
 
-				if (command.materialInstance)
+				if (command.material)
 				{
-					if (Material* material = command.materialInstance->getMaterial())
+					if (Material* material = command.material)
 					{
 						if (Shader* shader = material->getShader())
 						{
-							material->bind();
 							shader->bind();
 
 							// TODO: Transform Uniform Buffer
@@ -107,7 +108,7 @@ void Renderer::render()
 								shader->setUniform("cameraPos", command.camera->getPosition());
 							}
 
-							MaterialParameters& params = command.materialInstance->getMaterialParameters();
+							MaterialParameters& params = command.material->getParameters();
 
 							for (auto mapIter : params.getAllBoolParameters())
 							{
@@ -119,6 +120,11 @@ void Renderer::render()
 								shader->setUniform("material." + mapIter.first, mapIter.second);
 							}
 
+							for (auto mapIter : params.getAllVec2Parameters())
+							{
+								shader->setUniform(mapIter.first, mapIter.second);
+							}
+
 							for (auto mapIter : params.getAllVec3Parameters())
 							{
 								shader->setUniform("material." + mapIter.first, mapIter.second);
@@ -127,6 +133,17 @@ void Renderer::render()
 							for (auto mapIter : params.getAllVec4Parameters())
 							{
 								shader->setUniform("material." + mapIter.first, mapIter.second);
+							}
+
+							int textureIndex = 0;
+							for (auto mapIter : params.getAllTextureParameters())
+							{
+								if (Texture* texture = mapIter.second)
+								{
+									glActiveTexture(GL_TEXTURE0 + textureIndex);
+									texture->bind();
+									textureIndex++;
+								}
 							}
 
 							if (UniformBufferObject* ubo = shader->findUniformBufferObject("LightUniformBuffer"))
@@ -213,20 +230,13 @@ void Renderer::render()
 	}
 }
 
-void Renderer::push(Mesh* mesh, MaterialInstance* materialInstance, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode, float drawSize, size_t depthBufferLayer)
+void Renderer::push(Mesh* mesh, Material* material, Camera* camera, const glm::mat4 worldMatrix, RenderMode renderMode, float drawSize, size_t depthBufferLayer)
 {
-	commandsContainer[depthBufferLayer].push_back({ mesh, materialInstance, camera, worldMatrix, renderMode, drawSize, depthBufferLayer });
+	commandsContainer[depthBufferLayer].push_back({ mesh, material, camera, worldMatrix, renderMode, drawSize, depthBufferLayer });
 }
 
-void Renderer::push(ModelInstance* modelInstance, Camera* camera, const glm::mat4& worldMatrix)
+void Renderer::push(Model* model, Camera* camera, const glm::mat4& worldMatrix, size_t depthBufferLayer)
 {
-	if (!modelInstance)
-	{
-		return;
-	}
-
-	Model* model = modelInstance->getModel();
-
 	if (!model || !camera)
 	{
 		return;
@@ -244,11 +254,11 @@ void Renderer::push(ModelInstance* modelInstance, Camera* camera, const glm::mat
 		RenderCommand command;
 		command.mesh = mesh;
 
-		command.materialInstance = modelInstance->getMaterialInstance(mesh->getMaterialIndex());
+		command.material = model->getMaterialSlot(mesh->getMaterialIndex());
 		command.camera = camera;
 		command.worldMatrix = worldMatrix;
 		command.renderMode = RenderMode::Triangles;
-		command.depthBufferLayer = modelInstance->getDepthBufferLayer();
+		command.depthBufferLayer = depthBufferLayer;
 
 		commandsContainer[command.depthBufferLayer].push_back(command);
 	}

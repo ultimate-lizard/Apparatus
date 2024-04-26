@@ -22,8 +22,6 @@ public:
 	Model* getModel();
 	const Model* getModel() const;
 
-	ModelInstance* getModelInstance();
-
 	void setVisibility(bool enabled);
 	bool isVisible() const;
 
@@ -32,8 +30,7 @@ public:
 
 protected:
 	Model* model;
-	std::unique_ptr<ModelInstance> modelInstance;
-
+	
 	bool visible;
 
 	size_t depthBufferLayer;

@@ -156,11 +156,17 @@
     <ClCompile Include="Source\Apparatus\InputHandler.cpp" />
     <ClCompile Include="Source\Apparatus\Client\LocalClient.cpp" />
     <ClCompile Include="Source\Apparatus\Core\EntityRegistry.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Sprite\Sprite.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Sprite\SpriteMesh.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Sprite\SpriteRenderer.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\UniformBufferObject.cpp" />
     <ClCompile Include="Source\Apparatus\Level.cpp" />
     <ClCompile Include="Source\Apparatus\Components\LightComponent.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Light.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\MaterialParameter.cpp" />
+    <ClCompile Include="Source\Apparatus\UI\Panel\NinePatchPanel.cpp" />
+    <ClCompile Include="Source\Apparatus\UI\Panel\Panel.cpp" />
+    <ClCompile Include="Source\Apparatus\UI\UIContext.cpp" />
     <ClCompile Include="Source\Apparatus\Util\BoundingBox.cpp" />
     <ClCompile Include="Source\Apparatus\Components\CameraComponent.cpp" />
     <ClCompile Include="Source\Apparatus\Components\Component.cpp" />
@@ -175,11 +181,9 @@
     <ClCompile Include="Source\Apparatus\Core\Logger.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Camera.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Material.cpp" />
-    <ClCompile Include="Source\Apparatus\Rendering\MaterialInstance.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Mesh.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Model.cpp" />
     <ClCompile Include="Source\Apparatus\Core\ModelImporter.cpp" />
-    <ClCompile Include="Source\Apparatus\Rendering\ModelInstance.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Renderer.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Rotator.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\SceneNode.cpp" />
@@ -198,8 +202,11 @@
     <None Include="Shaders\DebugPrimitive.vert" />
     <None Include="Shaders\Model.frag" />
     <None Include="Shaders\Model.vert" />
+    <None Include="Shaders\NinePatchShader.frag" />
     <None Include="Shaders\SolidColorNoLight.frag" />
     <None Include="Shaders\SolidColorNoLight.vert" />
+    <None Include="Shaders\SpriteDefault.frag" />
+    <None Include="Shaders\SpriteDefault.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Apparatus\Apparatus.h" />
@@ -213,12 +220,18 @@
     <ClInclude Include="Source\Apparatus\InputHandler.h" />
     <ClInclude Include="Source\Apparatus\Client\LocalClient.h" />
     <ClInclude Include="Source\Apparatus\Core\EntityRegistry.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Sprite\Sprite.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Sprite\SpriteMesh.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Sprite\SpriteRenderer.h" />
     <ClInclude Include="Source\Apparatus\Rendering\UniformBufferObject.h" />
     <ClInclude Include="Source\Apparatus\Level.h" />
     <ClInclude Include="Source\Apparatus\Components\LightComponent.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Light.h" />
     <ClInclude Include="Source\Apparatus\Rendering\MaterialParameter.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Vector.h" />
+    <ClInclude Include="Source\Apparatus\UI\Panel\NinePatchPanel.h" />
+    <ClInclude Include="Source\Apparatus\UI\Panel\Panel.h" />
+    <ClInclude Include="Source\Apparatus\UI\UIContext.h" />
     <ClInclude Include="Source\Apparatus\Util\BoundingBox.h" />
     <ClInclude Include="Source\Apparatus\Components\CameraComponent.h" />
     <ClInclude Include="Source\Apparatus\Components\Component.h" />
@@ -235,11 +248,9 @@
     <ClInclude Include="Source\Apparatus\Core\Logger.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Camera.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Material.h" />
-    <ClInclude Include="Source\Apparatus\Rendering\MaterialInstance.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Mesh.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Model.h" />
     <ClInclude Include="Source\Apparatus\Core\ModelImporter.h" />
-    <ClInclude Include="Source\Apparatus\Rendering\ModelInstance.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Renderer.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Rotator.h" />
     <ClInclude Include="Source\Apparatus\Rendering\SceneNode.h" />

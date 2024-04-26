@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+
 #include <string>
 #include <map>
 #include <vector>
@@ -8,9 +8,10 @@
 #include "Client.h"
 #include "Controller.h"
 #include "../InputHandler.h"
+#include "../UI/UIContext.h"
 #include "../Util/Primitive.h"
 #include "../Rendering/Renderer.h"
-#include "../Rendering/Camera.h"
+
 #include "../Rendering/Mesh.h"
 #include "../Rendering/Material.h"
 
@@ -18,11 +19,12 @@ class Entity;
 class LocalServer;
 class GenericHumanController;
 class Renderer;
+class SpriteRenderer;
 
 class LocalClient : public Client
 {
 public:
-	LocalClient(Renderer* renderer);
+	LocalClient(Renderer* renderer, SpriteRenderer* spriteRenderer);
 	virtual ~LocalClient() = default;
 
 	LocalClient(const LocalClient&) = delete;
@@ -47,6 +49,8 @@ public:
 
 	InputHandler& getInputHandler();
 
+	void onWindowResize(std::shared_ptr<WindowResizeEvent> event);
+
 protected:
 	// DEBUG STUFF
 	void composeDebugPrimitiveRenderData();
@@ -56,7 +60,7 @@ protected:
 	std::map<float, Mesh*> cachedDebugLineMeshes;
 	std::map<float, Mesh*> cachedDebugBoxMeshes;
 
-	std::unique_ptr<MaterialInstance> debugPrimitiveMaterialInstance;
+	Material* debugPrimitiveMaterial;
 
 	size_t debugMeshBufferSize;
 	//////////////
@@ -71,6 +75,7 @@ protected:
 	void composeEntityRenderData();
 
 	Renderer* renderer;
+	SpriteRenderer* spriteRenderer;
 
 	// All possible controllers that the client would need should be stored here
 	std::vector<std::unique_ptr<Controller>> controllers;
@@ -82,6 +87,9 @@ protected:
 	InputHandler inputHandler;
 
 	Viewport viewport;
+
+	UIContext uiContext;
+	Camera uiCamera;
 };
 
 template<class ControllerType, typename ... Args>

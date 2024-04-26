@@ -21,7 +21,6 @@ struct Material
 	vec3 color;
 };
 
-
 struct Light
 {
 	vec3 color;
@@ -159,7 +158,6 @@ vec3 calculateSpotLight(Light inLight, Material inMaterial)
 
 	return ambientColor + diffuseColor + specularColor;
 }
-
 
 float linearizeDepth(float depth)
 {

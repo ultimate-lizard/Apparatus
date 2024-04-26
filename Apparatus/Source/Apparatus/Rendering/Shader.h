@@ -25,6 +25,7 @@ public:
 	void bind() const;
 
 	void setUniform(const std::string& name, const glm::mat4& matrix);
+	void setUniform(const std::string& name, const glm::vec2& vector); 
 	void setUniform(const std::string& name, const glm::vec3& vector); 
 	void setUniform(const std::string& name, const glm::vec4& vector); 
 	void setUniform(const std::string& name, bool value);

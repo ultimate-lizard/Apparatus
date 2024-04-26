@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 class LightComponent;
 
 class Event
@@ -21,4 +23,15 @@ public:
 
 private:
 	LightComponent* lightComponent = nullptr;
+};
+
+class WindowResizeEvent : public Event
+{
+public:
+	WindowResizeEvent(const glm::ivec2& windowSize);
+
+	const glm::ivec2& getWindowSize() const;
+
+private:
+	glm::ivec2 windowSize;
 };

@@ -6,7 +6,7 @@
 class EditorLocalClient : public LocalClient
 {
 public:
-	EditorLocalClient(Renderer* renderer);
+	EditorLocalClient(Renderer* renderer, SpriteRenderer* spriteRenderer);
 
 	void onLightCreation(std::shared_ptr<LightComponentCreationEvent> event);
 

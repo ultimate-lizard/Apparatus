@@ -17,7 +17,7 @@ void Editor::init()
 	Apparatus::init();
 
 	createServer<EditorLocalServer>();
-	createClient<EditorLocalClient>(getRenderer());
+	createClient<EditorLocalClient>(getRenderer(), getSpriteRenderer());
 }
 
 void Editor::_createEntityTemplates()

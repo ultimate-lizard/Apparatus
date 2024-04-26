@@ -5,10 +5,10 @@
 #include <memory>
 
 #include "../Core/Asset.h"
-#include "ModelInstance.h"
 
 class Shader;
 class Mesh;
+class Material;
 
 class Model : public Asset
 {
@@ -22,13 +22,13 @@ public:
 
 	virtual void init() override;
 
-	std::unique_ptr<ModelInstance> createModelInstance();
-
 	const std::vector<Mesh*>& getMeshes() const;
-	const std::vector<Material*>& getMaterials() const;
+	const std::vector<Material*>& getMaterialSlots() const;
+
+	Material* getMaterialSlot(size_t index);
 
 private:
 	Shader* shader;
 	std::vector<Mesh*> meshes;
-	std::vector<Material*> materials;
+	std::vector<Material*> materialSlots;
 };

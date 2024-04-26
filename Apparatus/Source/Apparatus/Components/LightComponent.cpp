@@ -4,6 +4,7 @@
 #include "../Server/Entity.h"
 #include "../Event/Event.h"
 #include "../Apparatus.h"
+#include "../Rendering/Material.h"
 
 LightComponent::LightComponent(LightType type) :
 	Component("LightComponent"),
@@ -57,7 +58,7 @@ void LightComponent::update(float dt)
 
 	if (ModelComponent* modelComponent = owner->findComponent<ModelComponent>())
 	{
-		if (ModelInstance* modelInstance = modelComponent->getModelInstance())
+		if (Model* model = modelComponent->getModel())
 		{
 			size_t materialIndex = 0;
 			if (getType() == LightType::SpotLight)
@@ -65,9 +66,9 @@ void LightComponent::update(float dt)
 				materialIndex = 1;
 			}
 
-			if (MaterialInstance* matInstance = modelInstance->getMaterialInstance(materialIndex))
+			if (Material* materialSlot = model->getMaterialSlot(materialIndex))
 			{
-				MaterialParameters& params = matInstance->getMaterialParameters();
+				MaterialParameters& params = materialSlot->getParameters();
 				params.setVec3("color", getColor());
 			}
 		}

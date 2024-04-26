@@ -1,21 +1,28 @@
 #include "LocalClient.h"
 
-#include "../Core/Logger.h"
+#include <sstream>
+
+#include "GenericHumanController.h"
 #include "../Apparatus.h"
+#include "../Level.h"
+#include "../Core/Logger.h"
+#include "../Core/TextureImporter.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/ModelComponent.h"
 #include "../Components/CameraComponent.h"
 #include "../Components/LightComponent.h"
-#include "GenericHumanController.h"
-#include "../Level.h"
 #include "../Server/LocalServer.h"
+#include "../UI/Panel/NinePatchPanel.h"
 
-LocalClient::LocalClient(Renderer* renderer) :
+LocalClient::LocalClient(Renderer* renderer, SpriteRenderer* spriteRenderer) :
+	debugPrimitiveMaterial(nullptr),
 	debugMeshBufferSize(1024 * 1024 * 32), // 32MB per mesh for debug primitives
 	renderer(renderer),
+	spriteRenderer(spriteRenderer),
 	activeController(nullptr),
 	defaultController(nullptr)
 {
+	
 }
 
 void LocalClient::init()
@@ -36,8 +43,55 @@ void LocalClient::init()
 	viewport.setSize(windowSize);
 	
 	// Debug stuff
-	Material* debugPrimitiveMaterial = Apparatus::getAssetManager().findAsset<Material>("Material_DebugPrimitive");
-	debugPrimitiveMaterialInstance = debugPrimitiveMaterial->createMaterialInstance();
+	debugPrimitiveMaterial = Apparatus::getAssetManager().findAsset<Material>("Material_DebugPrimitive");
+
+	Apparatus::getEventDispatcher().bind<WindowResizeEvent>(std::bind(&LocalClient::onWindowResize, this, std::placeholders::_1));
+
+	// UI stuff
+	uiContext.init();
+	uiCamera.setOrthographic(0.0f, static_cast<float>(windowSize.x), 0.0f, static_cast<float>(windowSize.y), -1.0f, 1.0f);
+
+	// TODO: This is test UI
+	//if (TextureImporter* importer = Apparatus::getAssetManager().getImporter<TextureImporter>())
+	//{
+	//	Texture* panelTexture = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_PanelBackground", "../Textures/Panel.bmp"));
+	//	Texture* thickWindowTexture = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_WindowThick", "../Textures/WindowThick.bmp"));
+	//	Texture* innerWindowTexture = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_WindowInner", "../Textures/WindowInner.bmp"));
+	//	Texture* missingTexture = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_MissingTexture", "../Textures/MissingTexture.bmp"));
+
+	//	Panel* secondWindow = uiContext.createPanel<Panel>("Panel_Second", missingTexture);
+	//	secondWindow->setSize({ 512, 512 });
+	//	secondWindow->setVerticalAlignment(Panel::Alignment::Center);
+	//	secondWindow->setHorizontalAlignment(Panel::Alignment::Fill);
+
+	//	Panel* third = uiContext.createPanel<Panel>("Panel_Second2", panelTexture);
+	//	third->setSize({ 512, 512 });
+	//	third->setVerticalAlignment(Panel::Alignment::Center);
+	//	third->setHorizontalAlignment(Panel::Alignment::Center);
+
+	//	NinePatchPanel* ninePatch = uiContext.createPanel<NinePatchPanel>("Panel_Nine", thickWindowTexture);
+	//	ninePatch->setBorder(Panel::Side::Left, 6);
+	//	ninePatch->setBorder(Panel::Side::Right, 6);
+	//	ninePatch->setBorder(Panel::Side::Top, 6);
+	//	ninePatch->setBorder(Panel::Side::Bottom, 6);
+	//	ninePatch->setSize({ 256, 512 });
+	//	ninePatch->setVerticalAlignment(Panel::Alignment::Left);
+	//	ninePatch->setHorizontalAlignment(Panel::Alignment::Right);
+	//	ninePatch->setPadding(Panel::Side::Top, 32);
+	//	ninePatch->setPadding(Panel::Side::Bottom, 32);
+	//	ninePatch->setPadding(Panel::Side::Left, 32);
+	//	ninePatch->setPadding(Panel::Side::Right, 32);
+
+	//	NinePatchPanel* ninePatch2 = uiContext.createPanel<NinePatchPanel>("Panel_Nine2", innerWindowTexture);
+	//	ninePatch->addChild(ninePatch2);
+	//	ninePatch2->setSize({ 64, 64 });
+	//	ninePatch2->setBorder(Panel::Side::Left, 6);
+	//	ninePatch2->setBorder(Panel::Side::Right, 6);
+	//	ninePatch2->setBorder(Panel::Side::Top, 6);
+	//	ninePatch2->setBorder(Panel::Side::Bottom, 6);
+	//	ninePatch2->setVerticalAlignment(Panel::Alignment::Left);
+	//	ninePatch2->setHorizontalAlignment(Panel::Alignment::Fill);
+	//}
 }
 
 void LocalClient::update(float dt)
@@ -47,6 +101,12 @@ void LocalClient::update(float dt)
 	// Render debug primitives
 	composeDebugPrimitiveRenderData();
 	composeEntityRenderData();
+
+	if (spriteRenderer)
+	{
+		spriteRenderer->setActiveCamera(&uiCamera);
+		uiContext.pushContextToRender(spriteRenderer);
+	}
 }
 
 Viewport* LocalClient::getViewport()
@@ -70,6 +130,17 @@ Camera* LocalClient::getActiveCamera()
 InputHandler& LocalClient::getInputHandler()
 {
 	return inputHandler;
+}
+
+void LocalClient::onWindowResize(std::shared_ptr<WindowResizeEvent> event)
+{
+	auto weakEvent = std::weak_ptr<WindowResizeEvent>(event);
+	auto lockedEvent = weakEvent.lock();
+
+	if (lockedEvent)
+	{
+		uiCamera.setOrthographic(0.0f, static_cast<float>(lockedEvent->getWindowSize().x), 0.0f, static_cast<float>(lockedEvent->getWindowSize().y), -1.0f, 1.0f);
+	}
 }
 
 void LocalClient::setActiveController(Controller* controller)
@@ -327,7 +398,7 @@ void LocalClient::renderDebugPrimitives(const std::vector<Vertex>& vertices, con
 			}
 		}
 
-		renderer->push(mesh, debugPrimitiveMaterialInstance.get(), &cameraComponent->getCamera(), glm::mat4(1.0f), renderMode, drawSize);
+		renderer->push(mesh, debugPrimitiveMaterial, &cameraComponent->getCamera(), glm::mat4(1.0f), renderMode, drawSize);
 	}
 }
 
@@ -371,7 +442,7 @@ void LocalClient::composeEntityRenderData()
 			{
 				if (modelComponent->isVisible())
 				{
-					renderer->push(modelComponent->getModelInstance(), getActiveCamera(), modelComponent->getTransform());
+					renderer->push(modelComponent->getModel(), getActiveCamera(), modelComponent->getTransform(), modelComponent->getDepthBufferLayer());
 				}
 			}
 		}

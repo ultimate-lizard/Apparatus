@@ -13,6 +13,8 @@
 #include "Server/Server.h"
 #include "Client/Client.h"
 #include "Event/EventDispatcher.h"
+#include "Rendering/Sprite/Sprite.h"
+#include "Rendering/Sprite/SpriteRenderer.h"
 
 class LocalClient;
 
@@ -76,12 +78,11 @@ protected:
 	ClientType* createClient(Args&& ... args);
 
 	Renderer* getRenderer();
+	SpriteRenderer* getSpriteRenderer();
 
 private:
 	int initEngineInternal();
 	void startGameLoop();
-
-	void onWindowResized();
 
 	static Apparatus* apparatus;
 
@@ -94,6 +95,7 @@ private:
 	EventDispatcher eventDispatcher;
 
 	std::unique_ptr<Renderer> renderer;
+	std::unique_ptr<SpriteRenderer> spriteRenderer;
 
 	std::unique_ptr<Server> server;
 	std::vector<std::unique_ptr<Client>> clients;
