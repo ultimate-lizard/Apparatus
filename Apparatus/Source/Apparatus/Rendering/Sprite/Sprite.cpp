@@ -47,22 +47,22 @@ Texture* Sprite::getTexture()
     return texture;
 }
 
-void Sprite::setTexturePosition(const glm::ivec2& coordinates)
+void Sprite::setTexturePosition(const glm::vec2& coordinates)
 {
     this->texturePosition = coordinates;
 }
 
-const glm::ivec2& Sprite::getTexturePosition() const
+const glm::vec2& Sprite::getTexturePosition() const
 {
     return texturePosition;
 }
 
-void Sprite::setTextureSize(const glm::ivec2& size)
+void Sprite::setTextureSize(const glm::vec2& size)
 {
     this->textureBorderSize = size;
 }
 
-const glm::ivec2& Sprite::getTextureSize() const
+const glm::vec2& Sprite::getTextureSize() const
 {
     return textureBorderSize;
 }
@@ -77,22 +77,22 @@ const glm::vec4& Sprite::getColor() const
     return color;
 }
 
-void Sprite::setPosition(const glm::ivec2& position)
+void Sprite::setPosition(const glm::vec2& position)
 {
     this->position = position;
 }
 
-const glm::ivec2& Sprite::getPosition() const
+const glm::vec2& Sprite::getPosition() const
 {
     return position;
 }
 
-void Sprite::setSize(const glm::ivec2& scale)
+void Sprite::setSize(const glm::vec2& scale)
 {
     this->size = scale;
 }
 
-const glm::ivec2& Sprite::getSize() const
+const glm::vec2& Sprite::getSize() const
 {
     return size;
 }
@@ -116,17 +116,17 @@ void Sprite::updateMesh()
 {
     if (spriteMesh)
     {
-        const glm::ivec2 spriteSize = getSize();
-        const glm::ivec2 spritePosition = getPosition();
-        const glm::ivec2 texturePosition = getTexturePosition();
-        const glm::ivec2 textureBorderSize = getTextureSize();
+        const glm::vec2 spriteSize = glm::round(getSize());
+        const glm::vec2 spritePosition = glm::round(getPosition());
+        const glm::vec2 texturePosition = getTexturePosition();
+        const glm::vec2 textureBorderSize = getTextureSize();
         const glm::vec4 spriteColor = getColor();
         const float spriteDepth = getDepth();
 
-        const float textureMinX = static_cast<float>(texturePosition.x / textureBorderSize.x);
-        const float textureMinY = static_cast<float>(texturePosition.y / textureBorderSize.y);
-        const float textureMaxX = static_cast<float>((texturePosition.x + spriteSize.x) / textureBorderSize.x);
-        const float textureMaxY = static_cast<float>((texturePosition.y + spriteSize.y) / textureBorderSize.y);
+        const float textureMinX = texturePosition.x / textureBorderSize.x;
+        const float textureMinY = texturePosition.y / textureBorderSize.y;
+        const float textureMaxX = (texturePosition.x + spriteSize.x) / textureBorderSize.x;
+        const float textureMaxY = (texturePosition.y + spriteSize.y) / textureBorderSize.y;
 
         const std::vector<float> spriteVertices = {
             1.0f * spriteSize.x + spritePosition.x, 0.0f * spriteSize.y + spritePosition.y, spriteDepth, textureMaxX, textureMinY, spriteColor.x, spriteColor.y, spriteColor.z, spriteColor.w,

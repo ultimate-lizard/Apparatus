@@ -1,14 +1,12 @@
 #pragma once
 
 #include <Apparatus/Client/LocalClient.h>
-#include <Apparatus/Event/EventDispatcher.h>
+
 
 class EditorLocalClient : public LocalClient
 {
 public:
 	EditorLocalClient(Renderer* renderer, SpriteRenderer* spriteRenderer);
-
-	void onLightCreation(std::shared_ptr<LightComponentCreationEvent> event);
 
 protected:
 	virtual void init() override;

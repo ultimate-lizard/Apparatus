@@ -74,6 +74,8 @@ protected:
 
 	void composeEntityRenderData();
 
+	void onLightCreation(std::shared_ptr<LightComponentCreationEvent> event);
+
 	Renderer* renderer;
 	SpriteRenderer* spriteRenderer;
 

@@ -45,6 +45,7 @@ void LocalClient::init()
 	// Debug stuff
 	debugPrimitiveMaterial = Apparatus::getAssetManager().findAsset<Material>("Material_DebugPrimitive");
 
+	Apparatus::getEventDispatcher().bind<LightComponentCreationEvent>(std::bind(&LocalClient::onLightCreation, this, std::placeholders::_1));
 	Apparatus::getEventDispatcher().bind<WindowResizeEvent>(std::bind(&LocalClient::onWindowResize, this, std::placeholders::_1));
 
 	// UI stuff
@@ -92,6 +93,20 @@ void LocalClient::init()
 	//	ninePatch2->setVerticalAlignment(Panel::Alignment::Left);
 	//	ninePatch2->setHorizontalAlignment(Panel::Alignment::Fill);
 	//}
+}
+
+void LocalClient::onLightCreation(std::shared_ptr<LightComponentCreationEvent> event)
+{
+	if (renderer)
+	{
+		if (event)
+		{
+			if (LightComponent* pointLightComponent = event->getLightComponent())
+			{
+				renderer->addLight(&pointLightComponent->getLight());
+			}
+		}
+	}
 }
 
 void LocalClient::update(float dt)

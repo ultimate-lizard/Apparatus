@@ -11,12 +11,12 @@
 #include "Camera.h"
 #include "Shader.h"
 #include "Light.h"
-#include "Sprite.h"
+#include "Texture.h"
+#include "../Window.h"
+#include "../Core/Logger.h"
+#include "../Server/Entity.h"
 #include "../Components/ModelComponent.h"
 #include "../Components/TransformComponent.h"
-#include "../Server/Entity.h"
-#include "../Core/Logger.h"
-#include "../Window.h"
 
 void GLAPIENTRY
 MessageCallback(GLenum source,
@@ -64,7 +64,7 @@ void Renderer::init()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	glEnable(GL_CULL_FACE);
+	// glEnable(GL_CULL_FACE);
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

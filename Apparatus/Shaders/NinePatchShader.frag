@@ -1,6 +1,7 @@
 #version 330 core
 
 in vec2 texturePosition;
+in vec4 spriteColor;
 
 uniform sampler2D image;
 
@@ -24,28 +25,33 @@ void main()
 	vec2 texPos = texturePosition * texSize;
 	vec2 texturePositionShifted = texPos;
 
+	// TODO: FIX THE CORNERS
 	// Top Left
 	if (texPos.x <= left && texPos.y <= top)
 	{
-		gl_FragColor = texture(image, texturePosition);	
+		gl_FragColor = texture(image, texturePositionShifted / texSize);	
 	}
 	// Top Right
 	else if (texPos.x >= spriteSize.x - left && texPos.y <= top)
 	{
-		gl_FragColor = texture(image, texturePosition);	
+		texturePositionShifted.x = texturePositionShifted.x - spriteSize.x;
+		gl_FragColor = texture(image, texturePositionShifted / texSize);	
 	}
 	// Bottom left
 	else if (texPos.x <= left && texPos.y >= spriteSize.y - top)
 	{
-		gl_FragColor = texture(image, texturePosition);	
+		texturePositionShifted.y = texturePositionShifted.y - spriteSize.y;
+		gl_FragColor = texture(image, texturePositionShifted / texSize);	
 	}
 	// Bottom right
 	else if (texPos.x >= spriteSize.x - left && texPos.y >= spriteSize.y - top)
 	{
-		gl_FragColor = texture(image, texturePosition);	
+		texturePositionShifted.y = texturePositionShifted.y - spriteSize.y;
+		texturePositionShifted.x = texturePositionShifted.x - spriteSize.x;
+		gl_FragColor = texture(image, texturePositionShifted / texSize);	
 	}
 	// Top
-	else if (texPos.x >= left && texPos.y <= top)
+	if (texPos.x >= left && texPos.y <= top && texPos.x <= spriteSize.x - left)
 	{
 		texturePositionShifted.x = texturePositionShifted.x - left;
 
@@ -61,7 +67,7 @@ void main()
 		gl_FragColor = texture(image, vec2(mappedX, mappedY));	
 	}
 	// Bottom
-	else if (texPos.x >= left && texPos.y >= spriteSize.y - top)
+	else if (texPos.x >= left && texPos.x <= spriteSize.x - left && texPos.y >= spriteSize.y - top)
 	{
 		texturePositionShifted.x = texturePositionShifted.x - left;
 		texturePositionShifted.y = texturePositionShifted.y - spriteSize.y - top;
@@ -78,7 +84,7 @@ void main()
 		gl_FragColor = texture(image, vec2(mappedX, mappedY));	
 	}
 	// Left
-	else if (texPos.x <= left)
+	else if (texPos.x <= left && texPos.y >= top && texPos.y <= spriteSize.y - top)
 	{
 		texturePositionShifted.y = texturePositionShifted.y - top;
 
@@ -94,7 +100,7 @@ void main()
 		gl_FragColor = texture(image, vec2(mappedX, mappedY));	
 	}
 	// Right
-	else if (texPos.x >= spriteSize.x - left)
+	else if (texPos.x >= spriteSize.x - left && texPos.y >= top && texPos.y <= spriteSize.y - top)
 	{
 		texturePositionShifted.x = texturePositionShifted.x - spriteSize.x - left;
 		texturePositionShifted.y = texturePositionShifted.y - top;
@@ -125,6 +131,6 @@ void main()
 		float mappedX = map(fract(patchValue.x), 0.0, 1.0, patchStart.x / texSize.x, patchEnd.x / texSize.x);
 		float mappedY = map(fract(patchValue.y), 0.0, 1.0, patchStart.y / texSize.y, patchEnd.y / texSize.y);
 
-		gl_FragColor = texture(image, vec2(mappedX, mappedY));	
+		gl_FragColor = texture(image, vec2(mappedX, mappedY));
 	}
 }
