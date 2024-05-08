@@ -58,8 +58,8 @@ void EditorLocalClient::init()
 			sidePanel->setMargin(Panel::Side::Right, 16);
 			sidePanel->setSize({ 444, 444 });
 			sidePanel->setHorizontalAlignment(Panel::Alignment::Center);
-			//sidePanel->setVerticalAlignment(Panel::Alignment::Fill);
-			sidePanel->setPosition({ 0, 48 });
+			sidePanel->setVerticalAlignment(Panel::Alignment::Fill);
+			// sidePanel->setPosition({ 0, 48 });
 
 			if (NinePatchPanel* hole = uiContext.createPanel<NinePatchPanel>("Panel_TopPanel3", holeTex))
 			{

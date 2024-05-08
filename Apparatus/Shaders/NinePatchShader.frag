@@ -25,46 +25,49 @@ void main()
 	vec2 texPos = texturePosition * texSize;
 	vec2 texturePositionShifted = texPos;
 
-	// TODO: FIX THE CORNERS
+	vec2 patchValue;
+	vec2 patchStart;
+	vec2 patchEnd;
+
 	// Top Left
 	if (texPos.x <= left && texPos.y <= top)
 	{
 		gl_FragColor = texture(image, texturePositionShifted / texSize);	
+		return;
 	}
 	// Top Right
 	else if (texPos.x >= spriteSize.x - left && texPos.y <= top)
 	{
 		texturePositionShifted.x = texturePositionShifted.x - spriteSize.x;
 		gl_FragColor = texture(image, texturePositionShifted / texSize);	
+		return;
 	}
 	// Bottom left
 	else if (texPos.x <= left && texPos.y >= spriteSize.y - top)
 	{
 		texturePositionShifted.y = texturePositionShifted.y - spriteSize.y;
-		gl_FragColor = texture(image, texturePositionShifted / texSize);	
+		gl_FragColor = texture(image, texturePositionShifted / texSize);
+		return;
 	}
 	// Bottom right
 	else if (texPos.x >= spriteSize.x - left && texPos.y >= spriteSize.y - top)
 	{
+		// I don't really know why this offsetting works, but there might be a more logical one
 		texturePositionShifted.y = texturePositionShifted.y - spriteSize.y;
 		texturePositionShifted.x = texturePositionShifted.x - spriteSize.x;
-		gl_FragColor = texture(image, texturePositionShifted / texSize);	
+		gl_FragColor = texture(image, texturePositionShifted / texSize);
+		return;
 	}
 	// Top
-	if (texPos.x >= left && texPos.y <= top && texPos.x <= spriteSize.x - left)
+	else if (texPos.x >= left && texPos.y <= top && texPos.x <= spriteSize.x - left)
 	{
 		texturePositionShifted.x = texturePositionShifted.x - left;
 
 		vec2 patchSize = vec2(texSize.x - left - right, top);
-		vec2 patchValue = texturePositionShifted / patchSize;
+		patchValue = texturePositionShifted / patchSize;
 
-		vec2 patchStart = vec2(left, 0.0);
-		vec2 patchEnd = vec2(texSize.x - left, top);
-
-		float mappedX = map(fract(patchValue.x), 0.0, 1.0, patchStart.x / texSize.x, patchEnd.x / texSize.x);
-		float mappedY = map(fract(patchValue.y), 0.0, 1.0, patchStart.y / texSize.y, patchEnd.y / texSize.y);
-
-		gl_FragColor = texture(image, vec2(mappedX, mappedY));	
+		patchStart = vec2(left, 0.0);
+		patchEnd = vec2(texSize.x - left, top);
 	}
 	// Bottom
 	else if (texPos.x >= left && texPos.x <= spriteSize.x - left && texPos.y >= spriteSize.y - top)
@@ -73,15 +76,10 @@ void main()
 		texturePositionShifted.y = texturePositionShifted.y - spriteSize.y - top;
 
 		vec2 patchSize = vec2(texSize.x - left - right, bottom);
-		vec2 patchValue = texturePositionShifted / patchSize;
+		patchValue = texturePositionShifted / patchSize;
 
-		vec2 patchStart = vec2(left, texSize.y - top);
-		vec2 patchEnd = vec2(texSize.x - left, texSize.y);
-
-		float mappedX = map(fract(patchValue.x), 0.0, 1.0, patchStart.x / texSize.x, patchEnd.x / texSize.x);
-		float mappedY = map(fract(patchValue.y), 0.0, 1.0, patchStart.y / texSize.y, patchEnd.y / texSize.y);
-
-		gl_FragColor = texture(image, vec2(mappedX, mappedY));	
+		patchStart = vec2(left, texSize.y - top);
+		patchEnd = vec2(texSize.x - left, texSize.y);
 	}
 	// Left
 	else if (texPos.x <= left && texPos.y >= top && texPos.y <= spriteSize.y - top)
@@ -89,15 +87,10 @@ void main()
 		texturePositionShifted.y = texturePositionShifted.y - top;
 
 		vec2 patchSize = vec2(left, texSize.y - top - bottom);
-		vec2 patchValue = texturePositionShifted / patchSize;
+		patchValue = texturePositionShifted / patchSize;
 
-		vec2 patchStart = vec2(0.0f, top);
-		vec2 patchEnd = vec2(left, texSize.y - top);
-
-		float mappedX = map(fract(patchValue.x), 0.0, 1.0, patchStart.x / texSize.x, patchEnd.x / texSize.x);
-		float mappedY = map(fract(patchValue.y), 0.0, 1.0, patchStart.y / texSize.y, patchEnd.y / texSize.y);
-
-		gl_FragColor = texture(image, vec2(mappedX, mappedY));	
+		patchStart = vec2(0.0f, top);
+		patchEnd = vec2(left, texSize.y - top);
 	}
 	// Right
 	else if (texPos.x >= spriteSize.x - left && texPos.y >= top && texPos.y <= spriteSize.y - top)
@@ -106,15 +99,10 @@ void main()
 		texturePositionShifted.y = texturePositionShifted.y - top;
 
 		vec2 patchSize = vec2(right, texSize.y - top - bottom);
-		vec2 patchValue = texturePositionShifted / patchSize;
+		patchValue = texturePositionShifted / patchSize;
 
-		vec2 patchStart = vec2(texSize.x - left, top);
-		vec2 patchEnd = vec2(texSize.x, texSize.y - top);
-
-		float mappedX = map(fract(patchValue.x), 0.0, 1.0, patchStart.x / texSize.x, patchEnd.x / texSize.x);
-		float mappedY = map(fract(patchValue.y), 0.0, 1.0, patchStart.y / texSize.y, patchEnd.y / texSize.y);
-
-		gl_FragColor = texture(image, vec2(mappedX, mappedY));	
+		patchStart = vec2(texSize.x - left, top);
+		patchEnd = vec2(texSize.x, texSize.y - top);
 	}
 	// Center
 	else if (texPos.x >= left && texPos.x <= spriteSize.x - left && texPos.y >= top && texPos.y <= spriteSize.y - top)
@@ -123,14 +111,14 @@ void main()
 		texturePositionShifted.y = texturePositionShifted.y - top;
 
 		vec2 patchSize = vec2(texSize.x - left - right, texSize.y - top - bottom);
-		vec2 patchValue = texturePositionShifted / patchSize;
+		patchValue = texturePositionShifted / patchSize;
 
-		vec2 patchStart = vec2(left, top);
-		vec2 patchEnd = vec2(texSize.x - left, texSize.y - top);
-
-		float mappedX = map(fract(patchValue.x), 0.0, 1.0, patchStart.x / texSize.x, patchEnd.x / texSize.x);
-		float mappedY = map(fract(patchValue.y), 0.0, 1.0, patchStart.y / texSize.y, patchEnd.y / texSize.y);
-
-		gl_FragColor = texture(image, vec2(mappedX, mappedY));
+		patchStart = vec2(left, top);
+		patchEnd = vec2(texSize.x - left, texSize.y - top);
 	}
+
+	float mappedX = map(fract(patchValue.x), 0.0, 1.0, patchStart.x / texSize.x, patchEnd.x / texSize.x);
+	float mappedY = map(fract(patchValue.y), 0.0, 1.0, patchStart.y / texSize.y, patchEnd.y / texSize.y);
+
+	gl_FragColor = texture(image, vec2(mappedX, mappedY));
 }
