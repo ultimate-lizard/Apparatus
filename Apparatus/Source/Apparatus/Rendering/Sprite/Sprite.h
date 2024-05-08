@@ -24,20 +24,20 @@ public:
 	void setTexture(Texture* texture);
 	Texture* getTexture();
 
-	void setTexturePosition(const glm::vec2& coordinates);
-	const glm::vec2& getTexturePosition() const;
+	void setTexturePosition(const glm::ivec2& coordinates);
+	const glm::ivec2& getTexturePosition() const;
 
-	void setTextureSize(const glm::vec2& size);
-	const glm::vec2& getTextureSize() const;
+	void setTextureSize(const glm::ivec2& size);
+	const glm::ivec2& getTextureSize() const;
 
 	void setColor(const glm::vec4& color);
 	const glm::vec4& getColor() const;
 
-	void setPosition(const glm::vec2& position);
-	const glm::vec2& getPosition() const;
+	void setPosition(const glm::ivec2& position);
+	const glm::ivec2& getPosition() const;
 
-	void setSize(const glm::vec2& scale);
-	const glm::vec2& getSize() const;
+	void setSize(const glm::ivec2& scale);
+	const glm::ivec2& getSize() const;
 	
 	void setDepth(float depth);
 	float getDepth() const;
@@ -50,12 +50,12 @@ private:
 	Material* material;
 	Texture* texture;
 
-	glm::vec2 position;
-	glm::vec2 size;
+	glm::ivec2 position;
+	glm::ivec2 size;
 	float depth;
 
-	glm::vec2 texturePosition;
-	glm::vec2 textureBorderSize;
+	glm::ivec2 texturePosition;
+	glm::ivec2 textureBorderSize;
 
 	glm::vec4 color;
 

@@ -53,42 +53,42 @@ Material* Panel::getMaterial()
     return sprite.getMaterial();
 }
 
-void Panel::setPosition(const glm::vec2& position)
+void Panel::setPosition(const glm::ivec2& position)
 {
     this->position = position;
 }
 
-const glm::vec2& Panel::getPosition() const
+const glm::ivec2& Panel::getPosition() const
 {
     return position;
 }
 
-void Panel::setSize(const glm::vec2& size)
+void Panel::setSize(const glm::ivec2& size)
 {
     this->size = size;
 }
 
-const glm::vec2& Panel::getSize() const
+const glm::ivec2& Panel::getSize() const
 {
     return size;
 }
 
-void Panel::setTexturePosition(const glm::vec2& texturePosition)
+void Panel::setTexturePosition(const glm::ivec2& texturePosition)
 {
     sprite.setTexturePosition(texturePosition);
 }
 
-glm::vec2 Panel::getTexturePosition() const
+glm::ivec2 Panel::getTexturePosition() const
 {
     return sprite.getTexturePosition();
 }
 
-void Panel::setTextureSize(const glm::vec2& textureSize)
+void Panel::setTextureSize(const glm::ivec2& textureSize)
 {
     sprite.setTextureSize(textureSize);
 }
 
-glm::vec2 Panel::getTextureSize() const
+glm::ivec2 Panel::getTextureSize() const
 {
     return sprite.getTextureSize();
 }
@@ -163,11 +163,11 @@ int Panel::getPadding(Side side) const
     return paddings[static_cast<size_t>(side)];
 }
 
-glm::vec2 Panel::calculateSpritePosition() const
+glm::ivec2 Panel::calculateSpritePosition() const
 {
-    glm::vec2 position = getPosition();
+    glm::ivec2 position = getPosition();
 
-    glm::vec2 parentSize = Apparatus::getWindow().getWindowSize();
+    glm::ivec2 parentSize = Apparatus::getWindow().getWindowSize();
 
     if (parent)
     {
@@ -245,11 +245,11 @@ glm::vec2 Panel::calculateSpritePosition() const
     return position;
 }
 
-glm::vec2 Panel::calculateSpriteSize() const
+glm::ivec2 Panel::calculateSpriteSize() const
 {
-    glm::vec2 size = getSize();
+    glm::ivec2 size = getSize();
 
-    glm::vec2 parentSize = Apparatus::getWindow().getWindowSize();
+    glm::ivec2 parentSize = Apparatus::getWindow().getWindowSize();
 
     if (parent)
     {

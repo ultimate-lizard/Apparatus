@@ -42,17 +42,17 @@ public:
 	void setMaterial(Material* material);
 	Material* getMaterial();
 
-	void setPosition(const glm::vec2& position);
-	const glm::vec2& getPosition() const;
+	void setPosition(const glm::ivec2& position);
+	const glm::ivec2& getPosition() const;
 
-	void setSize(const glm::vec2& size);
-	const glm::vec2& getSize() const;
+	void setSize(const glm::ivec2& size);
+	const glm::ivec2& getSize() const;
 
-	void setTexturePosition(const glm::vec2& texturePosition);
-	glm::vec2 getTexturePosition() const;
+	void setTexturePosition(const glm::ivec2& texturePosition);
+	glm::ivec2 getTexturePosition() const;
 
-	void setTextureSize(const glm::vec2& textureSize);
-	glm::vec2 getTextureSize() const;
+	void setTextureSize(const glm::ivec2& textureSize);
+	glm::ivec2 getTextureSize() const;
 
 	void setDepth(float depth);
 	float getDepth() const;
@@ -73,16 +73,16 @@ public:
 	virtual void refresh();
 
 protected:
-	glm::vec2 calculateSpritePosition() const;
-	glm::vec2 calculateSpriteSize() const;
+	glm::ivec2 calculateSpritePosition() const;
+	glm::ivec2 calculateSpriteSize() const;
 
 	Sprite sprite;
 
 	std::vector<Panel*> children;
 	Panel* parent;
 
-	glm::vec2 position;
-	glm::vec2 size;
+	glm::ivec2 position;
+	glm::ivec2 size;
 
 	Alignment horizontalAlignment;
 	Alignment verticalAlignment;

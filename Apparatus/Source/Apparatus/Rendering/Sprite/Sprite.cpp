@@ -47,22 +47,22 @@ Texture* Sprite::getTexture()
     return texture;
 }
 
-void Sprite::setTexturePosition(const glm::vec2& coordinates)
+void Sprite::setTexturePosition(const glm::ivec2& coordinates)
 {
     this->texturePosition = coordinates;
 }
 
-const glm::vec2& Sprite::getTexturePosition() const
+const glm::ivec2& Sprite::getTexturePosition() const
 {
     return texturePosition;
 }
 
-void Sprite::setTextureSize(const glm::vec2& size)
+void Sprite::setTextureSize(const glm::ivec2& size)
 {
     this->textureBorderSize = size;
 }
 
-const glm::vec2& Sprite::getTextureSize() const
+const glm::ivec2& Sprite::getTextureSize() const
 {
     return textureBorderSize;
 }
@@ -77,22 +77,22 @@ const glm::vec4& Sprite::getColor() const
     return color;
 }
 
-void Sprite::setPosition(const glm::vec2& position)
+void Sprite::setPosition(const glm::ivec2& position)
 {
     this->position = position;
 }
 
-const glm::vec2& Sprite::getPosition() const
+const glm::ivec2& Sprite::getPosition() const
 {
     return position;
 }
 
-void Sprite::setSize(const glm::vec2& scale)
+void Sprite::setSize(const glm::ivec2& scale)
 {
     this->size = scale;
 }
 
-const glm::vec2& Sprite::getSize() const
+const glm::ivec2& Sprite::getSize() const
 {
     return size;
 }
@@ -116,8 +116,8 @@ void Sprite::updateMesh()
 {
     if (spriteMesh)
     {
-        const glm::vec2 spriteSize = glm::round(getSize());
-        const glm::vec2 spritePosition = glm::round(getPosition());
+        const glm::vec2 spriteSize = getSize();
+        const glm::vec2 spritePosition = getPosition();
         const glm::vec2 texturePosition = getTexturePosition();
         const glm::vec2 textureBorderSize = getTextureSize();
         const glm::vec4 spriteColor = getColor();
