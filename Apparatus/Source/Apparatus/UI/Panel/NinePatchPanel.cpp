@@ -3,8 +3,7 @@
 #include "../../Rendering/Material.h"
 #include "../../Apparatus.h"
 
-NinePatchPanel::NinePatchPanel(Material* material, Texture* texture) :
-	Panel(material, texture),
+NinePatchPanel::NinePatchPanel() :
 	borders({})
 {
 
@@ -24,18 +23,22 @@ void NinePatchPanel::refresh()
 {
 	Panel::refresh();
 
-	if (Material* spriteMaterial = getMaterial())
+	if (sprite)
 	{
-		MaterialParameters& params = spriteMaterial->getParameters();
+		if (Material* spriteMaterial = sprite->getMaterial())
+		{
+			MaterialParameters& params = spriteMaterial->getParameters();
 
-		glm::ivec4 borders;
-		borders.x = getBorder(Panel::Side::Left);
-		borders.y = getBorder(Panel::Side::Right);
-		borders.z = getBorder(Panel::Side::Top);
-		borders.w = getBorder(Panel::Side::Bottom);
+			glm::ivec4 borders;
+			borders.x = getBorder(Panel::Side::Left);
+			borders.y = getBorder(Panel::Side::Right);
+			borders.z = getBorder(Panel::Side::Top);
+			borders.w = getBorder(Panel::Side::Bottom);
 
-		params.setVec4("borders", borders);
-		params.setVec2("textureBorderSize", getTextureSize());
-		params.setVec2("spriteSize", calculateSpriteSize());
+			params.setVec4("borders", borders);
+
+			params.setVec2("textureBorderSize", sprite->getTextureSize());
+			params.setVec2("spriteSize", getGlobalSize());
+		}
 	}
 }

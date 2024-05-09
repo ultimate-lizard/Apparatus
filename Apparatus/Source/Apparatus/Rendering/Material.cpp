@@ -7,6 +7,7 @@
 #include "../Core/AssetManager.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "TextureArray.h"
 #include "../Apparatus.h"
 
 static std::map<std::string, size_t> instanceCount;
@@ -57,6 +58,11 @@ void Material::createTextureParameter(const std::string& name, Texture* defaultV
 	parameters.createTexture(name, defaultValue);
 }
 
+void Material::createTextureArrayParameter(const std::string& name, TextureArray* defaultValue)
+{
+    parameters.createTextureArray(name, defaultValue);
+}
+
 MaterialParameters& Material::getParameters()
 {
 	return parameters;
@@ -73,4 +79,63 @@ Material* Material::createInstance()
 	instanceCount[getAssetName()] += 1;
 
 	return newMaterial;
+}
+
+void Material::submitUniforms()
+{
+    if (!shader)
+    {
+        return;
+    }
+
+    shader->bind();
+
+    MaterialParameters& params = getParameters();
+
+    for (auto mapIter : params.getAllBoolParameters())
+    {
+        shader->setUniform(mapIter.first, mapIter.second);
+    }
+
+    for (auto mapIter : params.getAllFloatParameters())
+    {
+        shader->setUniform(mapIter.first, mapIter.second);
+    }
+
+    for (auto mapIter : params.getAllVec2Parameters())
+    {
+        shader->setUniform(mapIter.first, mapIter.second);
+    }
+
+    for (auto mapIter : params.getAllVec3Parameters())
+    {
+        shader->setUniform(mapIter.first, mapIter.second);
+    }
+
+    for (auto mapIter : params.getAllVec4Parameters())
+    {
+        shader->setUniform(mapIter.first, mapIter.second);
+    }
+
+    int textureIndex = 0;
+    for (auto mapIter : params.getAllTextureParameters())
+    {
+        if (Texture* texture = mapIter.second)
+        {
+            glActiveTexture(GL_TEXTURE0 + textureIndex);
+            texture->bind();
+            textureIndex++;
+        }
+    }
+
+    int textureAtlasIndex = 0;
+    for (auto mapIter : params.getAllTextureArrayParameters())
+    {
+        if (TextureArray* texture = mapIter.second)
+        {
+            // glActiveTexture(GL_TEXTURE0 + textureAtlasIndex);
+            texture->bind();
+            textureAtlasIndex++;
+        }
+    }
 }

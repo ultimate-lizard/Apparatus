@@ -1,7 +1,13 @@
 #include "UIContext.h"
 
+#include <freetype/freetype.h>
+#include FT_FREETYPE_H  
+
 #include "../Apparatus.h"
 #include "../Rendering/Material.h"
+#include "../Rendering/TextureArray.h"
+#include "../Rendering/Sprite/Sprite.h"
+#include "../Rendering/Sprite/TextBlock.h"
 #include "../Core/TextureImporter.h"
 #include "Panel/NinePatchPanel.h"
 
@@ -19,6 +25,7 @@ void UIContext::init()
 		{
 			spriteMaterial->setShader(spriteShader);
 			spriteMaterial->createTextureParameter("spriteTexture", nullptr);
+			spriteMaterial->createVec4Parameter("spriteColor", glm::vec4(0.0f));
 
 			materialsMap.emplace(typeid(Panel), spriteMaterial);
 		}
@@ -33,8 +40,21 @@ void UIContext::init()
 			ninePatchMaterial->createVec2Parameter("textureBorderSize", glm::vec4(0.0f));
 			ninePatchMaterial->createVec2Parameter("spriteSize", glm::vec4(0.0f));
 			ninePatchMaterial->createTextureParameter("spriteTexture", nullptr);
+			ninePatchMaterial->createVec4Parameter("spriteColor", glm::vec4(0.0f));
 
 			materialsMap.emplace(typeid(NinePatchPanel), ninePatchMaterial);
+		}
+	}
+
+	if (Shader* textShader = Apparatus::getAssetManager().createAsset<Shader>("Shader_Text", "../Shaders/SpriteDefault.vert", "../Shaders/Text.frag"))
+	{
+		if (Material* textMaterial = Apparatus::getAssetManager().createAsset<Material>("Material_Text"))
+		{
+			textMaterial->setShader(textShader);
+			textMaterial->createTextureArrayParameter("textTextureArray", nullptr);
+			textMaterial->createVec4Parameter("spriteColor", glm::vec4(0.0f));
+
+			materialsMap.emplace(typeid(TextBlock), textMaterial);
 		}
 	}
 }
@@ -45,8 +65,8 @@ void UIContext::pushContextToRender(SpriteRenderer* renderer)
 	{
 		if (Panel* panel = iter->get())
 		{
-			panel->refresh();
-			panel->pushToRenderer(renderer);
+			// panel->refresh();
+			// panel->pushToRenderer(renderer);
 		}
 	}
 }

@@ -5,13 +5,13 @@
 class NinePatchPanel : public Panel
 {
 public:
-	NinePatchPanel(Material* material, Texture* texture);
+	NinePatchPanel();
 
 	void setBorder(Side side, int border);
 	int getBorder(Side side) const;
 
-private:
 	virtual void refresh() override;
 
+private:
 	std::array<int, 4> borders;
 };

@@ -1,13 +1,13 @@
 #version 330 core
 
 in vec2 texturePosition;
-in vec4 spriteColor;
 
 uniform sampler2D image;
 
 uniform vec4 borders;
 uniform vec2 textureBorderSize;
 uniform vec2 spriteSize;
+uniform vec4 spriteColor;
 
 float map(float value, float min1, float max1, float min2, float max2) {
   return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
@@ -120,5 +120,6 @@ void main()
 	float mappedX = map(fract(patchValue.x), 0.0, 1.0, patchStart.x / texSize.x, patchEnd.x / texSize.x);
 	float mappedY = map(fract(patchValue.y), 0.0, 1.0, patchStart.y / texSize.y, patchEnd.y / texSize.y);
 
-	gl_FragColor = texture(image, vec2(mappedX, mappedY));
+	vec4 resultColor = texture(image, vec2(mappedX, mappedY));
+	gl_FragColor = mix(resultColor, spriteColor, spriteColor.w);
 }

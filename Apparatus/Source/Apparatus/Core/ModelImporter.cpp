@@ -181,12 +181,12 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 		if (Material* newMaterial = assetManager->createAsset<Material>(std::string(materialName.C_Str())))
 		{
 			newMaterial->setShader(shader);
-			newMaterial->createBoolParameter("selected", false);
-			newMaterial->createVec4Parameter("selectionColor", { 1.0f, 0.0f, 0.0f, 1.0f });
+			newMaterial->createBoolParameter("material.selected", false);
+			newMaterial->createVec4Parameter("material.selectionColor", { 1.0f, 0.0f, 0.0f, 1.0f });
 
 			aiColor3D diffuseColor;
 			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
-			newMaterial->createVec3Parameter("color", { diffuseColor.r, diffuseColor.g, diffuseColor.b });
+			newMaterial->createVec3Parameter("material.color", { diffuseColor.r, diffuseColor.g, diffuseColor.b });
 
 			aiColor3D specularColor;
 			aiMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
@@ -198,9 +198,9 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 			aiMaterial->Get(AI_MATKEY_SHININESS_STRENGTH, shininessStrength);
 
 			// TODO: This will be replaced by the specular map in the future
-			newMaterial->createVec3Parameter("specular", glm::vec3(specularColor.r * shininessStrength, specularColor.g * shininessStrength, specularColor.b * shininessStrength));
+			newMaterial->createVec3Parameter("material.specular", glm::vec3(specularColor.r * shininessStrength, specularColor.g * shininessStrength, specularColor.b * shininessStrength));
 
-			newMaterial->createFloatParameter("shininess", shininess);
+			newMaterial->createFloatParameter("material.shininess", shininess);
 
 			for (unsigned int i = 0; i < aiMaterial->GetTextureCount(aiTextureType_DIFFUSE); ++i)
 			{
@@ -215,7 +215,7 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 					{
 						if (Texture* newTexture = assetManager->createAsset<Texture>(std::move(newTexturePtr)))
 						{
-							newMaterial->createTextureParameter("diffuseTexture", newTexture);
+							newMaterial->createTextureParameter("material.diffuseTexture", newTexture);
 						}
 					}
 				}

@@ -13,7 +13,7 @@ void SpriteRenderer::setActiveCamera(Camera* camera)
     activeCamera = camera;
 }
 
-void SpriteRenderer::push(Sprite* sprite)
+void SpriteRenderer::push(Drawable* sprite)
 {
     commands.push(sprite);
 }
@@ -29,7 +29,7 @@ void SpriteRenderer::render()
 
     while (!commands.empty())
     {
-        Sprite* sprite = commands.front();
+        Drawable* sprite = commands.front();
         commands.pop();
 
         if (!sprite)
@@ -39,48 +39,12 @@ void SpriteRenderer::render()
 
         if (Material* spriteMaterial = sprite->getMaterial())
         {
+            spriteMaterial->submitUniforms();
+
             if (Shader* spriteShader = spriteMaterial->getShader())
             {
                 spriteShader->bind();
                 spriteShader->setUniform("projection", activeCamera->getProjection());
-
-                MaterialParameters& params = spriteMaterial->getParameters();
-
-                for (auto mapIter : params.getAllBoolParameters())
-                {
-                    spriteShader->setUniform(mapIter.first, mapIter.second);
-                }
-
-                for (auto mapIter : params.getAllFloatParameters())
-                {
-                    spriteShader->setUniform(mapIter.first, mapIter.second);
-                }
-
-                for (auto mapIter : params.getAllVec2Parameters())
-                {
-                    spriteShader->setUniform(mapIter.first, mapIter.second);
-                }
-
-                for (auto mapIter : params.getAllVec3Parameters())
-                {
-                    spriteShader->setUniform(mapIter.first, mapIter.second);
-                }
-
-                for (auto mapIter : params.getAllVec4Parameters())
-                {
-                    spriteShader->setUniform(mapIter.first, mapIter.second);
-                }
-
-                int textureIndex = 0;
-                for (auto mapIter : params.getAllTextureParameters())
-                {
-                    if (Texture* texture = mapIter.second)
-                    {
-                        glActiveTexture(GL_TEXTURE0 + textureIndex);
-                        texture->bind();
-                        textureIndex++;
-                    }
-                }
 
                 if (SpriteMesh* spriteMesh = sprite->getSpriteMesh())
                 {

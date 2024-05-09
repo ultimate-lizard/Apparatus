@@ -8,6 +8,8 @@ public:
 	Importer();
 	virtual ~Importer() = default;
 
+	virtual void init() {};
+
 protected:
 	AssetManager* assetManager;
 

@@ -12,6 +12,7 @@
 
 class Shader;
 class Texture;
+class TextureArray;
 
 class Material : public Asset
 {
@@ -34,10 +35,13 @@ public:
 	void createVec3Parameter(const std::string& name, const glm::vec3& defaultValue);
 	void createVec4Parameter(const std::string& name, const glm::vec4& defaultValue);
 	void createTextureParameter(const std::string& name, Texture* defaultValue);
+	void createTextureArrayParameter(const std::string& name, TextureArray* defaultValue);
 
 	MaterialParameters& getParameters();
 
 	Material* createInstance();
+
+	void submitUniforms();
 
 private:
 	Shader* shader;

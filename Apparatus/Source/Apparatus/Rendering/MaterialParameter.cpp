@@ -120,6 +120,26 @@ Texture* MaterialParameters::getTexture(const std::string& name)
     return nullptr;
 }
 
+void MaterialParameters::setTextureArray(const std::string& name, TextureArray* texture)
+{
+    auto iter = textureArrayMap.find(name);
+    if (iter != textureArrayMap.end())
+    {
+        textureArrayMap[name] = texture;
+    }
+}
+
+TextureArray* MaterialParameters::getTextureArray(const std::string& name)
+{
+    auto iter = textureArrayMap.find(name);
+    if (iter != textureArrayMap.end())
+    {
+        return iter->second;
+    }
+
+    return nullptr;
+}
+
 const std::map<std::string, bool>& MaterialParameters::getAllBoolParameters()
 {
     return boolMap;
@@ -150,6 +170,11 @@ const std::map<std::string, Texture*>& MaterialParameters::getAllTextureParamete
     return textureMap;
 }
 
+const std::map<std::string, TextureArray*>& MaterialParameters::getAllTextureArrayParameters()
+{
+    return textureArrayMap;
+}
+
 void MaterialParameters::createBool(const std::string& name, bool defaultValue)
 {
     boolMap.emplace(name, defaultValue);
@@ -178,4 +203,9 @@ void MaterialParameters::createVec4(const std::string& name, const glm::vec4& de
 void MaterialParameters::createTexture(const std::string& name, Texture* defaultValue)
 {
     textureMap.emplace(name, defaultValue);
+}
+
+void MaterialParameters::createTextureArray(const std::string& name, TextureArray* defaultValue)
+{
+    textureArrayMap.emplace(name, defaultValue);
 }

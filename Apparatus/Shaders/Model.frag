@@ -11,7 +11,7 @@ uniform vec3 cameraPos;
 
 struct Material
 {
-	sampler2D diffuseMap;
+	sampler2D diffuseTexture;
 	vec3 specular;
 	float shininess;
 
@@ -61,7 +61,7 @@ void main()
 {
 	fragNormalWorld = normalize(fragTransform * vec4(fragNormal, 0.0)).xyz;
 
-	vec4 objectColor = texture(material.diffuseMap, texPos);
+	vec4 objectColor = texture(material.diffuseTexture, texPos);
 
 	vec3 resultColor = vec3(0.0, 0.0, 0.0);
 
@@ -96,12 +96,12 @@ void main()
 
 vec3 calculateDirectionalLight(Light inLight, Material inMaterial)
 {
-	vec3 ambientColor = inLight.color * vec3(texture(inMaterial.diffuseMap, texPos));
+	vec3 ambientColor = inLight.color * vec3(texture(inMaterial.diffuseTexture, texPos));
 
 	vec3 lightDir = normalize(-inLight.direction);
 
 	float diffuseValue = max(dot(fragNormalWorld, lightDir), 0.0);
-	vec3 diffuseColor = inLight.color * (diffuseValue * vec3(texture(inMaterial.diffuseMap, texPos)));
+	vec3 diffuseColor = inLight.color * (diffuseValue * vec3(texture(inMaterial.diffuseTexture, texPos)));
 
 	vec3 viewDir = normalize(cameraPos - fragPos);
 	vec3 reflectionDir = reflect(-lightDir, fragNormalWorld);
@@ -122,8 +122,8 @@ vec3 calculatePointLight(Light inLight, Material inMaterial)
 
 	float attenuation = pow(smoothstep(inLight.radius, 0, length(inLight.position - fragPos)), inLight.compression);
 
-	vec3 ambientColor = inLight.color * vec3(texture(inMaterial.diffuseMap, texPos));
-	vec3 diffuseColor = inLight.color * (diffuseValue * vec3(texture(inMaterial.diffuseMap, texPos)));
+	vec3 ambientColor = inLight.color * vec3(texture(inMaterial.diffuseTexture, texPos));
+	vec3 diffuseColor = inLight.color * (diffuseValue * vec3(texture(inMaterial.diffuseTexture, texPos)));
 	vec3 specularColor = inLight.color * (specularValue * inMaterial.specular);
 
 	ambientColor *= attenuation;
@@ -148,8 +148,8 @@ vec3 calculateSpotLight(Light inLight, Material inMaterial)
 	float epsilon = inLight.cutOff - inLight.outerCutOff;
 	float intensity = clamp((theta - inLight.outerCutOff) / epsilon, 0.0, 1.0);
 
-	vec3 ambientColor = inLight.color * vec3(texture(inMaterial.diffuseMap, texPos));
-	vec3 diffuseColor = inLight.color * (diffuseValue * vec3(texture(inMaterial.diffuseMap, texPos)));
+	vec3 ambientColor = inLight.color * vec3(texture(inMaterial.diffuseTexture, texPos));
+	vec3 diffuseColor = inLight.color * (diffuseValue * vec3(texture(inMaterial.diffuseTexture, texPos)));
 	vec3 specularColor = inLight.color * (specularValue * inMaterial.specular);
 
 	ambientColor *= attenuation * intensity;

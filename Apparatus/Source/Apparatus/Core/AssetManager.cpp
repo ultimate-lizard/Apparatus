@@ -2,6 +2,7 @@
 
 #include "ModelImporter.h"
 #include "TextureImporter.h"
+#include "FontImporter.h"
 
 AssetManager::AssetManager()
 {
@@ -9,6 +10,16 @@ AssetManager::AssetManager()
 	importers.back().get()->assetManager = this;
 	importers.push_back(std::make_unique<TextureImporter>());
 	importers.back().get()->assetManager = this;
+	importers.push_back(std::make_unique<FontImporter>());
+	importers.back().get()->assetManager = this;
+
+	for (auto& importer : importers)
+	{
+		if (importer)
+		{
+			importer->init();
+		}
+	}
 }
 
 void AssetManager::initAssets()

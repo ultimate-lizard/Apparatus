@@ -10,8 +10,9 @@
 
 class Material;
 class SpriteRenderer;
+class TextBlock;
 
-class Panel
+class Widget
 {
 public:
 	enum class Side
@@ -31,34 +32,21 @@ public:
 		Fill
 	};
 
-	Panel(Material* material, Texture* texture);
+	Widget();
+	virtual ~Widget() = default;
 
-	Panel* getParent();
-	void addChild(Panel* child);
+	virtual void refresh();
 
-	void setTexture(Texture* texture);
-	Texture* getTexture();
+	virtual glm::ivec2 getGlobalPosition() const;
+	virtual glm::ivec2 getGlobalSize() const = 0;
 
-	void setMaterial(Material* material);
-	Material* getMaterial();
+	Widget* getParent();
+	virtual void addChild(Widget* child);
+	Widget* getChild(size_t index) const;
+	size_t getChildrenCount() const;
 
 	void setPosition(const glm::ivec2& position);
 	const glm::ivec2& getPosition() const;
-
-	void setSize(const glm::ivec2& size);
-	const glm::ivec2& getSize() const;
-
-	void setTexturePosition(const glm::ivec2& texturePosition);
-	glm::ivec2 getTexturePosition() const;
-
-	void setTextureSize(const glm::ivec2& textureSize);
-	glm::ivec2 getTextureSize() const;
-
-	void setDepth(float depth);
-	float getDepth() const;
-
-	void setColor(const glm::vec4& color);
-	glm::vec4 getColor() const;
 
 	void setHorizontalAlignment(Alignment alignment);
 	void setVerticalAlignment(Alignment alignment);
@@ -69,24 +57,67 @@ public:
 	void setPadding(Side side, int padding);
 	int getPadding(Side side) const;
 
-	void pushToRenderer(SpriteRenderer* renderer);
-	virtual void refresh();
+	void render(SpriteRenderer* renderer);
 
 protected:
-	glm::ivec2 calculateSpritePosition() const;
-	glm::ivec2 calculateSpriteSize() const;
-
-	Sprite sprite;
-
-	std::vector<Panel*> children;
-	Panel* parent;
+	std::vector<Widget*> children;
+	Widget* parent;
 
 	glm::ivec2 position;
-	glm::ivec2 size;
 
 	Alignment horizontalAlignment;
 	Alignment verticalAlignment;
 
 	std::array<int, 4> margins;
 	std::array<int, 4> paddings;
+};
+
+class SizeWidget : public Widget
+{
+public:
+	virtual glm::ivec2 getGlobalSize() const override;
+
+	void setSize(const glm::ivec2& size);
+	const glm::ivec2& getSize() const;
+
+protected:
+	glm::ivec2 size;
+};
+
+class Panel : public SizeWidget
+{
+public:
+	Panel();
+
+	void setSprite(Sprite* sprite);
+	Sprite* getSprite();
+
+	virtual void refresh() override;
+
+protected:
+	Sprite* sprite;
+};
+
+class TextPanel : public SizeWidget
+{
+public:
+	void setTextBlock(TextBlock* textBlock);
+	TextBlock* getTextBlock();
+
+	virtual void refresh() override;
+
+protected:
+	TextBlock* textBlock;
+};
+
+class HorizontalPanel : public Widget
+{
+public:
+	virtual void addChild(Widget* child) override;
+
+	virtual glm::ivec2 getGlobalSize() const override;
+	virtual void refresh() override;
+
+protected:
+	std::vector<std::unique_ptr<SizeWidget>> childContainers;
 };

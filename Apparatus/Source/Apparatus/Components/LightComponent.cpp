@@ -69,7 +69,7 @@ void LightComponent::update(float dt)
 			if (Material* materialSlot = model->getMaterialSlot(materialIndex))
 			{
 				MaterialParameters& params = materialSlot->getParameters();
-				params.setVec3("color", getColor());
+				params.setVec3("material.color", getColor());
 			}
 		}
 	}

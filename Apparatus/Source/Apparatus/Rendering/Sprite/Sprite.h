@@ -1,25 +1,19 @@
 #pragma once
 
-#include <memory>
+#include "Drawable.h"
 
-#include <glm/glm.hpp>
-
-#include "SpriteMesh.h"
-
-class Material;
 class Texture;
 
-class Sprite
+class Sprite : public Drawable
 {
 public:
-	Sprite(Material* material, Texture* texture);
+	Sprite(int bufferSize);
 	virtual ~Sprite() = default;
-
 	Sprite(const Sprite&) = delete;
 	Sprite(Sprite&&) = delete;
 
-	void setMaterial(Material* material);
-	Material* getMaterial();
+	// TODO: Do it only when dirty
+	virtual void rebuildMesh() override;
 
 	void setTexture(Texture* texture);
 	Texture* getTexture();
@@ -30,34 +24,9 @@ public:
 	void setTextureSize(const glm::ivec2& size);
 	const glm::ivec2& getTextureSize() const;
 
-	void setColor(const glm::vec4& color);
-	const glm::vec4& getColor() const;
-
-	void setPosition(const glm::ivec2& position);
-	const glm::ivec2& getPosition() const;
-
-	void setSize(const glm::ivec2& scale);
-	const glm::ivec2& getSize() const;
-	
-	void setDepth(float depth);
-	float getDepth() const;
-
-	SpriteMesh* getSpriteMesh();
-
-	void updateMesh();
-
 private:
-	Material* material;
 	Texture* texture;
 
-	glm::ivec2 position;
-	glm::ivec2 size;
-	float depth;
-
 	glm::ivec2 texturePosition;
-	glm::ivec2 textureBorderSize;
-
-	glm::vec4 color;
-
-	std::unique_ptr<SpriteMesh> spriteMesh;
+	glm::ivec2 textureSize;
 };

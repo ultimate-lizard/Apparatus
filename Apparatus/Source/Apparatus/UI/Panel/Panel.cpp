@@ -2,24 +2,28 @@
 
 #include "../../Rendering/Texture.h"
 #include "../../Apparatus.h"
+#include "../../Rendering/Sprite/TextBlock.h"
 
-Panel::Panel(Material* material, Texture* texture) :
-    sprite(material, texture),
-    parent(nullptr),
-    position(sprite.getPosition()),
-    size(sprite.getSize()),
-    horizontalAlignment(Alignment::Left),
-    verticalAlignment(Alignment::Left),
-    margins({0}),
-    paddings({0})
+Panel::Panel() :
+    sprite(nullptr)
 {
 }
 
-void Panel::addChild(Panel* child)
+void Panel::setSprite(Sprite* sprite)
+{
+    this->sprite = sprite;
+}
+
+Sprite* Panel::getSprite()
+{
+    return sprite;
+}
+
+void Widget::addChild(Widget* child)
 {
     if (child)
     {
-        if (Panel* parent = child->getParent())
+        if (Widget* parent = child->getParent())
         {
             auto childToDeleteIter = std::find(parent->children.begin(), parent->children.end(), child);
             if (childToDeleteIter != parent->children.end())
@@ -33,137 +37,87 @@ void Panel::addChild(Panel* child)
     }
 }
 
-void Panel::setTexture(Texture* texture)
+Widget* Widget::getChild(size_t index) const
 {
-    sprite.setTexture(texture);
+    if (index < children.size())
+    {
+        return children[index];
+    }
+
+    return nullptr;
 }
 
-Texture* Panel::getTexture()
+size_t Widget::getChildrenCount() const
 {
-    return sprite.getTexture();
+    return children.size();
 }
 
-void Panel::setMaterial(Material* material)
-{
-    sprite.setMaterial(material);
-}
-
-Material* Panel::getMaterial()
-{
-    return sprite.getMaterial();
-}
-
-void Panel::setPosition(const glm::ivec2& position)
+void Widget::setPosition(const glm::ivec2& position)
 {
     this->position = position;
 }
 
-const glm::ivec2& Panel::getPosition() const
+const glm::ivec2& Widget::getPosition() const
 {
     return position;
 }
 
-void Panel::setSize(const glm::ivec2& size)
+void Panel::refresh()
 {
-    this->size = size;
-}
+    Widget::refresh();
 
-const glm::ivec2& Panel::getSize() const
-{
-    return size;
-}
-
-void Panel::setTexturePosition(const glm::ivec2& texturePosition)
-{
-    sprite.setTexturePosition(texturePosition);
-}
-
-glm::ivec2 Panel::getTexturePosition() const
-{
-    return sprite.getTexturePosition();
-}
-
-void Panel::setTextureSize(const glm::ivec2& textureSize)
-{
-    sprite.setTextureSize(textureSize);
-}
-
-glm::ivec2 Panel::getTextureSize() const
-{
-    return sprite.getTextureSize();
-}
-
-void Panel::setDepth(float depth)
-{
-    sprite.setDepth(depth);
-}
-
-float Panel::getDepth() const
-{
-    return sprite.getDepth();
-}
-
-void Panel::setColor(const glm::vec4& color)
-{
-    sprite.setColor(color);
-}
-
-glm::vec4 Panel::getColor() const
-{
-    return sprite.getColor();
-}
-
-void Panel::pushToRenderer(SpriteRenderer* renderer)
-{
-    if (renderer)
+    if (sprite)
     {
-        renderer->push(&sprite);
+        sprite->setPosition(getGlobalPosition());
+        sprite->setSize(getGlobalSize());
+        sprite->rebuildMesh();
     }
 }
 
-void Panel::refresh()
-{
-    sprite.setPosition(calculateSpritePosition());
-    sprite.setSize(calculateSpriteSize());
-    sprite.updateMesh();
-}
-
-Panel* Panel::getParent()
+Widget* Widget::getParent()
 {
     return parent;
 }
 
-void Panel::setHorizontalAlignment(Alignment alignment)
+void Widget::setHorizontalAlignment(Alignment alignment)
 {
     horizontalAlignment = alignment;
 }
 
-void Panel::setVerticalAlignment(Alignment alignment)
+void Widget::setVerticalAlignment(Alignment alignment)
 {
     verticalAlignment = alignment;
 }
 
-void Panel::setMargin(Side side, int margin)
+void Widget::setMargin(Side side, int margin)
 {
     margins[static_cast<size_t>(side)] = margin;
 }
 
-int Panel::getMargin(Side side) const
+int Widget::getMargin(Side side) const
 {
     return margins[static_cast<size_t>(side)];
 }
 
-void Panel::setPadding(Side side, int padding)
+void Widget::setPadding(Side side, int padding)
 {
     paddings[static_cast<size_t>(side)] = padding;
 }
 
-int Panel::getPadding(Side side) const
+int Widget::getPadding(Side side) const
 {
     return paddings[static_cast<size_t>(side)];
 }
 
-glm::ivec2 Panel::calculateSpritePosition() const
+void Widget::refresh()
+{
+    for (Widget* child : children)
+    {
+        child->refresh();
+    }
+}
+
+glm::ivec2 Widget::getGlobalPosition() const
 {
     glm::ivec2 position = getPosition();
 
@@ -171,8 +125,8 @@ glm::ivec2 Panel::calculateSpritePosition() const
 
     if (parent)
     {
-        position = parent->calculateSpritePosition();
-        parentSize = parent->calculateSpriteSize();
+        position = position + parent->getGlobalPosition();
+        parentSize = parent->getGlobalSize();
 
         // Apply padding
         if (horizontalAlignment == Alignment::Left || horizontalAlignment == Alignment::Fill)
@@ -199,20 +153,20 @@ glm::ivec2 Panel::calculateSpritePosition() const
     // Apply alignment
     if (horizontalAlignment == Alignment::Center)
     {
-        position.x += parentSize.x / 2 - calculateSpriteSize().x / 2;
+        position.x += parentSize.x / 2 - getGlobalSize().x / 2;
     }
     else if (horizontalAlignment == Alignment::Right)
     {
-        position.x += parentSize.x - calculateSpriteSize().x;
+        position.x += parentSize.x - getGlobalSize().x;
     }
 
     if (verticalAlignment == Alignment::Center)
     {
-        position.y += parentSize.y / 2 - calculateSpriteSize().y / 2;
+        position.y += parentSize.y / 2 - getGlobalSize().y / 2;
     }
     else if (verticalAlignment == Alignment::Right)
     {
-        position.y += parentSize.y - calculateSpriteSize().y;
+        position.y += parentSize.y - getGlobalSize().y;
     }
 
     // Apply margin
@@ -245,7 +199,7 @@ glm::ivec2 Panel::calculateSpritePosition() const
     return position;
 }
 
-glm::ivec2 Panel::calculateSpriteSize() const
+glm::ivec2 SizeWidget::getGlobalSize() const
 {
     glm::ivec2 size = getSize();
 
@@ -253,7 +207,7 @@ glm::ivec2 Panel::calculateSpriteSize() const
 
     if (parent)
     {
-        parentSize = parent->calculateSpriteSize();
+        parentSize = parent->getGlobalSize();
     }
 
     if (horizontalAlignment == Alignment::Fill)
@@ -279,5 +233,104 @@ glm::ivec2 Panel::calculateSpriteSize() const
         }
     }
 
+    return size;
+}
+
+Widget::Widget() :
+    parent(nullptr),
+    position(0),
+    horizontalAlignment(Alignment::Left),
+    verticalAlignment(Alignment::Left),
+    margins({ 0 }),
+    paddings({ 0 })
+{
+}
+
+void TextPanel::setTextBlock(TextBlock* textBlock)
+{
+    this->textBlock = textBlock;
+
+    if (textBlock)
+    {
+        setSize(textBlock->getSize());
+    }
+}
+
+TextBlock* TextPanel::getTextBlock()
+{
+    return textBlock;
+}
+
+void TextPanel::refresh()
+{
+    Widget::refresh();
+
+    if (textBlock)
+    {
+        textBlock->setPosition(getGlobalPosition());
+        textBlock->setSize(getGlobalSize());
+        textBlock->rebuildMesh();
+    }
+}
+
+void HorizontalPanel::addChild(Widget* child)
+{
+    std::unique_ptr<SizeWidget> childContainer = std::make_unique<SizeWidget>();
+    childContainer->addChild(child);
+    childContainers.push_back(std::move(childContainer));
+}
+
+glm::ivec2 HorizontalPanel::getGlobalSize() const
+{
+    glm::ivec2 size(0);
+    int maxHeight = 0;
+
+    for (const std::unique_ptr<SizeWidget>& childContainer : childContainers)
+    {
+        if (Widget* child = childContainer->getChild(0))
+        {
+            // Accumulate the overall X size
+            const glm::ivec2 childSize = child->getGlobalSize();
+            size.x += childSize.x;
+
+            // Find the largest in Y widget
+            if (childSize.y > maxHeight)
+            {
+                maxHeight = childSize.y;
+            }
+        }
+    }
+
+    size.y = maxHeight;
+
+    return size;
+}
+
+void HorizontalPanel::refresh()
+{
+    Widget::refresh();
+
+    float offset = 0.0f;
+
+    for (const std::unique_ptr<SizeWidget>& childContainer : childContainers)
+    {
+        if (Widget* child = childContainer->getChild(0))
+        {
+            childContainer->setSize(child->getGlobalSize());
+            childContainer->setPosition(getGlobalPosition() + glm::ivec2(offset, 0));
+            childContainer->refresh();
+
+            offset += childContainer->getGlobalSize().x;
+        }
+    }
+}
+
+void SizeWidget::setSize(const glm::ivec2& size)
+{
+    this->size = size;
+}
+
+const glm::ivec2& SizeWidget::getSize() const
+{
     return size;
 }

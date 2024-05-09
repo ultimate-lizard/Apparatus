@@ -65,8 +65,8 @@ void Renderer::init()
 	glDepthFunc(GL_LESS);
 
 	// glEnable(GL_CULL_FACE);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
@@ -93,6 +93,8 @@ void Renderer::render()
 				{
 					if (Material* material = command.material)
 					{
+						material->submitUniforms();
+
 						if (Shader* shader = material->getShader())
 						{
 							shader->bind();
@@ -106,44 +108,6 @@ void Renderer::render()
 								shader->setUniform("view", command.camera->getView());
 								shader->setUniform("projection", command.camera->getProjection());
 								shader->setUniform("cameraPos", command.camera->getPosition());
-							}
-
-							MaterialParameters& params = command.material->getParameters();
-
-							for (auto mapIter : params.getAllBoolParameters())
-							{
-								shader->setUniform("material." + mapIter.first, mapIter.second);
-							}
-
-							for (auto mapIter : params.getAllFloatParameters())
-							{
-								shader->setUniform("material." + mapIter.first, mapIter.second);
-							}
-
-							for (auto mapIter : params.getAllVec2Parameters())
-							{
-								shader->setUniform(mapIter.first, mapIter.second);
-							}
-
-							for (auto mapIter : params.getAllVec3Parameters())
-							{
-								shader->setUniform("material." + mapIter.first, mapIter.second);
-							}
-
-							for (auto mapIter : params.getAllVec4Parameters())
-							{
-								shader->setUniform("material." + mapIter.first, mapIter.second);
-							}
-
-							int textureIndex = 0;
-							for (auto mapIter : params.getAllTextureParameters())
-							{
-								if (Texture* texture = mapIter.second)
-								{
-									glActiveTexture(GL_TEXTURE0 + textureIndex);
-									texture->bind();
-									textureIndex++;
-								}
 							}
 
 							if (UniformBufferObject* ubo = shader->findUniformBufferObject("LightUniformBuffer"))

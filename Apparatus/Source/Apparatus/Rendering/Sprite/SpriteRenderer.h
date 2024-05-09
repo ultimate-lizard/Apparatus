@@ -4,7 +4,7 @@
 
 class Texture;
 class Material;
-class Sprite;
+class Drawable;
 class Camera;
 
 class SpriteRenderer
@@ -12,12 +12,12 @@ class SpriteRenderer
 public:
 	void setActiveCamera(Camera* camera);
 
-	void push(Sprite* sprite);
+	void push(Drawable* sprite);
 
 	void render();
 
 private:
 	Camera* activeCamera;
 
-	std::queue<Sprite*> commands;
+	std::queue<Drawable*> commands;
 };

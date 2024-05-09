@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 class Texture;
+class TextureArray;
 
 class MaterialParameters
 {
@@ -28,12 +29,16 @@ public:
 	void setTexture(const std::string& name, Texture* texture);
 	Texture* getTexture(const std::string& name);
 
+	void setTextureArray(const std::string& name, TextureArray* texture);
+	TextureArray* getTextureArray(const std::string& name);
+
 	const std::map<std::string, bool>& getAllBoolParameters();
 	const std::map<std::string, float>& getAllFloatParameters();
 	const std::map<std::string, glm::vec2>& getAllVec2Parameters();
 	const std::map<std::string, glm::vec3>& getAllVec3Parameters();
 	const std::map<std::string, glm::vec4>& getAllVec4Parameters();
 	const std::map<std::string, Texture*>& getAllTextureParameters();
+	const std::map<std::string, TextureArray*>& getAllTextureArrayParameters();
 
 protected:
 	void createBool(const std::string& name, bool defaultValue);
@@ -42,6 +47,7 @@ protected:
 	void createVec3(const std::string& name, const glm::vec3& defaultValue);
 	void createVec4(const std::string& name, const glm::vec4& defaultValue);
 	void createTexture(const std::string& name, Texture* defaultValue);
+	void createTextureArray(const std::string& name, TextureArray* defaultValue);
 
 	std::map<std::string, bool> boolMap;
 	std::map<std::string, float> floatMap;
@@ -49,6 +55,7 @@ protected:
 	std::map<std::string, glm::vec3> vec3Map;
 	std::map<std::string, glm::vec4> vec4Map;
 	std::map<std::string, Texture*> textureMap;
+	std::map<std::string, TextureArray*> textureArrayMap;
 
 	friend class Material;
 };
