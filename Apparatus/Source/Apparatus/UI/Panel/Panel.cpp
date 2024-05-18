@@ -89,24 +89,14 @@ void Widget::setVerticalAlignment(Alignment alignment)
     verticalAlignment = alignment;
 }
 
-void Widget::setMargin(Side side, int margin)
+void BoxModelWidget::setMargin(Side side, int margin)
 {
     margins[static_cast<size_t>(side)] = margin;
 }
 
-int Widget::getMargin(Side side) const
+int BoxModelWidget::getMargin(Side side) const
 {
     return margins[static_cast<size_t>(side)];
-}
-
-void Widget::setPadding(Side side, int padding)
-{
-    paddings[static_cast<size_t>(side)] = padding;
-}
-
-int Widget::getPadding(Side side) const
-{
-    return paddings[static_cast<size_t>(side)];
 }
 
 void Widget::refresh()
@@ -127,27 +117,6 @@ glm::ivec2 Widget::getGlobalPosition() const
     {
         position = position + parent->getGlobalPosition();
         parentSize = parent->getGlobalSize();
-
-        // Apply padding
-        if (horizontalAlignment == Alignment::Left || horizontalAlignment == Alignment::Fill)
-        {
-            position.x += parent->getPadding(Panel::Side::Left);
-        }
-
-        if (verticalAlignment == Alignment::Left || verticalAlignment == Alignment::Fill)
-        {
-            position.y += parent->getPadding(Panel::Side::Top);
-        }
-
-        if (horizontalAlignment == Alignment::Right)
-        {
-            position.x -= parent->getPadding(Panel::Side::Right);
-        }
-
-        if (verticalAlignment == Alignment::Right)
-        {
-            position.y -= parent->getPadding(Panel::Side::Bottom);
-        }
     }
 
     // Apply alignment
@@ -169,37 +138,44 @@ glm::ivec2 Widget::getGlobalPosition() const
         position.y += parentSize.y - getGlobalSize().y;
     }
 
-    // Apply margin
-    if (horizontalAlignment == Alignment::Left)
-    {
-        position.x += getMargin(Panel::Side::Left);
-    }
-    else if (horizontalAlignment == Alignment::Right)
-    {
-        position.x -= getMargin(Panel::Side::Right);
-    }
-    else if (horizontalAlignment == Alignment::Fill)
-    {
-        position.x += getMargin(Panel::Side::Left);
-    }
-    
-    if (verticalAlignment == Alignment::Left)
-    {
-        position.y += getMargin(Panel::Side::Top);
-    }
-    else if (verticalAlignment == Alignment::Right)
-    {
-        position.y -= getMargin(Panel::Side::Bottom);
-    }
-    else if (verticalAlignment == Alignment::Fill)
-    {
-        position.y += getMargin(Panel::Side::Top);
-    }
-
     return position;
 }
 
-glm::ivec2 SizeWidget::getGlobalSize() const
+glm::ivec2 BoxModelWidget::getGlobalPosition() const
+{
+    glm::ivec2 globalPosition = Widget::getGlobalPosition();
+
+    // Apply margin
+    if (horizontalAlignment == Alignment::Left)
+    {
+        globalPosition.x += getMargin(Panel::Side::Left);
+    }
+    else if (horizontalAlignment == Alignment::Right)
+    {
+        globalPosition.x -= getMargin(Panel::Side::Right);
+    }
+    else if (horizontalAlignment == Alignment::Fill)
+    {
+        globalPosition.x += getMargin(Panel::Side::Left);
+    }
+
+    if (verticalAlignment == Alignment::Left)
+    {
+        globalPosition.y += getMargin(Panel::Side::Top);
+    }
+    else if (verticalAlignment == Alignment::Right)
+    {
+        globalPosition.y -= getMargin(Panel::Side::Bottom);
+    }
+    else if (verticalAlignment == Alignment::Fill)
+    {
+        globalPosition.y += getMargin(Panel::Side::Top);
+    }
+
+    return globalPosition;
+}
+
+glm::ivec2 BoxModelWidget::getGlobalSize() const
 {
     glm::ivec2 size = getSize();
 
@@ -220,19 +196,6 @@ glm::ivec2 SizeWidget::getGlobalSize() const
         size.y = parentSize.y - getMargin(Panel::Side::Top) - getMargin(Panel::Side::Bottom);
     }
 
-    if (parent)
-    {
-        if (horizontalAlignment == Alignment::Fill)
-        {
-            size.x -= parent->getPadding(Panel::Side::Left) + parent->getPadding(Panel::Side::Right);
-        }
-
-        if (verticalAlignment == Alignment::Fill)
-        {
-            size.y -= parent->getPadding(Panel::Side::Top) + parent->getPadding(Panel::Side::Bottom);
-        }
-    }
-
     return size;
 }
 
@@ -241,8 +204,7 @@ Widget::Widget() :
     position(0),
     horizontalAlignment(Alignment::Left),
     verticalAlignment(Alignment::Left),
-    margins({ 0 }),
-    paddings({ 0 })
+    margins({ 0 })
 {
 }
 
@@ -275,7 +237,7 @@ void TextPanel::refresh()
 
 void HorizontalPanel::addChild(Widget* child)
 {
-    std::unique_ptr<SizeWidget> childContainer = std::make_unique<SizeWidget>();
+    std::unique_ptr<BoxModelWidget> childContainer = std::make_unique<BoxModelWidget>();
     childContainer->addChild(child);
     childContainers.push_back(std::move(childContainer));
 }
@@ -285,7 +247,7 @@ glm::ivec2 HorizontalPanel::getGlobalSize() const
     glm::ivec2 size(0);
     int maxHeight = 0;
 
-    for (const std::unique_ptr<SizeWidget>& childContainer : childContainers)
+    for (const std::unique_ptr<BoxModelWidget>& childContainer : childContainers)
     {
         if (Widget* child = childContainer->getChild(0))
         {
@@ -312,7 +274,7 @@ void HorizontalPanel::refresh()
 
     float offset = 0.0f;
 
-    for (const std::unique_ptr<SizeWidget>& childContainer : childContainers)
+    for (const std::unique_ptr<BoxModelWidget>& childContainer : childContainers)
     {
         if (Widget* child = childContainer->getChild(0))
         {
@@ -325,12 +287,12 @@ void HorizontalPanel::refresh()
     }
 }
 
-void SizeWidget::setSize(const glm::ivec2& size)
+void BoxModelWidget::setSize(const glm::ivec2& size)
 {
     this->size = size;
 }
 
-const glm::ivec2& SizeWidget::getSize() const
+const glm::ivec2& BoxModelWidget::getSize() const
 {
     return size;
 }

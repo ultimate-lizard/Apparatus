@@ -51,14 +51,6 @@ public:
 	void setHorizontalAlignment(Alignment alignment);
 	void setVerticalAlignment(Alignment alignment);
 
-	void setMargin(Side side, int margin);
-	int getMargin(Side side) const;
-
-	void setPadding(Side side, int padding);
-	int getPadding(Side side) const;
-
-	void render(SpriteRenderer* renderer);
-
 protected:
 	std::vector<Widget*> children;
 	Widget* parent;
@@ -69,22 +61,25 @@ protected:
 	Alignment verticalAlignment;
 
 	std::array<int, 4> margins;
-	std::array<int, 4> paddings;
 };
 
-class SizeWidget : public Widget
+class BoxModelWidget : public Widget
 {
 public:
+	virtual glm::ivec2 getGlobalPosition() const override;
 	virtual glm::ivec2 getGlobalSize() const override;
 
 	void setSize(const glm::ivec2& size);
 	const glm::ivec2& getSize() const;
 
+	void setMargin(Side side, int margin);
+	int getMargin(Side side) const;
+
 protected:
 	glm::ivec2 size;
 };
 
-class Panel : public SizeWidget
+class Panel : public BoxModelWidget
 {
 public:
 	Panel();
@@ -98,7 +93,7 @@ protected:
 	Sprite* sprite;
 };
 
-class TextPanel : public SizeWidget
+class TextPanel : public BoxModelWidget
 {
 public:
 	void setTextBlock(TextBlock* textBlock);
@@ -119,5 +114,5 @@ public:
 	virtual void refresh() override;
 
 protected:
-	std::vector<std::unique_ptr<SizeWidget>> childContainers;
+	std::vector<std::unique_ptr<BoxModelWidget>> childContainers;
 };
