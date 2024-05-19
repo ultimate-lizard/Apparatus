@@ -1,6 +1,8 @@
 #version 330 core
 
-layout(origin_upper_left) in vec4 gl_FragCoord;
+// layout(origin_upper_left) in vec4 gl_FragCoord;
+
+out vec4 col;
 
 in vec2 texturePosition;
 in float textureArrayDepth;
@@ -10,15 +12,16 @@ uniform vec4 spriteColor;
 
 void main()
 {
-	float textChannel = texture(image, vec3(texturePosition, textureArrayDepth)).r;
-	vec4 resultColor = vec4(1.0, 1.0, 1.0, textChannel);
+	vec4 textChannel = vec4(1.0, 1.0, 1.0, texture(image, vec3(texturePosition, textureArrayDepth)).r);
+	// vec4 resultColor = vec4(1.0, 1.0, 1.0, textChannel);
 
-	float cachedAlpha = resultColor.w;
+	// float cachedAlpha = resultColor.w;
 
-	gl_FragColor = mix(resultColor, spriteColor, spriteColor.w);
+	col = spriteColor * textChannel;
 
-	if (cachedAlpha < 0.1f)
-	{
-		discard;
-	}
+//
+//	if (col.a == 0.0f)
+//	{
+//		discard;
+//	}
 }

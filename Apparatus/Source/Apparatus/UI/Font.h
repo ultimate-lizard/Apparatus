@@ -5,32 +5,38 @@
 #include "../Core/Asset.h"
 #include "../Rendering/TextureArray.h"
 
+struct Character
+{
+	int textureArrayDepth = 0;
+	glm::ivec2 size = glm::ivec2(0);
+	glm::ivec2 bearing = glm::ivec2(0);
+	glm::ivec2 advance = glm::ivec2(0);
+};
+
+struct CharacterSet
+{
+	std::map<char, Character> characterMap;
+	TextureArray* characterTextureArray;
+	unsigned int fontSize = 16;
+	unsigned int textureSize = 256;
+};
+
 class Font : public Asset
 {
 public:
-	struct Character
-	{
-		int textureArrayDepth = 0;
-		glm::ivec2 size = glm::ivec2(0);
-		glm::ivec2 bearing = glm::ivec2(0);
-		glm::ivec2 advance = glm::ivec2(0);
-	};
-
-	Font(const std::string& assetName, std::map<char, Font::Character> characterMap, TextureArray* characterTextureArray);
+	Font(const std::string& assetName);
 
 	Font(const Font&) = delete;
 	Font(Font&&) = delete;
 
 	virtual void init() {}
 
-	const std::map<char, Font::Character>& getCharacterMap() const;
-	TextureArray* getTextureArray();
-
-	void setFontScale(float fontScale);
-	float getFontScale() const;
+	void addCharacterSet(CharacterSet&& characterSet);
+	CharacterSet* getCharacterSet(size_t fontSize);
+	CharacterSet* getCurrentCharacterSet();
 
 private:
-	std::map<char, Font::Character> characterMap;
-	TextureArray* textureArray;
-	float fontScale;
+	// Contains cached character sets of different sizes
+	std::map<size_t, CharacterSet> characterSetMap;
+	unsigned int fontSize;
 };

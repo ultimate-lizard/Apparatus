@@ -3,7 +3,6 @@
 #include <Apparatus/Apparatus.h>
 #include <Apparatus/Core/Logger.h>
 #include <Apparatus/Core/TextureImporter.h>
-#include <Apparatus/Core/FontImporter.h>
 #include <Apparatus/Server/LocalServer.h>
 #include <Apparatus/Components/ModelComponent.h>
 #include <Apparatus/Components/TransformComponent.h>
@@ -33,135 +32,67 @@ void EditorLocalClient::init()
 	{
 		Texture* innerWindowTexture = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_WindowInner", "../Textures/WindowInner.bmp"));	
 		Texture* thick = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_WindowThick", "../Textures/WindowThick.bmp"));
-		Texture* holeTex = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_HoleInner", "../Textures/HoleInner.bmp"));	
+		Texture* holeTex = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_HoleInner", "../Textures/HoleInner.bmp"));
 
-		if (FontImporter* fontImporter = Apparatus::getAssetManager().getImporter<FontImporter>())
-		{
-			std::unique_ptr<Font> importedFont = fontImporter->import("Font_Arial", "../Fonts/Arial.ttf");
-			if (Font* arial = Apparatus::getAssetManager().createAsset(std::move(importedFont)))
-			{
-				// TODO: Implement default font in UIContext
-				// TODO: Create all Texts with the default font
-				testTextBlock = std::make_unique<TextBlock>(1024 * 1024);
-				testTextBlock->setFont(arial);
-				testTextBlock->setFontSize(14.0f);
-				testTextBlock->setMaterial(uiContext.materialsMap[typeid(TextBlock)]);
-				testTextBlock->setText("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-				testTextBlock->setColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+		auto testPanel = uiContext.createWidget<NinePatchPanel>("Panel_NinePatchPanel");
+		testPanel->setTexture(thick);
+		testPanel->setBorder(Widget::Side::Left, 6);
+		testPanel->setBorder(Widget::Side::Right, 6);
+		testPanel->setBorder(Widget::Side::Top, 6);
+		testPanel->setBorder(Widget::Side::Bottom, 6);
+		testPanel->setSize({ 512, 400 });
+		testPanel->setHorizontalAlignment(Widget::Alignment::Fill);
+		testPanel->setVerticalAlignment(Widget::Alignment::Center);
 
-				auto textPanel = std::make_unique<TextPanel>();
-				textPanel->setTextBlock(testTextBlock.get());
-				// TODO: Bring it back to the origin of y 0
-				textPanel->setHorizontalAlignment(Widget::Alignment::Fill);
-				textPanel->setMargin(Widget::Side::Left, 8);
-				textPanel->setMargin(Widget::Side::Right, 8);
-				textPanel->setMargin(Widget::Side::Top, 8);
-				textPanel->setMargin(Widget::Side::Bottom, 8);
+		auto innerPanel = uiContext.createWidget<NinePatchPanel>("Panel_NinePatchPanel_1");
+		innerPanel->setTexture(innerWindowTexture);
+		innerPanel->setBorder(Widget::Side::Left, 6);
+		innerPanel->setBorder(Widget::Side::Right, 6);
+		innerPanel->setBorder(Widget::Side::Top, 6);
+		innerPanel->setBorder(Widget::Side::Bottom, 6);
+		innerPanel->setSize({ 256, 256 });
 
-				thickWindowSprite = std::make_unique<Sprite>(256);
-				thickWindowSprite->setMaterial(uiContext.materialsMap[typeid(NinePatchPanel)]);
-				thickWindowSprite->setTexture(thick);
+		auto innerPanel2 = uiContext.createWidget<NinePatchPanel>("Panel_NinePatchPanel_2");
+		innerPanel2->setTexture(innerWindowTexture);
+		innerPanel2->setBorder(Widget::Side::Left, 6);
+		innerPanel2->setBorder(Widget::Side::Right, 6);
+		innerPanel2->setBorder(Widget::Side::Top, 6);
+		innerPanel2->setBorder(Widget::Side::Bottom, 6);
+		innerPanel2->setSize({ 256, 256 });
 
-				auto testPanel = std::make_unique<NinePatchPanel>();
-				testPanel->setSprite(thickWindowSprite.get());
-				testPanel->setBorder(Widget::Side::Left, 6);
-				testPanel->setBorder(Widget::Side::Right, 6);
-				testPanel->setBorder(Widget::Side::Top, 6);
-				testPanel->setBorder(Widget::Side::Bottom, 6);
-				testPanel->setSize({ 512, 400 });
-				testPanel->setHorizontalAlignment(Widget::Alignment::Fill);
-				testPanel->setVerticalAlignment(Widget::Alignment::Center);
+		auto horizontalPanel = uiContext.createWidget<HorizontalPanel>("Panel_HorizontalPanel");
+		horizontalPanel->addChild(innerPanel);
+		horizontalPanel->addChild(innerPanel2);
+		horizontalPanel->setHorizontalAlignment(Widget::Alignment::Center);
+		horizontalPanel->setVerticalAlignment(Widget::Alignment::Center);
 
-				thinWindowSprite = std::make_unique<Sprite>(256);
-				thinWindowSprite->setMaterial(uiContext.materialsMap[typeid(NinePatchPanel)]);
-				thinWindowSprite->setTexture(innerWindowTexture);
+		TextPanel* textPanel = uiContext.createWidget<TextPanel>("Panel_TextPanel");
+		textPanel->setText("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
+		textPanel->setFontSize(14.0f);
+		textPanel->setColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+		textPanel->setHorizontalAlignment(Widget::Alignment::Fill);
+		textPanel->setMargin(Widget::Side::Left, 8);
+		textPanel->setMargin(Widget::Side::Right, 8);
+		textPanel->setMargin(Widget::Side::Top, 8);
+		textPanel->setMargin(Widget::Side::Bottom, 8);
+		textPanel->setDepth(0.9f);
 
-				auto innerPanel = std::make_unique<NinePatchPanel>();
-				innerPanel->setSprite(thinWindowSprite.get());
-				innerPanel->setBorder(Widget::Side::Left, 6);
-				innerPanel->setBorder(Widget::Side::Right, 6);
-				innerPanel->setBorder(Widget::Side::Top, 6);
-				innerPanel->setBorder(Widget::Side::Bottom, 6);
-				innerPanel->setSize({ 256, 256 });
+		innerPanel2->addChild(textPanel);
 
-				anotherThickSprite = std::make_unique<Sprite>(256);
-				anotherThickSprite->setMaterial(uiContext.materialsMap[typeid(NinePatchPanel)]);
-				anotherThickSprite->setTexture(thick);
+		testPanel->addChild(horizontalPanel);
 
-				auto innerPanel2 = std::make_unique<NinePatchPanel>();
-				innerPanel2->setSprite(anotherThickSprite.get());
-				innerPanel2->setBorder(Widget::Side::Left, 6);
-				innerPanel2->setBorder(Widget::Side::Right, 6);
-				innerPanel2->setBorder(Widget::Side::Top, 6);
-				innerPanel2->setBorder(Widget::Side::Bottom, 6);
-				innerPanel2->setSize({ 256, 256 });
-				innerPanel2->addChild(textPanel.get());
-
-				auto horizontalPanel = std::make_unique<HorizontalPanel>();
-				// horizontalPanel->setSize({ 0, 0 }); // if 0, 0, size to content
-				horizontalPanel->addChild(innerPanel.get());
-				horizontalPanel->addChild(innerPanel2.get());
-				// horizontalPanel->setMargin(Widget::Side::Left, 64);
-				horizontalPanel->setHorizontalAlignment(Widget::Alignment::Left);
-				horizontalPanel->setVerticalAlignment(Widget::Alignment::Right);
-				
-				//innerPanel->setVerticalAlignment(Widget::Alignment::Fill);
-				//innerPanel->setHorizontalAlignment(Widget::Alignment::Fill);
-
-				testPanel->addChild(horizontalPanel.get());
-
-				testPanels.push_back(std::move(testPanel));
-
-				testPanels.push_back(std::move(innerPanel));
-
-				testPanels.push_back(std::move(innerPanel2));
-
-				testPanels.push_back(std::move(horizontalPanel));
-
-				testPanels.push_back(std::move(textPanel));
-
-				for (auto& panel : testPanels)
-				{
-					if (panel)
-					{
-						// Find root widgets and start traversing from them
-						if (!panel->getParent())
-						{
-							panel->refresh();
-						}
-					}
-				}
-			}
-		}
+		uiContext.refreshWidgetTree();
 	}
 }
 
 void EditorLocalClient::update(float dt)
 {
 	LocalClient::update(dt);
-
-	if (spriteRenderer)
-	{
-		for (auto iter = testPanels.rbegin(); iter != testPanels.rend(); ++iter)
-		{
-			auto& panel = *iter;
-			if (TextPanel* textPanel = dynamic_cast<TextPanel*>(panel.get()))
-			{
-				spriteRenderer->push(textPanel->getTextBlock());
-			}
-			else if (Panel* pan = dynamic_cast<Panel*>(panel.get()))
-			{
-				spriteRenderer->push(pan->getSprite());
-			}
-		}
-	}
 }
 
 void EditorLocalClient::onGameStart()
 {
 	LocalClient::onGameStart();
-
-	
 }
 
 void EditorLocalClient::onActiveControllerChanged()

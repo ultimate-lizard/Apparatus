@@ -21,37 +21,53 @@ public:
 
 	void init();
 
-	template <class PanelType, typename ... Args>
-	PanelType* createPanel(const std::string& name, Args&& ... args);
+	template <class WidgetType>
+	WidgetType* createWidget(const std::string& name);
 
-	void pushContextToRender(SpriteRenderer* renderer);
+	void renderContext(SpriteRenderer* renderer);
 
 	void onWindowResize(std::shared_ptr<WindowResizeEvent> event);
 
-	std::unordered_map<std::type_index, Material*> materialsMap;
+	template <class WidgetType>
+	Material* findMaterialForWidget();
+
+	void refreshWidgetTree();
 
 private:
-	std::vector<std::unique_ptr<Panel>> spawnedPanels;
-
-	Panel* root;
+	std::vector<std::unique_ptr<Widget>> spawnedWidgets;
+	std::map<std::type_index, Material*> widgetMaterialMap;
 };
 
-template<class PanelType, typename ... Args>
-inline PanelType* UIContext::createPanel(const std::string& name, Args&& ... args)
+template<class WidgetType>
+inline WidgetType* UIContext::createWidget(const std::string& name)
 {
-	// std::unique_ptr<PanelType> newPanelPtr = std::make_unique<PanelType>(std::forward<Args>(args)...);
-	auto searchIter = materialsMap.find(typeid(PanelType));
-	if (searchIter != materialsMap.end())
-	{
-		Material* newPanelMaterial = searchIter->second;
+	auto widgetSearchIter = std::find_if(spawnedWidgets.cbegin(), spawnedWidgets.cend(), [name](const std::unique_ptr<Widget>& widget) {
+		return widget && widget->getName() == name;
+	});
 
-		std::unique_ptr<PanelType> newPanelPtr = std::make_unique<PanelType>(std::forward<Args>(args)...);
-		if (PanelType* newPanel = newPanelPtr.get())
-		{
-			spawnedPanels.push_back(std::move(newPanelPtr));
-			return newPanel;
-		}
+	if (widgetSearchIter == spawnedWidgets.end())
+	{
+		auto newWidgetPtr = std::make_unique<WidgetType>();
+		newWidgetPtr->setName(name);
+		newWidgetPtr->init();
+
+		WidgetType* spawnedWidget = newWidgetPtr.get();
+		spawnedWidgets.push_back(std::move(newWidgetPtr));
+		return spawnedWidget;
 	}
 	
+	return nullptr;
+}
+
+template<class WidgetType>
+inline Material* UIContext::findMaterialForWidget()
+{
+	auto materialSearchIter = widgetMaterialMap.find(typeid(WidgetType));
+	if (materialSearchIter != widgetMaterialMap.cend())
+	{
+		Material* foundMaterial = materialSearchIter->second;
+		return foundMaterial;
+	}
+
 	return nullptr;
 }

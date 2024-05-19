@@ -3,6 +3,7 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <string>
 
 #include <glm/glm.hpp>
 
@@ -11,6 +12,7 @@
 class Material;
 class SpriteRenderer;
 class TextBlock;
+class UIContext;
 
 class Widget
 {
@@ -35,10 +37,16 @@ public:
 	Widget();
 	virtual ~Widget() = default;
 
+	virtual void init() {}
 	virtual void refresh();
 
 	virtual glm::ivec2 getGlobalPosition() const;
 	virtual glm::ivec2 getGlobalSize() const = 0;
+
+	virtual void render(SpriteRenderer* renderer) {}
+
+	void setName(const std::string& name);
+	const std::string& getName() const;
 
 	Widget* getParent();
 	virtual void addChild(Widget* child);
@@ -52,6 +60,8 @@ public:
 	void setVerticalAlignment(Alignment alignment);
 
 protected:
+	std::string name;
+
 	std::vector<Widget*> children;
 	Widget* parent;
 
@@ -59,13 +69,13 @@ protected:
 
 	Alignment horizontalAlignment;
 	Alignment verticalAlignment;
-
-	std::array<int, 4> margins;
 };
 
-class BoxModelWidget : public Widget
+class BoxModelPanel : public Widget
 {
 public:
+	BoxModelPanel();
+
 	virtual glm::ivec2 getGlobalPosition() const override;
 	virtual glm::ivec2 getGlobalSize() const override;
 
@@ -77,32 +87,41 @@ public:
 
 protected:
 	glm::ivec2 size;
+	std::array<int, 4> margins;
 };
 
-class Panel : public BoxModelWidget
+class ImagePanel : public BoxModelPanel
 {
 public:
-	Panel();
+	virtual void init() override;
+	virtual void refresh() override;
 
-	void setSprite(Sprite* sprite);
+	virtual void render(SpriteRenderer* renderer) override;
+
 	Sprite* getSprite();
-
-	virtual void refresh() override;
+	void setTexture(Texture* texture);
 
 protected:
-	Sprite* sprite;
+	std::unique_ptr<Sprite> sprite;
 };
 
-class TextPanel : public BoxModelWidget
+class TextPanel : public BoxModelPanel
 {
 public:
-	void setTextBlock(TextBlock* textBlock);
-	TextBlock* getTextBlock();
-
+	virtual void init() override;
 	virtual void refresh() override;
 
+	virtual void render(SpriteRenderer* renderer) override;
+
+	TextBlock* getTextBlock();
+	void setText(const std::string& text);
+	void setColor(const glm::vec4& color);
+	void setFontSize(float fontSize);
+
+	void setDepth(float depth);
+
 protected:
-	TextBlock* textBlock;
+	std::unique_ptr<TextBlock> textBlock;
 };
 
 class HorizontalPanel : public Widget
@@ -114,5 +133,5 @@ public:
 	virtual void refresh() override;
 
 protected:
-	std::vector<std::unique_ptr<BoxModelWidget>> childContainers;
+	std::vector<std::unique_ptr<BoxModelPanel>> childContainers;
 };

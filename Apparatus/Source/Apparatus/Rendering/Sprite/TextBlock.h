@@ -9,7 +9,7 @@ class Font;
 class TextBlock : public Drawable
 {
 public:
-	TextBlock(int bufferSize);
+	TextBlock();
 	virtual ~TextBlock() = default;
 
 	virtual void rebuildMesh() override;

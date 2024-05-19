@@ -7,7 +7,7 @@ class Texture;
 class Sprite : public Drawable
 {
 public:
-	Sprite(int bufferSize);
+	Sprite();
 	virtual ~Sprite() = default;
 	Sprite(const Sprite&) = delete;
 	Sprite(Sprite&&) = delete;

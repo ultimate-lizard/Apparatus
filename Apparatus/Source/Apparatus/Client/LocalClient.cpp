@@ -120,7 +120,7 @@ void LocalClient::update(float dt)
 	if (spriteRenderer)
 	{
 		spriteRenderer->setActiveCamera(&uiCamera);
-		uiContext.pushContextToRender(spriteRenderer);
+		uiContext.renderContext(spriteRenderer);
 	}
 }
 

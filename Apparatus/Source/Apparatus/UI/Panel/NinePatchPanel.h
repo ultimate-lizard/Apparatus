@@ -2,7 +2,7 @@
 
 #include "Panel.h"
 
-class NinePatchPanel : public Panel
+class NinePatchPanel : public ImagePanel
 {
 public:
 	NinePatchPanel();
@@ -10,6 +10,7 @@ public:
 	void setBorder(Side side, int border);
 	int getBorder(Side side) const;
 
+	virtual void init() override;
 	virtual void refresh() override;
 
 private:

@@ -19,9 +19,17 @@ int NinePatchPanel::getBorder(Side side) const
 	return borders[static_cast<int>(side)];
 }
 
+void NinePatchPanel::init()
+{
+	if (sprite = std::make_unique<Sprite>())
+	{
+		sprite->setMaterial(Apparatus::getAssetManager().findAsset<Material>("Material_NinePatchPanel"));
+	}
+}
+
 void NinePatchPanel::refresh()
 {
-	Panel::refresh();
+	ImagePanel::refresh();
 
 	if (sprite)
 	{
@@ -30,10 +38,10 @@ void NinePatchPanel::refresh()
 			MaterialParameters& params = spriteMaterial->getParameters();
 
 			glm::ivec4 borders;
-			borders.x = getBorder(Panel::Side::Left);
-			borders.y = getBorder(Panel::Side::Right);
-			borders.z = getBorder(Panel::Side::Top);
-			borders.w = getBorder(Panel::Side::Bottom);
+			borders.x = getBorder(ImagePanel::Side::Left);
+			borders.y = getBorder(ImagePanel::Side::Right);
+			borders.z = getBorder(ImagePanel::Side::Top);
+			borders.w = getBorder(ImagePanel::Side::Bottom);
 
 			params.setVec4("borders", borders);
 

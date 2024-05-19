@@ -4,8 +4,10 @@
 #include "../Material.h"
 #include "../../UI/UIContext.h"
 
-Sprite::Sprite(int bufferSize) :
-    Drawable(bufferSize),
+static const size_t spriteBufferSize = 6 * 5 * sizeof(float);
+
+Sprite::Sprite() :
+    Drawable(spriteBufferSize),
     texture(nullptr),
     texturePosition(0),
     textureSize(0)

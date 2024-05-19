@@ -24,12 +24,4 @@ protected:
 	void setupGlobalEditorInput();
 
 	bool inEditMode;
-
-	std::unique_ptr<TextBlock> testTextBlock;
-	// std::unique_ptr<TextPanel> textPanel;
-	std::unique_ptr<Sprite> thickWindowSprite;
-	std::unique_ptr<Sprite> thinWindowSprite;
-	std::unique_ptr<Sprite> anotherThickSprite;
-	// std::unique_ptr<NinePatchPanel> testPanel;
-	std::vector<std::unique_ptr<Widget>> testPanels;
 };

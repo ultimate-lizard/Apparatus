@@ -1,29 +1,31 @@
 #include "Font.h"
 
-const std::map<char, Font::Character>& Font::getCharacterMap() const
+void Font::addCharacterSet(CharacterSet&& characterSet)
 {
-	return characterMap;
+	// CharacterSet characterSet;
+
+	characterSetMap[characterSet.fontSize] = std::forward<CharacterSet>(characterSet);
 }
 
-TextureArray* Font::getTextureArray()
+CharacterSet* Font::getCharacterSet(size_t fontSize)
 {
-	return textureArray;
+	auto setSearchIter = characterSetMap.find(fontSize);
+	if (setSearchIter != characterSetMap.cend())
+	{
+		return &setSearchIter->second;
+	}
+
+	return nullptr;
 }
 
-void Font::setFontScale(float fontScale)
+CharacterSet* Font::getCurrentCharacterSet()
 {
-	this->fontScale = fontScale;
+	return getCharacterSet(fontSize);
 }
 
-float Font::getFontScale() const
-{
-	return fontScale;
-}
-
-Font::Font(const std::string& assetName, std::map<char, Character> characterMap, TextureArray* characterTextureArray) :
+Font::Font(const std::string& assetName) :
 	Asset(assetName),
-	characterMap(characterMap),
-	textureArray(characterTextureArray),
-	fontScale(1.0f)
+	fontSize(14)
 {
+
 }

@@ -1,22 +1,23 @@
 #include "Panel.h"
 
+#include "../UIContext.h"
+#include "../Font.h"
 #include "../../Rendering/Texture.h"
+#include "../../Rendering/Material.h"
 #include "../../Apparatus.h"
 #include "../../Rendering/Sprite/TextBlock.h"
 
-Panel::Panel() :
-    sprite(nullptr)
+Sprite* ImagePanel::getSprite()
 {
+    return sprite.get();
 }
 
-void Panel::setSprite(Sprite* sprite)
+void ImagePanel::setTexture(Texture* texture)
 {
-    this->sprite = sprite;
-}
-
-Sprite* Panel::getSprite()
-{
-    return sprite;
+    if (sprite)
+    {
+        sprite->setTexture(texture);
+    }
 }
 
 void Widget::addChild(Widget* child)
@@ -62,7 +63,15 @@ const glm::ivec2& Widget::getPosition() const
     return position;
 }
 
-void Panel::refresh()
+void ImagePanel::init()
+{
+    if (sprite = std::make_unique<Sprite>())
+    {
+        sprite->setMaterial(Apparatus::getAssetManager().findAsset<Material>("Material_Panel"));
+    }
+}
+
+void ImagePanel::refresh()
 {
     Widget::refresh();
 
@@ -72,6 +81,24 @@ void Panel::refresh()
         sprite->setSize(getGlobalSize());
         sprite->rebuildMesh();
     }
+}
+
+void ImagePanel::render(SpriteRenderer* renderer)
+{
+    if (renderer)
+    {
+        renderer->push(sprite.get());
+    }
+}
+
+void Widget::setName(const std::string& name)
+{
+    this->name = name;
+}
+
+const std::string& Widget::getName() const
+{
+    return name;
 }
 
 Widget* Widget::getParent()
@@ -89,12 +116,12 @@ void Widget::setVerticalAlignment(Alignment alignment)
     verticalAlignment = alignment;
 }
 
-void BoxModelWidget::setMargin(Side side, int margin)
+void BoxModelPanel::setMargin(Side side, int margin)
 {
     margins[static_cast<size_t>(side)] = margin;
 }
 
-int BoxModelWidget::getMargin(Side side) const
+int BoxModelPanel::getMargin(Side side) const
 {
     return margins[static_cast<size_t>(side)];
 }
@@ -141,41 +168,47 @@ glm::ivec2 Widget::getGlobalPosition() const
     return position;
 }
 
-glm::ivec2 BoxModelWidget::getGlobalPosition() const
+BoxModelPanel::BoxModelPanel() :
+    size(0),
+    margins({0})
+{
+}
+
+glm::ivec2 BoxModelPanel::getGlobalPosition() const
 {
     glm::ivec2 globalPosition = Widget::getGlobalPosition();
 
     // Apply margin
     if (horizontalAlignment == Alignment::Left)
     {
-        globalPosition.x += getMargin(Panel::Side::Left);
+        globalPosition.x += getMargin(ImagePanel::Side::Left);
     }
     else if (horizontalAlignment == Alignment::Right)
     {
-        globalPosition.x -= getMargin(Panel::Side::Right);
+        globalPosition.x -= getMargin(ImagePanel::Side::Right);
     }
     else if (horizontalAlignment == Alignment::Fill)
     {
-        globalPosition.x += getMargin(Panel::Side::Left);
+        globalPosition.x += getMargin(ImagePanel::Side::Left);
     }
 
     if (verticalAlignment == Alignment::Left)
     {
-        globalPosition.y += getMargin(Panel::Side::Top);
+        globalPosition.y += getMargin(ImagePanel::Side::Top);
     }
     else if (verticalAlignment == Alignment::Right)
     {
-        globalPosition.y -= getMargin(Panel::Side::Bottom);
+        globalPosition.y -= getMargin(ImagePanel::Side::Bottom);
     }
     else if (verticalAlignment == Alignment::Fill)
     {
-        globalPosition.y += getMargin(Panel::Side::Top);
+        globalPosition.y += getMargin(ImagePanel::Side::Top);
     }
 
     return globalPosition;
 }
 
-glm::ivec2 BoxModelWidget::getGlobalSize() const
+glm::ivec2 BoxModelPanel::getGlobalSize() const
 {
     glm::ivec2 size = getSize();
 
@@ -188,12 +221,12 @@ glm::ivec2 BoxModelWidget::getGlobalSize() const
 
     if (horizontalAlignment == Alignment::Fill)
     {
-        size.x = parentSize.x - getMargin(Panel::Side::Left) - getMargin(Panel::Side::Right);
+        size.x = parentSize.x - getMargin(ImagePanel::Side::Left) - getMargin(ImagePanel::Side::Right);
     }
 
     if (verticalAlignment == Alignment::Fill)
     {
-        size.y = parentSize.y - getMargin(Panel::Side::Top) - getMargin(Panel::Side::Bottom);
+        size.y = parentSize.y - getMargin(ImagePanel::Side::Top) - getMargin(ImagePanel::Side::Bottom);
     }
 
     return size;
@@ -203,24 +236,52 @@ Widget::Widget() :
     parent(nullptr),
     position(0),
     horizontalAlignment(Alignment::Left),
-    verticalAlignment(Alignment::Left),
-    margins({ 0 })
+    verticalAlignment(Alignment::Left)
 {
-}
-
-void TextPanel::setTextBlock(TextBlock* textBlock)
-{
-    this->textBlock = textBlock;
-
-    if (textBlock)
-    {
-        setSize(textBlock->getSize());
-    }
 }
 
 TextBlock* TextPanel::getTextBlock()
 {
-    return textBlock;
+    return textBlock.get();
+}
+
+void TextPanel::setText(const std::string& text)
+{
+    if (textBlock)
+    {
+        textBlock->setText(text);
+    }
+}
+
+void TextPanel::setColor(const glm::vec4& color)
+{
+    if (textBlock)
+    {
+        textBlock->setColor(color);
+    }
+}
+
+void TextPanel::setFontSize(float fontSize)
+{
+    if (textBlock)
+    {
+        textBlock->setFontSize(fontSize);
+    }
+}
+
+void TextPanel::setDepth(float depth)
+{
+    textBlock->setDepth(depth);
+}
+
+void TextPanel::init()
+{
+    if (textBlock = std::make_unique<TextBlock>())
+    {
+        Font* defaultFont = Apparatus::getAssetManager().findAsset<Font>("Font_Arial");
+        textBlock->setFont(defaultFont);
+        textBlock->setMaterial(Apparatus::getAssetManager().findAsset<Material>("Material_TextPanel"));
+    }
 }
 
 void TextPanel::refresh()
@@ -235,9 +296,17 @@ void TextPanel::refresh()
     }
 }
 
+void TextPanel::render(SpriteRenderer* renderer)
+{
+    if (renderer)
+    {
+        renderer->push(textBlock.get());
+    }
+}
+
 void HorizontalPanel::addChild(Widget* child)
 {
-    std::unique_ptr<BoxModelWidget> childContainer = std::make_unique<BoxModelWidget>();
+    std::unique_ptr<BoxModelPanel> childContainer = std::make_unique<BoxModelPanel>();
     childContainer->addChild(child);
     childContainers.push_back(std::move(childContainer));
 }
@@ -247,7 +316,7 @@ glm::ivec2 HorizontalPanel::getGlobalSize() const
     glm::ivec2 size(0);
     int maxHeight = 0;
 
-    for (const std::unique_ptr<BoxModelWidget>& childContainer : childContainers)
+    for (const std::unique_ptr<BoxModelPanel>& childContainer : childContainers)
     {
         if (Widget* child = childContainer->getChild(0))
         {
@@ -274,7 +343,7 @@ void HorizontalPanel::refresh()
 
     float offset = 0.0f;
 
-    for (const std::unique_ptr<BoxModelWidget>& childContainer : childContainers)
+    for (const std::unique_ptr<BoxModelPanel>& childContainer : childContainers)
     {
         if (Widget* child = childContainer->getChild(0))
         {
@@ -287,12 +356,12 @@ void HorizontalPanel::refresh()
     }
 }
 
-void BoxModelWidget::setSize(const glm::ivec2& size)
+void BoxModelPanel::setSize(const glm::ivec2& size)
 {
     this->size = size;
 }
 
-const glm::ivec2& BoxModelWidget::getSize() const
+const glm::ivec2& BoxModelPanel::getSize() const
 {
     return size;
 }

@@ -21,6 +21,7 @@ void SpriteRenderer::push(Drawable* sprite)
 void SpriteRenderer::render()
 {
     glClear(GL_DEPTH_BUFFER_BIT);
+    glDepthMask(GL_FALSE);
 
     if (!activeCamera)
     {
@@ -54,4 +55,6 @@ void SpriteRenderer::render()
             }
         }
     }
+
+    glDepthMask(GL_TRUE);
 }
