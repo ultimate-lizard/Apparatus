@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "../Core/Asset.h"
+#include "Sprite/VertexArrayObject.h"
 
 struct aiMesh;
 struct aiNode;
@@ -44,7 +45,7 @@ public:
 	size_t getIndexBufferSize() const;
 
 private:
-	unsigned int vao;
+	VertexArrayObject vao;
 	unsigned int vbo;
 	unsigned int ebo;
 

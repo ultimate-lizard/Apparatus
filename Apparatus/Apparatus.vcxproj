@@ -159,7 +159,7 @@
     <ClCompile Include="Source\Apparatus\Core\EntityRegistry.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Sprite\Drawable.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Sprite\Sprite.cpp" />
-    <ClCompile Include="Source\Apparatus\Rendering\Sprite\SpriteMesh.cpp" />
+    <ClCompile Include="Source\Apparatus\Rendering\Sprite\VertexArrayObject.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Sprite\SpriteRenderer.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Sprite\TextBlock.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\TextureArray.cpp" />
@@ -217,6 +217,7 @@
     <None Include="Shaders\SpriteDefault.frag" />
     <None Include="Shaders\SpriteDefault.vert" />
     <None Include="Shaders\Text.frag" />
+    <None Include="Shaders\Text.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Apparatus\Apparatus.h" />
@@ -233,7 +234,7 @@
     <ClInclude Include="Source\Apparatus\Core\EntityRegistry.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Sprite\Drawable.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Sprite\Sprite.h" />
-    <ClInclude Include="Source\Apparatus\Rendering\Sprite\SpriteMesh.h" />
+    <ClInclude Include="Source\Apparatus\Rendering\Sprite\VertexArrayObject.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Sprite\SpriteRenderer.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Sprite\TextBlock.h" />
     <ClInclude Include="Source\Apparatus\Rendering\TextureArray.h" />

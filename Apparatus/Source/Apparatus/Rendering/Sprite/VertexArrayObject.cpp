@@ -1,6 +1,4 @@
-#include "SpriteMesh.h"
-
-#include <glad/glad.h>
+#include "VertexArrayObject.h"
 
 SpriteMesh::SpriteMesh(size_t size)
 {
@@ -8,16 +6,12 @@ SpriteMesh::SpriteMesh(size_t size)
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 
-    glCreateVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(sizeof(float) * 3));
+    vao.addAttribute(3);
+    vao.addAttribute(2);
+    vao.setStride(5 * sizeof(float));
+    vao.finalize();
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 }
 
 void SpriteMesh::setSubData(const std::vector<float>& vertices)
@@ -28,7 +22,7 @@ void SpriteMesh::setSubData(const std::vector<float>& vertices)
 
 void SpriteMesh::bind()
 {
-    glBindVertexArray(vao);
+    vao.bind();
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
 

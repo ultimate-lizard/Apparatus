@@ -41,7 +41,7 @@ void UIContext::init()
 		}
 	}
 
-	if (Shader* textShader = Apparatus::getAssetManager().createAsset<Shader>("Shader_Text", "../Shaders/SpriteDefault.vert", "../Shaders/Text.frag"))
+	if (Shader* textShader = Apparatus::getAssetManager().createAsset<Shader>("Shader_Text", "../Shaders/Text.vert", "../Shaders/Text.frag"))
 	{
 		if (Material* textMaterial = Apparatus::getAssetManager().createAsset<Material>("Material_TextPanel"))
 		{

@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-#include "SpriteMesh.h"
+#include "VertexArrayObject.h"
 
 class Material;
 
