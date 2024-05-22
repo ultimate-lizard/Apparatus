@@ -9,16 +9,6 @@ NinePatchPanel::NinePatchPanel() :
 
 }
 
-void NinePatchPanel::setBorder(Side side, int border)
-{
-	borders[static_cast<int>(side)] = border;
-}
-
-int NinePatchPanel::getBorder(Side side) const
-{
-	return borders[static_cast<int>(side)];
-}
-
 void NinePatchPanel::init()
 {
 	if (sprite = std::make_unique<Sprite>())
@@ -49,4 +39,14 @@ void NinePatchPanel::refresh()
 			params.setVec2("spriteSize", getGlobalSize());
 		}
 	}
+}
+
+void NinePatchPanel::setBorder(Side side, int border)
+{
+	borders[static_cast<int>(side)] = border;
+}
+
+int NinePatchPanel::getBorder(Side side) const
+{
+	return borders[static_cast<int>(side)];
 }

@@ -1,5 +1,7 @@
 #include "SpriteRenderer.h"
 
+#include <algorithm>
+
 #include <glad/glad.h>
 
 #include "Sprite.h"
@@ -15,7 +17,7 @@ void SpriteRenderer::setActiveCamera(Camera* camera)
 
 void SpriteRenderer::push(Drawable* sprite)
 {
-    commands.push(sprite);
+    commands.push_back(sprite);
 }
 
 void SpriteRenderer::render()
@@ -28,10 +30,14 @@ void SpriteRenderer::render()
         return;
     }
 
+    std::sort(commands.begin(), commands.end(), [](Drawable* a, Drawable* b) {
+        return (a && b && a->getDepth() < b->getDepth());
+    });
+
     while (!commands.empty())
     {
         Drawable* sprite = commands.front();
-        commands.pop();
+        commands.pop_front();
 
         if (!sprite)
         {

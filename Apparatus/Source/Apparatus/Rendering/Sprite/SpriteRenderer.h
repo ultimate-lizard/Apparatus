@@ -1,6 +1,6 @@
 #pragma once
 
-#include <queue>
+#include <deque>
 
 class Texture;
 class Material;
@@ -19,5 +19,5 @@ public:
 private:
 	Camera* activeCamera;
 
-	std::queue<Drawable*> commands;
+	std::deque<Drawable*> commands;
 };

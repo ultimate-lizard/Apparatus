@@ -7,7 +7,7 @@
 #include <map>
 #include <unordered_map>
 
-#include "Panel/Panel.h"
+#include "Widget/Widget.h"
 #include "../Rendering/Camera.h"
 #include "../Core/Logger.h"
 #include "../Event/Event.h"

@@ -2,7 +2,7 @@
 
 #include <Apparatus/Client/LocalClient.h>
 #include <Apparatus/Rendering/Sprite/TextBlock.h>
-#include <Apparatus/UI/Panel/NinePatchPanel.h>
+#include <Apparatus/UI/Widget/NinePatchPanel.h>
 
 class EditorLocalClient : public LocalClient
 {

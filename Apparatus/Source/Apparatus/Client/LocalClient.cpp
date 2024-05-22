@@ -12,7 +12,7 @@
 #include "../Components/CameraComponent.h"
 #include "../Components/LightComponent.h"
 #include "../Server/LocalServer.h"
-#include "../UI/Panel/NinePatchPanel.h"
+#include "../UI/Widget/NinePatchPanel.h"
 
 LocalClient::LocalClient(Renderer* renderer, SpriteRenderer* spriteRenderer) :
 	debugPrimitiveMaterial(nullptr),

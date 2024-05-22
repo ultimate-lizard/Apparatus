@@ -8,7 +8,8 @@
 #include <Apparatus/Components/TransformComponent.h>
 #include <Apparatus/Components/LightComponent.h>
 #include <Apparatus/Rendering/Sprite/Sprite.h>
-
+#include <Apparatus/UI/Widget/HorizontalPanel.h>
+#include <Apparatus/UI/Widget/TextPanel.h>
 
 #include "EditorController.h"
 #include "../Components/SelectableComponent.h"
@@ -76,8 +77,10 @@ void EditorLocalClient::init()
 		textPanel->setMargin(Widget::Side::Top, 8);
 		textPanel->setMargin(Widget::Side::Bottom, 8);
 		textPanel->setDepth(0.9f);
+		textPanel->setColor({ 0.0f, 0.0f, 1.0f, 1.0 });
 
 		innerPanel2->addChild(textPanel);
+		innerPanel2->setDepth(0.1f);
 
 		testPanel->addChild(horizontalPanel);
 

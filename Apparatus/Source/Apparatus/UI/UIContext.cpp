@@ -9,7 +9,7 @@
 #include "../Rendering/Sprite/TextBlock.h"
 #include "../Core/TextureImporter.h"
 #include "../Core/FontImporter.h"
-#include "Panel/NinePatchPanel.h"
+#include "Widget/NinePatchPanel.h"
 
 UIContext::UIContext()
 {
