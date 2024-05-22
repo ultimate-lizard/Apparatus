@@ -21,8 +21,8 @@ struct Vertex
 class Mesh : public Asset
 {
 public:
-	Mesh(const std::string& resourceName, size_t vertexBufferSize, size_t indexBufferSize);
-	Mesh(const std::string& resourceName, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex);
+	Mesh(size_t vertexBufferSize, size_t indexBufferSize);
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex);
 	~Mesh();
 
 	Mesh() = delete;

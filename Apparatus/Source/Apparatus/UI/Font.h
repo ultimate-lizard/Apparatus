@@ -24,7 +24,7 @@ struct CharacterSet
 class Font : public Asset
 {
 public:
-	Font(const std::string& assetName);
+	Font();
 
 	Font(const Font&) = delete;
 	Font(Font&&) = delete;

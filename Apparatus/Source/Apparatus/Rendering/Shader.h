@@ -12,7 +12,7 @@
 class Shader : public Asset
 {
 public:
-	Shader(const std::string& resourceName, const std::string& vertPath, const std::string& fragPath);
+	Shader(const std::string& vertPath, const std::string& fragPath);
 	~Shader();
 
 	Shader() = delete;

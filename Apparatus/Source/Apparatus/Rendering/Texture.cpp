@@ -2,8 +2,7 @@
 
 #include <glad/glad.h>
 
-Texture::Texture(const std::string& assetName, int width, int height, int bytesPerPixel, const void* pixels) :
-	Asset(assetName),
+Texture::Texture(int width, int height, int bytesPerPixel, const void* pixels) :
 	id(0),
 	bytesPerPixel(bytesPerPixel)
 {

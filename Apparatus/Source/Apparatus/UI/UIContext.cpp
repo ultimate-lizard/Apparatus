@@ -53,7 +53,7 @@ void UIContext::init()
 
 	if (FontImporter* fontImporter = Apparatus::getAssetManager().getImporter<FontImporter>())
 	{
-		Apparatus::getAssetManager().createAsset(fontImporter->import("Font_Arial", "../Fonts/Arial.ttf"));
+		Apparatus::getAssetManager().createAsset("Font_Arial", fontImporter->import("../Fonts/Arial.ttf"));
 	}
 }
 

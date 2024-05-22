@@ -17,7 +17,7 @@ class TextureArray;
 class Material : public Asset
 {
 public:
-	Material(const std::string& resourceName);
+	Material();
 	~Material() = default;
 	
 	Material(const Material&) = delete;

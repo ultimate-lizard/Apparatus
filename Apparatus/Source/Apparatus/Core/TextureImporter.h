@@ -8,5 +8,5 @@
 class TextureImporter : public Importer
 {
 public:
-	std::unique_ptr<Texture> import(const std::string& textureName, const std::string& path);
+	std::unique_ptr<Texture> import(const std::string& path);
 };

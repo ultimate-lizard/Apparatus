@@ -10,7 +10,7 @@
 class Texture : public Asset
 {
 public:
-	Texture(const std::string& assetName, int width, int height, int bytesPerPixel, const void* pixels);
+	Texture(int width, int height, int bytesPerPixel, const void* pixels);
 	~Texture();
 
 	Texture() = delete;

@@ -1,17 +1,15 @@
 #include "Asset.h"
 
-Asset::Asset(const std::string& assetName) :
-    assetName(assetName)
+Asset::Asset()
 {
-    
 }
 
-std::string Asset::getAssetName() const
+void Asset::setAssetName(const std::string& assetName)
+{
+    this->assetName = assetName;
+}
+
+const std::string& Asset::getAssetName() const
 {
     return assetName;
 }
-
-//AssetManager& Asset::getAssetManager()
-//{
-//    return assetManager;
-//}

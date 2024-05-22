@@ -12,8 +12,7 @@
 
 static std::map<std::string, size_t> instanceCount;
 
-Material::Material(const std::string& resourceName) :
-	Asset(resourceName),
+Material::Material() :
 	shader(nullptr)
 {
 }

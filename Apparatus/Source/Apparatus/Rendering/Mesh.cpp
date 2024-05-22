@@ -7,8 +7,7 @@
 
 #include "../Core/Logger.h"
 
-Mesh::Mesh(const std::string& resourceName, size_t vertexBufferSize, size_t indexBufferSize) :
-	Asset(resourceName),
+Mesh::Mesh(size_t vertexBufferSize, size_t indexBufferSize) :
 	vbo(0),
 	ebo(0),
 	materialIndex(0),
@@ -18,8 +17,7 @@ Mesh::Mesh(const std::string& resourceName, size_t vertexBufferSize, size_t inde
 
 }
 
-Mesh::Mesh(const std::string& resourceName, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex) :
-	Asset(resourceName),
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex) :
 	vbo(0),
 	ebo(0),
 	vertices(vertices),

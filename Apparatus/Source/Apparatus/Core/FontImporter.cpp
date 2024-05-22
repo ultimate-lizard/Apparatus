@@ -13,10 +13,9 @@ void FontImporter::init()
 	}
 }
 
-std::unique_ptr<Font> FontImporter::import(const std::string& fontName, const std::string & path)
+std::unique_ptr<Font> FontImporter::import(const std::string & path)
 {
-	auto font = std::make_unique<Font>(fontName);
-
+	auto font = std::make_unique<Font>();
 
 	FT_Face face;
 	if (FT_New_Face(ft, path.c_str(), 0, &face))
@@ -34,7 +33,7 @@ std::unique_ptr<Font> FontImporter::import(const std::string& fontName, const st
 	int height = 14;
 	int layerCount = 128;
 
-	TextureArray* textureArray = Apparatus::getAssetManager().createAsset<TextureArray>("TextureArray_" + fontName, width, height, layerCount, 1);
+	TextureArray* textureArray = Apparatus::getAssetManager().createAsset<TextureArray>("TextureArray_DummyFontName", width, height, layerCount, 1);
 	std::map<char, Character> characterMap;
 
 	FT_Set_Pixel_Sizes(face, width, height);

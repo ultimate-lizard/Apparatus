@@ -235,17 +235,19 @@ void Apparatus::_createAssets()
 	{
 		if (ModelImporter* importer = assetManager.getImporter<ModelImporter>())
 		{
-			assetManager.createAsset(std::move(importer->import("Model_DirectionalLight", solidColorShader, "../Models/DirectionalLight.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_PointLight", solidColorShader, "../Models/PointLight.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_SpotLight", solidColorShader, "../Models/SpotLight.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_Error", solidColorShader, "../Models/Error.fbx")));
+			assetManager.createAsset("Model_DirectionalLight", std::move(importer->import(solidColorShader, "../Models/DirectionalLight.fbx")));
+			assetManager.createAsset("Model_PointLight", std::move(importer->import(solidColorShader, "../Models/PointLight.fbx")));
+			assetManager.createAsset("Model_SpotLight", std::move(importer->import(solidColorShader, "../Models/SpotLight.fbx")));
+			assetManager.createAsset("Model_Error", std::move(importer->import(solidColorShader, "../Models/Error.fbx")));
 
 			std::list<std::unique_ptr<Model>> gizmoModels = importer->importMultiple(solidColorShader, "../Models/Gizmo.fbx");
 			for (std::unique_ptr<Model>& model : gizmoModels)
 			{
 				if (model)
 				{
-					assetManager.createAsset(std::move(model));
+					// TODO: Do something about this!
+					std::string tempName = model->getAssetName();
+					assetManager.createAsset(tempName, std::move(model));
 				}
 			}
 		}
@@ -258,15 +260,15 @@ void Apparatus::_createAssets()
 		if (ModelImporter* importer = assetManager.getImporter<ModelImporter>())
 		{
 			//assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "../Models/scene.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_NewScene", modelShader, "../Models/NewScene.fbx")));
-			assetManager.createAsset(std::move(importer->import("Model_Makarov", modelShader, "../Models/makarov.fbx")));
+			assetManager.createAsset("Model_NewScene", std::move(importer->import(modelShader, "../Models/NewScene.fbx")));
+			assetManager.createAsset("Model_Makarov", std::move(importer->import(modelShader, "../Models/makarov.fbx")));
 
 			std::list<std::unique_ptr<Model>> dungeonModels = importer->importMultiple(modelShader, "../Models/Dungeon.fbx");
 			for (std::unique_ptr<Model>& model : dungeonModels)
 			{
 				if (model)
 				{
-					assetManager.createAsset(std::move(model));
+					assetManager.createAsset(model->getAssetName(), std::move(model));
 				}
 			}
 		}

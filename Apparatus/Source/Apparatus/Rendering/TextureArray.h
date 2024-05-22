@@ -7,7 +7,7 @@
 class TextureArray : public Asset
 {
 public:
-	TextureArray(const std::string& assetName, int width, int height, int depth, int bytesPerPixel);
+	TextureArray(int width, int height, int depth, int bytesPerPixel);
 	~TextureArray();
 
 	TextureArray() = delete;

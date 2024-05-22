@@ -25,7 +25,7 @@ public:
 	void operator=(const ModelImporter&) = delete;
 
 	// Imports multiple meshes from a single fbx file as a single model
-	std::unique_ptr<Model> import(const std::string& modelName, Shader* shader, const std::string& path);
+	std::unique_ptr<Model> import(Shader* shader, const std::string& path);
 
 	// Imports multiple meshes from a single fbx file as multiple models
 	std::list<std::unique_ptr<Model>> importMultiple(Shader* shader, const std::string& path);

@@ -7,23 +7,20 @@ class AssetManager;
 class Asset
 {
 public:
-	Asset(const std::string& assetName);
+	Asset();
 	virtual ~Asset() = default;
 
-	Asset() = delete;
 	Asset(const Asset&) = delete;
 	Asset(Asset&&) = delete;
 	void operator=(const Asset&) = delete;
 
 	virtual void init() = 0;
 
-	std::string getAssetName() const;
-	//AssetManager& getAssetManager();
+	void setAssetName(const std::string& assetName);
+	const std::string& getAssetName() const;
 
 protected:
 	std::string assetName;
-
-	//AssetManager& assetManager;
 
 	friend class AssetManager;
 };

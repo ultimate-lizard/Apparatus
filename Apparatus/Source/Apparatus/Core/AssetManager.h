@@ -22,10 +22,10 @@ public:
 	void initAssets();
 
 	template <class ResourceType, typename ... Args>
-	ResourceType* createAsset(Args&& ... args);
+	ResourceType* createAsset(const std::string& assetName, Args&& ... args);
 
 	template <class ResourceType, typename ... Args>
-	ResourceType* createAsset(std::unique_ptr<ResourceType> asset);
+	ResourceType* createAsset(const std::string& assetName, std::unique_ptr<ResourceType> asset);
 
 	void removeAsset(const std::string& name);
 
@@ -41,10 +41,11 @@ private:
 };
 
 template <class ResourceType, typename ... Args>
-inline ResourceType* AssetManager::createAsset(Args&& ... args)
+inline ResourceType* AssetManager::createAsset(const std::string& assetName, Args&& ... args)
 {
 	if (std::unique_ptr<Asset> newResource = std::make_unique<ResourceType>(std::forward<Args>(args)...))
 	{
+		newResource->assetName = assetName;
 		auto searchIter = assetMap.find(newResource->getAssetName());
 		if (searchIter != assetMap.end())
 		{
@@ -65,10 +66,13 @@ inline ResourceType* AssetManager::createAsset(Args&& ... args)
 }
 
 template<class ResourceType, typename ...Args>
-inline ResourceType* AssetManager::createAsset(std::unique_ptr<ResourceType> asset)
+inline ResourceType* AssetManager::createAsset(const std::string& assetName, std::unique_ptr<ResourceType> asset)
 {
 	if (asset)
 	{
+		std::string nameCached = assetName;
+		asset->setAssetName(nameCached);
+
 		auto searchIter = assetMap.find(asset->getAssetName());
 		if (searchIter != assetMap.end())
 		{

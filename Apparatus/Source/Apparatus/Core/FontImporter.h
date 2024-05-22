@@ -11,7 +11,7 @@ class FontImporter : public Importer
 {
 public:
 	virtual void init() override;
-	std::unique_ptr<Font> import(const std::string & fontName, const std::string& path);
+	std::unique_ptr<Font> import(const std::string& path);
 
 private:
 	FT_Library ft;

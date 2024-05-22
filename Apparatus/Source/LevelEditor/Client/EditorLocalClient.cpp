@@ -31,9 +31,9 @@ void EditorLocalClient::init()
 
 	if (TextureImporter* importer = Apparatus::getAssetManager().getImporter<TextureImporter>())
 	{
-		Texture* innerWindowTexture = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_WindowInner", "../Textures/WindowInner.bmp"));	
-		Texture* thick = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_WindowThick", "../Textures/WindowThick.bmp"));
-		Texture* holeTex = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_HoleInner", "../Textures/HoleInner.bmp"));
+		Texture* innerWindowTexture = Apparatus::getAssetManager().createAsset<Texture>("Texture_WindowInner", importer->import("../Textures/WindowInner.bmp"));
+		Texture* thick = Apparatus::getAssetManager().createAsset<Texture>("Texture_WindowThick", importer->import("../Textures/WindowThick.bmp"));
+		Texture* holeTex = Apparatus::getAssetManager().createAsset<Texture>("Texture_HoleInner", importer->import("../Textures/HoleInner.bmp"));
 
 		auto testPanel = uiContext.createWidget<NinePatchPanel>("Panel_NinePatchPanel");
 		testPanel->setTexture(thick);

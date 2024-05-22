@@ -13,7 +13,7 @@ class Material;
 class Model : public Asset
 {
 public:
-	Model(const std::string& resourceName, Shader* shader, std::vector<Mesh*>&& meshes, std::vector<Material*>&& materials);
+	Model(Shader* shader, std::vector<Mesh*>&& meshes, std::vector<Material*>&& materials);
 
 	Model() = delete;
 	Model(const Model&) = delete;

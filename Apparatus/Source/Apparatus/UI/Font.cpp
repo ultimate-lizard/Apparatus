@@ -23,8 +23,7 @@ CharacterSet* Font::getCurrentCharacterSet()
 	return getCharacterSet(fontSize);
 }
 
-Font::Font(const std::string& assetName) :
-	Asset(assetName),
+Font::Font() :
 	fontSize(14)
 {
 

@@ -19,7 +19,7 @@ ModelImporter::ModelImporter() :
 {
 }
 
-std::unique_ptr<Model> ModelImporter::import(const std::string& modelName, Shader * shader, const std::string & path)
+std::unique_ptr<Model> ModelImporter::import(Shader * shader, const std::string & path)
 {
 	meshes.clear();
 	materials.clear();
@@ -39,7 +39,7 @@ std::unique_ptr<Model> ModelImporter::import(const std::string& modelName, Shade
 	processNode(aiScene->mRootNode, aiScene);
 	processMaterials(aiScene);
 
-	return std::make_unique<Model>(modelName, shader, std::move(meshes), std::move(materials));
+	return std::make_unique<Model>(shader, std::move(meshes), std::move(materials));
 }
 
 std::list<std::unique_ptr<Model>> ModelImporter::importMultiple(Shader* shader, const std::string& path)
@@ -78,8 +78,9 @@ std::list<std::unique_ptr<Model>> ModelImporter::importMultiple(Shader* shader, 
 					materialInVector.push_back(material);
 
 					mesh->materialIndex = 0;
-
-					result.push_back(std::move(std::make_unique<Model>("Model_" + mesh->getAssetName(), shader, std::move(meshInVector), std::move(materialInVector))));
+					auto newModel = std::make_unique<Model>(shader, std::move(meshInVector), std::move(materialInVector));
+					newModel->setAssetName("Model_" + mesh->getAssetName());
+					result.push_back(std::move(newModel));
 				}
 			}
 		}
@@ -211,9 +212,9 @@ void ModelImporter::processMaterials(const aiScene* aiScene)
 				{
 					std::string textureName = "Texture_";
 					textureName += materialName.C_Str();
-					if (std::unique_ptr<Texture> newTexturePtr = textureImporter->import(textureName, "../Models/" + std::string(texturePath.C_Str())))
+					if (std::unique_ptr<Texture> newTexturePtr = textureImporter->import("../Models/" + std::string(texturePath.C_Str())))
 					{
-						if (Texture* newTexture = assetManager->createAsset<Texture>(std::move(newTexturePtr)))
+						if (Texture* newTexture = assetManager->createAsset<Texture>(textureName, std::move(newTexturePtr)))
 						{
 							newMaterial->createTextureParameter("material.diffuseTexture", newTexture);
 						}
