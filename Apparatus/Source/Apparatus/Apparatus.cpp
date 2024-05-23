@@ -246,8 +246,8 @@ void Apparatus::_createAssets()
 				if (model)
 				{
 					// TODO: Do something about this!
-					std::string tempName = model->getAssetName();
-					assetManager.createAsset(tempName, std::move(model));
+					std::string modelName = model->getAssetName();
+					assetManager.createAsset(modelName, std::move(model));
 				}
 			}
 		}
@@ -268,7 +268,8 @@ void Apparatus::_createAssets()
 			{
 				if (model)
 				{
-					assetManager.createAsset(model->getAssetName(), std::move(model));
+					std::string modelName = model->getAssetName();
+					assetManager.createAsset(modelName, std::move(model));
 				}
 			}
 		}
