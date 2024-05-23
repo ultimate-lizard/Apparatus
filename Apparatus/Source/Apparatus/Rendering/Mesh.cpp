@@ -7,7 +7,8 @@
 
 #include "../Core/Logger.h"
 
-Mesh::Mesh(int vertexBufferSize, int indexBufferSize) :
+Mesh::Mesh(std::unique_ptr<VertexArrayObject> vao, int vertexBufferSize, int indexBufferSize) :
+	vao(std::move(vao)),
 	vbo(0),
 	ebo(0),
 	materialIndex(0),
@@ -17,12 +18,14 @@ Mesh::Mesh(int vertexBufferSize, int indexBufferSize) :
 
 }
 
-Mesh::Mesh(std::shared_ptr<VertexBufferInterface> vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex) :
+Mesh::Mesh(std::unique_ptr<VertexArrayObject> vao, std::shared_ptr<VertexBufferInterface> vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex) :
+	vao(std::move(vao)),
 	vbo(0),
 	ebo(0),
 	vertexBuffer(vertices),
 	indices(indices),
 	materialIndex(materialIndex),
+	vertexBufferSize(0),
 	indexBufferSize(0)
 {
 
@@ -43,6 +46,10 @@ void Mesh::init()
 	glCreateBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
+	assert(vao);
+	vao->bind();
+	vao->finalize();
+
 	if (vertexBuffer)
 	{
 		glBufferData(GL_ARRAY_BUFFER, vertexBuffer->getSize(), vertexBuffer->getData(), GL_STATIC_DRAW);
@@ -51,26 +58,6 @@ void Mesh::init()
 	{
 		glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, nullptr, GL_DYNAMIC_DRAW);
 	}
-
-	vao.bind();
-	vao.setStride(sizeof(ModelVertex));
-	vao.addAttribute(3);
-	vao.addAttribute(2);
-	vao.addAttribute(3);
-	vao.addAttribute(4);
-	vao.finalize();
-
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	//glEnableVertexAttribArray(0);
-
-	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(float) * 3));
-	//glEnableVertexAttribArray(1);
-
-	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(float) * 5));
-	//glEnableVertexAttribArray(2);
-
-	//glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(float) * 8));
-	//glEnableVertexAttribArray(3);
 
 	glCreateBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
@@ -84,12 +71,13 @@ void Mesh::init()
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize, nullptr, GL_DYNAMIC_DRAW);
 	}
 
-	vao.unbind();
+	vao->unbind();
 }
 
 void Mesh::bind() const
 {
-	vao.bind();
+	assert(vao);
+	vao->bind();
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);

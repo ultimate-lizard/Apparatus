@@ -62,7 +62,7 @@ protected:
 
 	Material* debugPrimitiveMaterial;
 
-	size_t debugMeshBufferSize;
+	int debugMeshBufferSize;
 	//////////////
 
 	template <class ControllerType, typename ... Args>

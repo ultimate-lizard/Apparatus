@@ -158,7 +158,15 @@ void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
 			std::shared_ptr<VertexBuffer<ModelVertex>> vertexBuffer = std::make_shared<VertexBuffer<ModelVertex>>();
 			vertexBuffer->vertices = vertices;
 
-			if (Mesh* mesh = assetManager->createAsset<Mesh>(meshName.C_Str(), vertexBuffer, indices, materialIndex))
+			auto vao = std::make_unique<VertexArrayObject>();
+			assert(vao);
+			vao->setStride(sizeof(ModelVertex));
+			vao->addAttribute(3);
+			vao->addAttribute(2);
+			vao->addAttribute(3);
+			vao->addAttribute(4);
+
+			if (Mesh* mesh = assetManager->createAsset<Mesh>(meshName.C_Str(), std::move(vao), vertexBuffer, indices, materialIndex))
 			{
 				meshes.push_back(mesh);
 			}

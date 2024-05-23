@@ -371,8 +371,16 @@ void LocalClient::renderDebugPrimitives(const std::vector<ModelVertex>& vertices
 	// If no mesh cached, create a mesh asset for that purpose, and for it to be reused later
 	if (!mesh)
 	{
+		auto vao = std::make_unique<VertexArrayObject>();
+		assert(vao);
+		vao->setStride(sizeof(ModelVertex));
+		vao->addAttribute(3);
+		vao->addAttribute(2);
+		vao->addAttribute(3);
+		vao->addAttribute(4);
+
 		// TODO: Take buffer size from somewhere else
-		mesh = Apparatus::getAssetManager().createAsset<Mesh>(meshName, debugMeshBufferSize, debugMeshBufferSize);
+		mesh = Apparatus::getAssetManager().createAsset<Mesh>(meshName, std::move(vao), debugMeshBufferSize, debugMeshBufferSize);
 		debugMeshCache[drawSize] = mesh;
 	}
 	else

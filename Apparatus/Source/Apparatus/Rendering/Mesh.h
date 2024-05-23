@@ -44,8 +44,8 @@ struct VertexBuffer : public VertexBufferInterface
 class Mesh : public Asset
 {
 public:
-	Mesh(int vertexBufferSize, int indexBufferSize);
-	Mesh(std::shared_ptr<VertexBufferInterface> vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex);
+	Mesh(std::unique_ptr<VertexArrayObject> vao, int vertexBufferSize, int indexBufferSize);
+	Mesh(std::unique_ptr<VertexArrayObject> vao, std::shared_ptr<VertexBufferInterface> vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex);
 	~Mesh();
 
 	Mesh() = delete;
@@ -71,7 +71,7 @@ public:
 	int getIndexBufferSize() const;
 
 private:
-	VertexArrayObject vao;
+	std::unique_ptr<VertexArrayObject> vao;
 	unsigned int vbo;
 	unsigned int ebo;
 
