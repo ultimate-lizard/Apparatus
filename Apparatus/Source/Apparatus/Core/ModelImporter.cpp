@@ -104,7 +104,7 @@ void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
 			transform *= getTransform(aiNode->mParent);
 		}
 
-		std::vector<Vertex> vertices;
+		std::vector<ModelVertex> vertices;
 		std::vector<unsigned int> indices;
 
 		if (aiMesh* aiMesh = aiScene->mMeshes[aiNode->mMeshes[i]])
@@ -115,7 +115,7 @@ void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
 			{
 				aiVector3D& aiVec = aiMesh->mVertices[i];
 
-				Vertex vertex;
+				ModelVertex vertex;
 				vertex.position = glm::vec3(aiVec.x, aiVec.y, aiVec.z);
 
 				glm::vec4 newPosition = glm::vec4(vertex.position, 1.0f);
@@ -155,7 +155,10 @@ void ModelImporter::processNode(const aiNode* aiNode, const aiScene* aiScene)
 
 			unsigned int materialIndex = aiMesh->mMaterialIndex;
 
-			if (Mesh* mesh = assetManager->createAsset<Mesh>(meshName.C_Str(), vertices, indices, materialIndex))
+			std::shared_ptr<VertexBuffer<ModelVertex>> vertexBuffer = std::make_shared<VertexBuffer<ModelVertex>>();
+			vertexBuffer->vertices = vertices;
+
+			if (Mesh* mesh = assetManager->createAsset<Mesh>(meshName.C_Str(), vertexBuffer, indices, materialIndex))
 			{
 				meshes.push_back(mesh);
 			}

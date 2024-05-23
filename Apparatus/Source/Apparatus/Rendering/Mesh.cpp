@@ -7,7 +7,7 @@
 
 #include "../Core/Logger.h"
 
-Mesh::Mesh(size_t vertexBufferSize, size_t indexBufferSize) :
+Mesh::Mesh(int vertexBufferSize, int indexBufferSize) :
 	vbo(0),
 	ebo(0),
 	materialIndex(0),
@@ -17,13 +17,12 @@ Mesh::Mesh(size_t vertexBufferSize, size_t indexBufferSize) :
 
 }
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex) :
+Mesh::Mesh(std::shared_ptr<VertexBufferInterface> vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex) :
 	vbo(0),
 	ebo(0),
-	vertices(vertices),
+	vertexBuffer(vertices),
 	indices(indices),
 	materialIndex(materialIndex),
-	vertexBufferSize(0),
 	indexBufferSize(0)
 {
 
@@ -44,9 +43,9 @@ void Mesh::init()
 	glCreateBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	if (vertices.size())
+	if (vertexBuffer)
 	{
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer->getSize(), vertexBuffer->getData(), GL_STATIC_DRAW);
 	}
 	else
 	{
@@ -54,7 +53,7 @@ void Mesh::init()
 	}
 
 	vao.bind();
-	vao.setStride(sizeof(Vertex));
+	vao.setStride(sizeof(ModelVertex));
 	vao.addAttribute(3);
 	vao.addAttribute(2);
 	vao.addAttribute(3);
@@ -96,28 +95,31 @@ void Mesh::bind() const
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 }
 
-void Mesh::setSubData(const std::vector<Vertex>& vertices)
+void Mesh::setSubData(std::shared_ptr<VertexBufferInterface> vertices)
 {
 	bind();
 
-	this->vertices = vertices;
-	glBufferSubData(GL_ARRAY_BUFFER, 0, this->vertices.size() * sizeof(Vertex), this->vertices.data());
+	vertexBuffer = vertices;
+
+	if (vertexBuffer)
+	{
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBuffer->getSize(), vertexBuffer->getData());
+	}
 }
 
-void Mesh::setSubData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
+void Mesh::setSubData(std::shared_ptr<VertexBufferInterface> vertices, const std::vector<unsigned int>& indices)
 {
 	bind();
 
-	this->vertices = vertices;
+	vertexBuffer = vertices;
 	this->indices = indices;
 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, this->vertices.size() * sizeof(Vertex), this->vertices.data());
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, this->indices.size() * sizeof(unsigned int), this->indices.data());
-}
+	if (vertexBuffer)
+	{
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBuffer->getSize(), vertexBuffer->getData());
+	}
 
-const std::vector<Vertex>& Mesh::getVertices() const
-{
-	return vertices;
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, this->indices.size() * sizeof(unsigned int), this->indices.data());
 }
 
 const std::vector<unsigned int>& Mesh::getIndices() const
@@ -130,12 +132,12 @@ unsigned int Mesh::getMaterialIndex() const
 	return materialIndex;
 }
 
-size_t Mesh::getVertexBufferSize() const
+int Mesh::getVertexBufferSize() const
 {
 	return vertexBufferSize;
 }
 
-size_t Mesh::getIndexBufferSize() const
+int Mesh::getIndexBufferSize() const
 {
 	return indexBufferSize;
 }

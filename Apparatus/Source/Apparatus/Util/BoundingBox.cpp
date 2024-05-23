@@ -15,7 +15,7 @@ Box generateAABB(const Model* model, const glm::vec3& position, const glm::quat&
 		return {};
 	}
 
-	std::vector<Vertex> modelVertices;
+	std::vector<ModelVertex> modelVertices;
 
 	const std::vector<Mesh*>& meshes = model->getMeshes();
 	for (const Mesh* mesh : meshes)
@@ -25,8 +25,14 @@ Box generateAABB(const Model* model, const glm::vec3& position, const glm::quat&
 			continue;
 		}
 
-		const std::vector<Vertex>& meshVertices = mesh->getVertices();
-		modelVertices.insert(modelVertices.end(), meshVertices.begin(), meshVertices.end());
+		if (std::shared_ptr<VertexBuffer<ModelVertex>> meshVertices = mesh->getVertexBuffer<VertexBuffer<ModelVertex>>())
+		{
+			modelVertices.insert(modelVertices.end(), meshVertices->vertices.begin(), meshVertices->vertices.end());
+		}
+		else
+		{
+			assert(false);
+		}
 	}
 
 	glm::vec3 min(0.0f);
@@ -34,7 +40,7 @@ Box generateAABB(const Model* model, const glm::vec3& position, const glm::quat&
 
 	Box newBox;
 
-	for (const Vertex& vertex : modelVertices)
+	for (const ModelVertex& vertex : modelVertices)
 	{
 		glm::vec3 scaledPosition = vertex.position * scale;
 		glm::vec3 rotatedPosition = (glm::mat4_cast(orientation) * glm::vec4(scaledPosition, 1.0f));
@@ -62,7 +68,7 @@ Box generateAABB(const Model* model, const glm::vec3& position, const glm::quat&
 
 Box generateAABB(const std::vector<Model*>& models, const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
 {
-	std::vector<Vertex> modelVertices;
+	std::vector<ModelVertex> modelVertices;
 
 	for (Model* model : models)
 	{
@@ -74,8 +80,14 @@ Box generateAABB(const std::vector<Model*>& models, const glm::vec3& position, c
 				continue;
 			}
 
-			const std::vector<Vertex>& meshVertices = mesh->getVertices();
-			modelVertices.insert(modelVertices.end(), meshVertices.begin(), meshVertices.end());
+			if (std::shared_ptr<VertexBuffer<ModelVertex>> meshVertices = mesh->getVertexBuffer<VertexBuffer<ModelVertex>>())
+			{
+				modelVertices.insert(modelVertices.end(), meshVertices->vertices.begin(), meshVertices->vertices.end());
+			}
+			else
+			{
+				assert(false);
+			}
 		}
 	}
 
@@ -84,7 +96,7 @@ Box generateAABB(const std::vector<Model*>& models, const glm::vec3& position, c
 
 	Box newBox;
 
-	for (const Vertex& vertex : modelVertices)
+	for (const ModelVertex& vertex : modelVertices)
 	{
 		glm::vec3 scaledPosition = vertex.position * scale;
 		glm::vec3 rotatedPosition = (glm::mat4_cast(orientation) * glm::vec4(scaledPosition, 1.0f));

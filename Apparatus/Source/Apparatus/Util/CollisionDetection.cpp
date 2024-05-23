@@ -46,16 +46,23 @@ std::vector<std::pair<glm::vec3, glm::vec3>> rayVsMesh(const glm::vec3& origin, 
 		return result;
 	}
 
-	const std::vector<Vertex>& vertices = mesh->getVertices();
+	std::shared_ptr<VertexBuffer<ModelVertex>> vertexBuffer = mesh->getVertexBuffer<VertexBuffer<ModelVertex>>();
+	if (!vertexBuffer)
+	{
+		assert(false);
+	}
+
+	std::vector<ModelVertex>& vertices = vertexBuffer->vertices;
+
 	const std::vector<unsigned int>& indices = mesh->getIndices();
 
 	std::vector <glm::vec3> intersections;
 
 	for (size_t i = 0; i < indices.size(); i += 3)
 	{
-		const Vertex& a = vertices[indices[i]];
-		const Vertex& b = vertices[indices[i + 1]];
-		const Vertex& c = vertices[indices[i + 2]];
+		const ModelVertex& a = vertices[indices[i]];
+		const ModelVertex& b = vertices[indices[i + 1]];
+		const ModelVertex& c = vertices[indices[i + 2]];
 
 		const glm::vec4 aNewPosition = meshTransform * glm::vec4(a.position, 1.0f);
 		const glm::vec4 bNewPosition = meshTransform * glm::vec4(b.position, 1.0f);

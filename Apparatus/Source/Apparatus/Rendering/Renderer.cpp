@@ -165,7 +165,12 @@ void Renderer::render()
 					}
 
 					// Draw
-					const std::vector<Vertex>& vertices = command.mesh->getVertices();
+					std::shared_ptr<VertexBuffer<ModelVertex>> vertexBuffer = command.mesh->getVertexBuffer<VertexBuffer<ModelVertex>>();
+					if (!vertexBuffer)
+					{
+						assert(false);
+					}
+
 					const std::vector<unsigned int>& indices = command.mesh->getIndices();
 
 					glPointSize(command.drawSize);
@@ -179,9 +184,9 @@ void Renderer::render()
 					{
 						glDrawElements(mode, static_cast<int>(indices.size()), GL_UNSIGNED_INT, 0);
 					}
-					else if (vertices.size())
+					else if (vertexBuffer->vertices.size())
 					{
-						glDrawArrays(mode, 0, static_cast<int>(vertices.size()));
+						glDrawArrays(mode, 0, static_cast<int>(vertexBuffer->vertices.size()));
 					}
 
 					glPointSize(1.0f);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 #include <glm/glm.hpp>
 
@@ -10,7 +11,7 @@
 struct aiMesh;
 struct aiNode;
 
-struct Vertex
+struct ModelVertex
 {
 	glm::vec3 position{};
 	glm::vec2 uv{};
@@ -18,11 +19,33 @@ struct Vertex
 	glm::vec4 color{};
 };
 
+struct VertexBufferInterface
+{
+	virtual void* getData() = 0;
+	virtual int getSize() const = 0;
+};
+
+template <typename VertexType>
+struct VertexBuffer : public VertexBufferInterface
+{
+	virtual void* getData() override
+	{
+		return vertices.data();
+	}
+
+	virtual int getSize() const override
+	{
+		return static_cast<int>(vertices.size()) * sizeof(VertexType);
+	}
+
+	std::vector<VertexType> vertices;
+};
+
 class Mesh : public Asset
 {
 public:
-	Mesh(size_t vertexBufferSize, size_t indexBufferSize);
-	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex);
+	Mesh(int vertexBufferSize, int indexBufferSize);
+	Mesh(std::shared_ptr<VertexBufferInterface> vertices, const std::vector<unsigned int>& indices, unsigned int materialIndex);
 	~Mesh();
 
 	Mesh() = delete;
@@ -34,28 +57,36 @@ public:
 
 	void bind() const;
 
-	void setSubData(const std::vector<Vertex>& vertices);
-	void setSubData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
+	void setSubData(std::shared_ptr<VertexBufferInterface> vertices);
+	void setSubData(std::shared_ptr<VertexBufferInterface> vertices, const std::vector<unsigned int>& indices);
 
-	const std::vector<Vertex>& getVertices() const;
+	template <typename BufferType>
+	std::shared_ptr<BufferType> getVertexBuffer() const;
+
 	const std::vector<unsigned int>& getIndices() const;
 
 	unsigned int getMaterialIndex() const;
-	size_t getVertexBufferSize() const;
-	size_t getIndexBufferSize() const;
+
+	int getVertexBufferSize() const;
+	int getIndexBufferSize() const;
 
 private:
 	VertexArrayObject vao;
 	unsigned int vbo;
 	unsigned int ebo;
 
-	std::vector<Vertex> vertices;
+	std::shared_ptr<VertexBufferInterface> vertexBuffer;
 	std::vector<unsigned int> indices;
 	unsigned int materialIndex;
 
-	// How much data in bytes will be allocated for EBO and VBO for dynamic draw if no vertice and index data provided during creation of the mesh
-	size_t vertexBufferSize;
-	size_t indexBufferSize;
+	int vertexBufferSize;
+	int indexBufferSize;
 
 	friend class ModelImporter;
 };
+
+template<typename BufferType>
+inline std::shared_ptr<BufferType> Mesh::getVertexBuffer() const
+{
+	return std::dynamic_pointer_cast<BufferType>(vertexBuffer);
+}

@@ -208,7 +208,7 @@ void LocalClient::composeDebugPrimitiveRenderData()
 
 		const std::vector<std::pair<Point, DebugPrimitiveData>>& debugPoints = debugPointMapIter.second;
 
-		std::vector<Vertex> vertices;
+		std::vector<ModelVertex> vertices;
 		std::vector<unsigned int> indices;
 
 		for (unsigned int i = 0; i < debugPoints.size(); ++i)
@@ -216,7 +216,7 @@ void LocalClient::composeDebugPrimitiveRenderData()
 			const Point& debugPoint = debugPoints[i].first;
 			const DebugPrimitiveData& primitiveData = debugPoints[i].second;
 
-			Vertex vertex;
+			ModelVertex vertex;
 
 			vertex.position = debugPoint.position;
 			vertex.color = primitiveData.color;
@@ -233,7 +233,7 @@ void LocalClient::composeDebugPrimitiveRenderData()
 		float drawSize = debugLineMapIter.first;
 		const std::vector<std::pair<Line, DebugPrimitiveData>>& debugLines = debugLineMapIter.second;
 
-		std::vector<Vertex> vertices;
+		std::vector<ModelVertex> vertices;
 		std::vector<unsigned int> indices;
 
 		for (unsigned int i = 0; i < debugLines.size(); ++i)
@@ -241,7 +241,7 @@ void LocalClient::composeDebugPrimitiveRenderData()
 			const Line& debugLine = debugLines[i].first;
 			const DebugPrimitiveData& primitiveData = debugLines[i].second;
 
-			Vertex vertex;
+			ModelVertex vertex;
 
 			vertex.position = debugLine.start;
 			vertex.color = primitiveData.color;
@@ -263,7 +263,7 @@ void LocalClient::composeDebugPrimitiveRenderData()
 		float drawSize = debugBoxMapIter.first;
 		const std::vector<std::pair<Box, DebugPrimitiveData>>& debugBoxes = debugBoxMapIter.second;
 
-		std::vector<Vertex> vertices;
+		std::vector<ModelVertex> vertices;
 		std::vector<unsigned int> indices;
 
 		for (unsigned int i = 0; i < debugBoxes.size(); ++i)
@@ -271,7 +271,7 @@ void LocalClient::composeDebugPrimitiveRenderData()
 			const Box& box = debugBoxes[i].first;
 			const DebugPrimitiveData& primitiveData = debugBoxes[i].second;
 
-			Vertex vertex;
+			ModelVertex vertex;
 			vertex.color = primitiveData.color;
 
 			vertex.position.x = -box.size.x / 2.0f + box.position.x;
@@ -344,7 +344,7 @@ void LocalClient::composeDebugPrimitiveRenderData()
 	}
 }
 
-void LocalClient::renderDebugPrimitives(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, std::map<float, Mesh*>& debugMeshCache, const std::string& assetNamePrefix, RenderMode renderMode, float drawSize)
+void LocalClient::renderDebugPrimitives(const std::vector<ModelVertex>& vertices, const std::vector<unsigned int>& indices, std::map<float, Mesh*>& debugMeshCache, const std::string& assetNamePrefix, RenderMode renderMode, float drawSize)
 {
 	if (!activeEntity)
 	{
@@ -377,16 +377,19 @@ void LocalClient::renderDebugPrimitives(const std::vector<Vertex>& vertices, con
 	}
 	else
 	{
+		auto vertexBuffer = std::make_shared<VertexBuffer<ModelVertex>>();
+		vertexBuffer->vertices = vertices;
+
 		const size_t vertexBufferSize = mesh->getVertexBufferSize();
 		const size_t indexBufferSize = mesh->getIndexBufferSize();
 		const size_t indexDataSize = indices.size() * sizeof(unsigned int);
-		const size_t vertexDataSize = vertices.size() * sizeof(Vertex);
+		const size_t vertexDataSize = vertices.size() * sizeof(ModelVertex);
 
 		if (indices.size())
 		{
 			if (indexDataSize >= indexDataSize && vertexBufferSize >= vertexDataSize)
 			{
-				mesh->setSubData(vertices, indices);
+				mesh->setSubData(vertexBuffer, indices);
 			}
 			else
 			{
@@ -405,7 +408,7 @@ void LocalClient::renderDebugPrimitives(const std::vector<Vertex>& vertices, con
 		{
 			if (vertexBufferSize >= vertexDataSize)
 			{
-				mesh->setSubData(vertices);
+				mesh->setSubData(vertexBuffer);
 			}
 			else
 			{

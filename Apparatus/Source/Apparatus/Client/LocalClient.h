@@ -54,7 +54,7 @@ public:
 protected:
 	// DEBUG STUFF
 	void composeDebugPrimitiveRenderData();
-	void renderDebugPrimitives(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, std::map<float, Mesh*>& debugMeshCache, const std::string& assetNamePrefix, RenderMode renderMode, float drawSize);
+	void renderDebugPrimitives(const std::vector<ModelVertex>& vertices, const std::vector<unsigned int>& indices, std::map<float, Mesh*>& debugMeshCache, const std::string& assetNamePrefix, RenderMode renderMode, float drawSize);
 
 	std::map<float, Mesh*> cachedDebugPointMeshes;
 	std::map<float, Mesh*> cachedDebugLineMeshes;
