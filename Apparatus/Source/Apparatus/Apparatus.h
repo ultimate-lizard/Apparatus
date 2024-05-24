@@ -104,10 +104,6 @@ private:
 
 	std::vector<std::unique_ptr<EngineSystem>> engineSystems;
 
-	// EntityRegistry entityRegistry;
-	// AssetManager assetManager;
-	// EventDispatcher eventDispatcher;
-
 	std::unique_ptr<Renderer> renderer;
 	std::unique_ptr<SpriteRenderer> spriteRenderer;
 
