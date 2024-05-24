@@ -4,15 +4,22 @@
 #include "../Material.h"
 #include "../../UI/UIContext.h"
 
-static const size_t spriteBufferSize = 6 * 5 * sizeof(float);
+static const int spriteBufferSize = 6 * 5 * sizeof(float);
 
 Sprite::Sprite() :
-    Drawable(spriteBufferSize),
     texture(nullptr),
     texturePosition(0),
     textureSize(0)
 {
+    auto vao = std::make_unique<VertexArrayObject>();
+    assert(vao);
+    vao->setStride(4 * sizeof(float));
+    vao->addAttribute(2);
+    vao->addAttribute(2);
 
+    spriteMesh = std::make_unique<Mesh>(std::move(vao), spriteBufferSize, 0);
+    assert(spriteMesh);
+    spriteMesh->init();
 }
 
 void Sprite::setTexture(Texture* texture)
@@ -68,7 +75,6 @@ void Sprite::rebuildMesh()
     const glm::vec2 spritePosition = getPosition();
     const glm::vec2 texturePosition = getTexturePosition();
     const glm::vec2 textureBorderSize = getTextureSize();
-    const float spriteDepth = getDepth();
 
     const float textureMinX = texturePosition.x / textureBorderSize.x;
     const float textureMinY = texturePosition.y / textureBorderSize.y;
@@ -76,13 +82,12 @@ void Sprite::rebuildMesh()
     const float textureMaxY = (texturePosition.y + spriteSize.y) / textureBorderSize.y;
 
     const std::vector<float> spriteVertices = {
-        1.0f * spriteSize.x + spritePosition.x, 0.0f * spriteSize.y + spritePosition.y, spriteDepth, textureMaxX, textureMinY,
-        0.0f * spriteSize.x + spritePosition.x, 0.0f * spriteSize.y + spritePosition.y, spriteDepth, textureMinX, textureMinY,
-        0.0f * spriteSize.x + spritePosition.x, 1.0f * spriteSize.y + spritePosition.y, spriteDepth, textureMinX, textureMaxY,
-
-        1.0f * spriteSize.x + spritePosition.x, 0.0f * spriteSize.y + spritePosition.y, spriteDepth, textureMaxX, textureMinY,
-        0.0f * spriteSize.x + spritePosition.x, 1.0f * spriteSize.y + spritePosition.y, spriteDepth, textureMinX, textureMaxY,
-        1.0f * spriteSize.x + spritePosition.x, 1.0f * spriteSize.y + spritePosition.y, spriteDepth, textureMaxX, textureMaxY,
+        1.0f * spriteSize.x + spritePosition.x, 0.0f * spriteSize.y + spritePosition.y, textureMaxX, textureMinY,
+        0.0f * spriteSize.x + spritePosition.x, 0.0f * spriteSize.y + spritePosition.y, textureMinX, textureMinY,
+        0.0f * spriteSize.x + spritePosition.x, 1.0f * spriteSize.y + spritePosition.y, textureMinX, textureMaxY,
+        1.0f * spriteSize.x + spritePosition.x, 0.0f * spriteSize.y + spritePosition.y, textureMaxX, textureMinY,
+        0.0f * spriteSize.x + spritePosition.x, 1.0f * spriteSize.y + spritePosition.y, textureMinX, textureMaxY,
+        1.0f * spriteSize.x + spritePosition.x, 1.0f * spriteSize.y + spritePosition.y, textureMaxX, textureMaxY,
     };
 
     spriteMesh->bind();

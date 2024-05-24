@@ -5,13 +5,20 @@
 #include "../Material.h"
 #include "../../UI/Font.h"
 
-static const size_t textBufferSize = 4000 * 6 * 5 * sizeof(float); // chars * vertices * attribute * float
+static const int textBufferSize = 4000 * 6 * 5 * sizeof(float); // chars * vertices * attribute * float
 
 TextBlock::TextBlock() :
-    Drawable(textBufferSize),
     font(nullptr)
 {
+    auto vao = std::make_unique<VertexArrayObject>();
+    assert(vao);
+    vao->setStride(5 * sizeof(float));
+    vao->addAttribute(2);
+    vao->addAttribute(3);
 
+    spriteMesh = std::make_unique<Mesh>(std::move(vao), textBufferSize, 0);
+    assert(spriteMesh);
+    spriteMesh->init();
 }
 
 void TextBlock::rebuildMesh()
@@ -105,15 +112,13 @@ void TextBlock::rebuildMesh()
                 float positionY = y + (currentCharacterSet->textureSize - character.bearing.y) * fontScale;
                 glm::vec2 glyphPosition(positionX, positionY);
 
-                // float glyphDepth = getDepth();
-
                 const std::vector<float> glyphVertices = {
-                    1.0f * glyphSize.x + glyphPosition.x, 0.0f * glyphSize.y + glyphPosition.y, static_cast<float>(character.textureArrayDepth), textureMaxX, textureMinY,
-                    0.0f * glyphSize.x + glyphPosition.x, 0.0f * glyphSize.y + glyphPosition.y, static_cast<float>(character.textureArrayDepth), textureMinX, textureMinY,
-                    0.0f * glyphSize.x + glyphPosition.x, 1.0f * glyphSize.y + glyphPosition.y, static_cast<float>(character.textureArrayDepth), textureMinX, textureMaxY,
-                    1.0f * glyphSize.x + glyphPosition.x, 0.0f * glyphSize.y + glyphPosition.y, static_cast<float>(character.textureArrayDepth), textureMaxX, textureMinY,
-                    0.0f * glyphSize.x + glyphPosition.x, 1.0f * glyphSize.y + glyphPosition.y, static_cast<float>(character.textureArrayDepth), textureMinX, textureMaxY,
-                    1.0f * glyphSize.x + glyphPosition.x, 1.0f * glyphSize.y + glyphPosition.y, static_cast<float>(character.textureArrayDepth), textureMaxX, textureMaxY,
+                    1.0f * glyphSize.x + glyphPosition.x, 0.0f * glyphSize.y + glyphPosition.y, textureMaxX, textureMinY, static_cast<float>(character.textureArrayDepth),
+                    0.0f * glyphSize.x + glyphPosition.x, 0.0f * glyphSize.y + glyphPosition.y, textureMinX, textureMinY, static_cast<float>(character.textureArrayDepth),
+                    0.0f * glyphSize.x + glyphPosition.x, 1.0f * glyphSize.y + glyphPosition.y, textureMinX, textureMaxY, static_cast<float>(character.textureArrayDepth),
+                    1.0f * glyphSize.x + glyphPosition.x, 0.0f * glyphSize.y + glyphPosition.y, textureMaxX, textureMinY, static_cast<float>(character.textureArrayDepth),
+                    0.0f * glyphSize.x + glyphPosition.x, 1.0f * glyphSize.y + glyphPosition.y, textureMinX, textureMaxY, static_cast<float>(character.textureArrayDepth),
+                    1.0f * glyphSize.x + glyphPosition.x, 1.0f * glyphSize.y + glyphPosition.y, textureMaxX, textureMaxY, static_cast<float>(character.textureArrayDepth),
                 };
 
                 textVertices.insert(textVertices.end(), glyphVertices.begin(), glyphVertices.end());

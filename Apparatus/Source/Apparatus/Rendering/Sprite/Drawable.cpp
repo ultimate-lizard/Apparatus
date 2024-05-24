@@ -2,22 +2,14 @@
 
 #include "../Material.h"
 
-Drawable::Drawable(int bufferSize) :
+Drawable::Drawable() :
     material(material),
     position(0),
     size(0),
     depth(0.0f),
     color(0.0f)
 {
-    auto vao = std::make_unique<VertexArrayObject>();
-    assert(vao);
-    vao->setStride(5 * sizeof(float));
-    vao->addAttribute(3);
-    vao->addAttribute(2);
 
-    spriteMesh = std::make_unique<Mesh>(std::move(vao), bufferSize, 0);
-    assert(spriteMesh);
-    spriteMesh->init();
 }
 
 void Drawable::setMaterial(Material* material)

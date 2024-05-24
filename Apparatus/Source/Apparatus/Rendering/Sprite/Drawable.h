@@ -12,7 +12,7 @@ class Material;
 class Drawable
 {
 public:
-	Drawable(int bufferSize);
+	Drawable();
 	virtual ~Drawable() = default;
 	Drawable(const Drawable&) = delete;
 	Drawable(Drawable&&) = delete;
