@@ -14,7 +14,8 @@ public:
 	Asset(Asset&&) = delete;
 	void operator=(const Asset&) = delete;
 
-	virtual void init() = 0;
+	virtual void init() {};
+	virtual void uninit() {};
 
 	void setAssetName(const std::string& assetName);
 	const std::string& getAssetName() const;

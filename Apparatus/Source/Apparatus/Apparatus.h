@@ -6,9 +6,8 @@
 
 #include "Window.h"
 #include "Level.h"
-#include "Core/EntityRegistry.h"
 #include "WindowEventHandler.h"
-#include "Core/AssetManager.h"
+#include "Core/EngineSystem/EngineSystem.h"
 #include "Rendering/Renderer.h"
 #include "Server/Server.h"
 #include "Client/Client.h"
@@ -17,6 +16,8 @@
 #include "Rendering/Sprite/SpriteRenderer.h"
 
 class LocalClient;
+class EntityRegistry;
+class AssetManager;
 
 class Apparatus
 {
@@ -64,10 +65,21 @@ public:
 protected:
 	virtual void init();
 
+	virtual void createEngineSystems();
+	void initEngineSystems();
+	void uninitEngineSystems();
+
 	// TODO: The assets should probably be gathered from files
 	void _createAssets();
 	// TODO: The entity templates must be gathered from files
 	virtual void _createEntityTemplates();
+
+	// Must be called during init() to ensure initialization by the engine
+	template <class SystemType, typename ... Args>
+	SystemType* createEngineSystem(Args&& ... args);
+
+	template <class SystemType>
+	SystemType* findEngineSystem();
 
 	// Replaces the current server with a new one. Doesn't do initialization automatically
 	template <class ServerType, typename ... Args>
@@ -90,9 +102,11 @@ private:
 	Window window;
 	bool running;
 
-	EntityRegistry entityRegistry;
-	AssetManager assetManager;
-	EventDispatcher eventDispatcher;
+	std::vector<std::unique_ptr<EngineSystem>> engineSystems;
+
+	// EntityRegistry entityRegistry;
+	// AssetManager assetManager;
+	// EventDispatcher eventDispatcher;
 
 	std::unique_ptr<Renderer> renderer;
 	std::unique_ptr<SpriteRenderer> spriteRenderer;
@@ -104,6 +118,30 @@ private:
 
 	static ApparatusGlobalInstance globalState;
 };
+
+template<class SystemType, typename ...Args>
+inline SystemType* Apparatus::createEngineSystem(Args && ...args)
+{
+	auto newSystemPtr = std::make_unique<SystemType>(std::forward<Args>()...);
+	SystemType* newSystem = newSystemPtr.get();
+	engineSystems.push_back(std::move(newSystemPtr));
+
+	return newSystem;
+}
+
+template<class SystemType>
+inline SystemType* Apparatus::findEngineSystem()
+{
+	for (std::unique_ptr<EngineSystem>& system : engineSystems)
+	{
+		if (SystemType* castedSystem = dynamic_cast<SystemType*>(system.get()))
+		{
+			return castedSystem;
+		}
+	}
+
+	return nullptr;
+}
 
 template <typename ServerType, typename ... Args>
 inline ServerType* Apparatus::createServer(Args&& ... args)

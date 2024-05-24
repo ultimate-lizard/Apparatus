@@ -30,7 +30,7 @@ void TextBlock::rebuildMesh()
         return;
     }
 
-    CharacterSet* currentCharacterSet = font->getCurrentCharacterSet();
+    GlyphCache* currentCharacterSet = font->getCurrentCharacterSet();
     if (!currentCharacterSet)
     {
         return;
@@ -39,7 +39,7 @@ void TextBlock::rebuildMesh()
     if (material)
     {
         MaterialParameters& params = material->getParameters();
-        params.setTextureArray("textTextureArray", currentCharacterSet->characterTextureArray);
+        params.setTextureArray("textTextureArray", currentCharacterSet->textureArray);
     }
 
     float x = static_cast<float>(getPosition().x);
@@ -84,7 +84,7 @@ void TextBlock::rebuildMesh()
 
             for (auto iter = word.begin(); iter != word.end(); ++iter)
             {
-                const auto characterMap = currentCharacterSet->characterMap;
+                const auto characterMap = currentCharacterSet->glyphMap;
                 auto searchIter = characterMap.find(*iter);
                 if (searchIter == characterMap.end())
                 {
@@ -178,7 +178,7 @@ float TextBlock::calculateWordLength(const std::string& word)
 {
     float result = 0.0f;
 
-    CharacterSet* currentCharacterSet = font->getCurrentCharacterSet();
+    GlyphCache* currentCharacterSet = font->getCurrentCharacterSet();
     if (!currentCharacterSet)
     {
         return 0.0;
@@ -188,7 +188,7 @@ float TextBlock::calculateWordLength(const std::string& word)
     {
         for (auto iter = word.begin(); iter != word.end(); ++iter)
         {
-            const auto characterMap = currentCharacterSet->characterMap;
+            const auto characterMap = currentCharacterSet->glyphMap;
             auto searchIter = characterMap.find(*iter);
             if (searchIter == characterMap.end())
             {

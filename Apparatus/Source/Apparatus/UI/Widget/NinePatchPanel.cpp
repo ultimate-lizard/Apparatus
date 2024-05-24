@@ -2,6 +2,7 @@
 
 #include "../../Rendering/Material.h"
 #include "../../Apparatus.h"
+#include "../../Core/AssetManager.h"
 
 NinePatchPanel::NinePatchPanel() :
 	borders({})

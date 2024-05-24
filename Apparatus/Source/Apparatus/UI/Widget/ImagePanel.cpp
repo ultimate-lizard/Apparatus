@@ -2,6 +2,7 @@
 
 #include "../../Apparatus.h"
 #include "../../Rendering/Material.h"
+#include "../../Core/AssetManager.h"
 
 void ImagePanel::init()
 {

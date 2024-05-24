@@ -225,6 +225,7 @@
     <ClInclude Include="Source\Apparatus\Client\Controller.h" />
     <ClInclude Include="Source\Apparatus\Client\HumanControllerBase.h" />
     <ClInclude Include="Source\Apparatus\Client\GenericHumanController.h" />
+    <ClInclude Include="Source\Apparatus\Core\EngineSystem\EngineSystem.h" />
     <ClInclude Include="Source\Apparatus\Core\FontImporter.h" />
     <ClInclude Include="Source\Apparatus\Core\TextureImporter.h" />
     <ClInclude Include="Source\Apparatus\Event\EventDispatcher.h" />

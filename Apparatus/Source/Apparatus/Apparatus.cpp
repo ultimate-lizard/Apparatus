@@ -7,6 +7,8 @@
 #include "Core/ModelImporter.h"
 #include "Server/LocalServer.h"
 #include "Client/LocalClient.h"
+#include "Core/EntityRegistry.h"
+#include "Core/AssetManager.h"
 
 // TODO: These are probably temporary!
 #include "Rendering/Model.h"
@@ -26,11 +28,6 @@ Apparatus::Apparatus(const std::string& gameTitle) :
 	running(false)
 {
 	apparatus = this;
-
-	globalState.entityRegistry = &entityRegistry;
-	globalState.assetManager = &assetManager;
-	globalState.eventDispatcher = &eventDispatcher;
-	globalState.window = &window;
 }
 
 Apparatus& Apparatus::get()
@@ -125,6 +122,35 @@ void Apparatus::init()
 	}
 }
 
+void Apparatus::createEngineSystems()
+{
+	createEngineSystem<EntityRegistry>();
+	createEngineSystem<AssetManager>();
+	createEngineSystem<EventDispatcher>();
+}
+
+void Apparatus::initEngineSystems()
+{
+	for (std::unique_ptr<EngineSystem>& system : engineSystems)
+	{
+		if (system)
+		{
+			system->init();
+		}
+	}
+}
+
+void Apparatus::uninitEngineSystems()
+{
+	for (std::unique_ptr<EngineSystem>& system : engineSystems)
+	{
+		if (system)
+		{
+			system->uninit();
+		}
+	}
+}
+
 Renderer* Apparatus::getRenderer()
 {
 	return renderer.get();
@@ -156,6 +182,26 @@ int Apparatus::initEngineInternal()
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Unable to initialize Window!", nullptr);
 		return 1;
 	}
+
+	createEngineSystems();
+	initEngineSystems();
+
+	if (EntityRegistry* entityRegistry = findEngineSystem<EntityRegistry>())
+	{
+		globalState.entityRegistry = entityRegistry;
+	}
+
+	if (AssetManager* assetManager = findEngineSystem<AssetManager>())
+	{
+		globalState.assetManager = assetManager;
+	}
+
+	if (EventDispatcher* eventDispatcher = findEngineSystem<EventDispatcher>())
+	{
+		globalState.eventDispatcher = eventDispatcher;
+	}
+
+	globalState.window = &window;
 
 	renderer = std::make_unique<Renderer>(window);
 	if (renderer)
@@ -223,53 +269,56 @@ int Apparatus::initEngineInternal()
 
 void Apparatus::_createAssets()
 {
-	if (Shader* debugPrimitiveShader = assetManager.createAsset<Shader>("Shader_DebugPrimitive", "../Shaders/DebugPrimitive.vert", "../Shaders/DebugPrimitive.frag"))
+	if (AssetManager* assetManager = findEngineSystem<AssetManager>())
 	{
-		if (Material* debugPrimitiveMaterial = assetManager.createAsset<Material>("Material_DebugPrimitive"))
+		if (Shader* debugPrimitiveShader = assetManager->createAsset<Shader>("Shader_DebugPrimitive", "../Shaders/DebugPrimitive.vert", "../Shaders/DebugPrimitive.frag"))
 		{
-			debugPrimitiveMaterial->setShader(debugPrimitiveShader);
-		}
-	}
-
-	if (Shader* solidColorShader = assetManager.createAsset<Shader>("Shader_SolidColorNoLight", "../Shaders/SolidColorNoLight.vert", "../Shaders/SolidColorNoLight.frag"))
-	{
-		if (ModelImporter* importer = assetManager.getImporter<ModelImporter>())
-		{
-			assetManager.createAsset("Model_DirectionalLight", std::move(importer->import(solidColorShader, "../Models/DirectionalLight.fbx")));
-			assetManager.createAsset("Model_PointLight", std::move(importer->import(solidColorShader, "../Models/PointLight.fbx")));
-			assetManager.createAsset("Model_SpotLight", std::move(importer->import(solidColorShader, "../Models/SpotLight.fbx")));
-			assetManager.createAsset("Model_Error", std::move(importer->import(solidColorShader, "../Models/Error.fbx")));
-
-			std::list<std::unique_ptr<Model>> gizmoModels = importer->importMultiple(solidColorShader, "../Models/Gizmo.fbx");
-			for (std::unique_ptr<Model>& model : gizmoModels)
+			if (Material* debugPrimitiveMaterial = assetManager->createAsset<Material>("Material_DebugPrimitive"))
 			{
-				if (model)
+				debugPrimitiveMaterial->setShader(debugPrimitiveShader);
+			}
+		}
+
+		if (Shader* solidColorShader = assetManager->createAsset<Shader>("Shader_SolidColorNoLight", "../Shaders/SolidColorNoLight.vert", "../Shaders/SolidColorNoLight.frag"))
+		{
+			if (ModelImporter* importer = assetManager->getImporter<ModelImporter>())
+			{
+				assetManager->createAsset("Model_DirectionalLight", std::move(importer->import(solidColorShader, "../Models/DirectionalLight.fbx")));
+				assetManager->createAsset("Model_PointLight", std::move(importer->import(solidColorShader, "../Models/PointLight.fbx")));
+				assetManager->createAsset("Model_SpotLight", std::move(importer->import(solidColorShader, "../Models/SpotLight.fbx")));
+				assetManager->createAsset("Model_Error", std::move(importer->import(solidColorShader, "../Models/Error.fbx")));
+
+				std::list<std::unique_ptr<Model>> gizmoModels = importer->importMultiple(solidColorShader, "../Models/Gizmo.fbx");
+				for (std::unique_ptr<Model>& model : gizmoModels)
 				{
-					// TODO: Do something about this!
-					std::string modelName = model->getAssetName();
-					assetManager.createAsset(modelName, std::move(model));
+					if (model)
+					{
+						// TODO: Do something about this!
+						std::string modelName = model->getAssetName();
+						assetManager->createAsset(modelName, std::move(model));
+					}
 				}
 			}
 		}
-	}
-	
-	if (Shader* modelShader = assetManager.createAsset<Shader>("Shader_DefaultModel", "../Shaders/Model.vert", "../Shaders/Model.frag"))
-	{
-		modelShader->createUniformBufferObject(4096, "LightUniformBuffer", 0);
 
-		if (ModelImporter* importer = assetManager.getImporter<ModelImporter>())
+		if (Shader* modelShader = assetManager->createAsset<Shader>("Shader_DefaultModel", "../Shaders/Model.vert", "../Shaders/Model.frag"))
 		{
-			//assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "../Models/scene.fbx")));
-			assetManager.createAsset("Model_NewScene", std::move(importer->import(modelShader, "../Models/NewScene.fbx")));
-			assetManager.createAsset("Model_Makarov", std::move(importer->import(modelShader, "../Models/makarov.fbx")));
+			modelShader->createUniformBufferObject(4096, "LightUniformBuffer", 0);
 
-			std::list<std::unique_ptr<Model>> dungeonModels = importer->importMultiple(modelShader, "../Models/Dungeon.fbx");
-			for (std::unique_ptr<Model>& model : dungeonModels)
+			if (ModelImporter* importer = assetManager->getImporter<ModelImporter>())
 			{
-				if (model)
+				//assetManager.createAsset(std::move(importer->import("Model_Scene", modelShader, "../Models/scene.fbx")));
+				assetManager->createAsset("Model_NewScene", std::move(importer->import(modelShader, "../Models/NewScene.fbx")));
+				assetManager->createAsset("Model_Makarov", std::move(importer->import(modelShader, "../Models/makarov.fbx")));
+
+				std::list<std::unique_ptr<Model>> dungeonModels = importer->importMultiple(modelShader, "../Models/Dungeon.fbx");
+				for (std::unique_ptr<Model>& model : dungeonModels)
 				{
-					std::string modelName = model->getAssetName();
-					assetManager.createAsset(modelName, std::move(model));
+					if (model)
+					{
+						std::string modelName = model->getAssetName();
+						assetManager->createAsset(modelName, std::move(model));
+					}
 				}
 			}
 		}
@@ -278,27 +327,30 @@ void Apparatus::_createAssets()
 
 void Apparatus::_createEntityTemplates()
 {
-	if (Entity* playerEntity = entityRegistry.createEntityTemplate("Player"))
+	if (EntityRegistry* entityRegistry = findEngineSystem<EntityRegistry>())
 	{
-		if (auto transformComponent = entityRegistry.createComponent<TransformComponent>(playerEntity))
+		if (Entity* playerEntity = entityRegistry->createEntityTemplate("Player"))
 		{
-			if (auto cameraComponent = entityRegistry.createComponent<CameraComponent>(playerEntity))
+			if (auto transformComponent = entityRegistry->createComponent<TransformComponent>(playerEntity))
 			{
-				cameraComponent->setParent(transformComponent);
-				cameraComponent->getCamera().setPerspective(90.0f, 800.0f / 600.0f, 0.01f, 1000.0f);
+				if (auto cameraComponent = entityRegistry->createComponent<CameraComponent>(playerEntity))
+				{
+					cameraComponent->setParent(transformComponent);
+					cameraComponent->getCamera().setPerspective(90.0f, 800.0f / 600.0f, 0.01f, 1000.0f);
+				}
 			}
+
+			auto movementComponent = entityRegistry->createComponent<MovementComponent>(playerEntity);
 		}
 
-		auto movementComponent = entityRegistry.createComponent<MovementComponent>(playerEntity);
-	}
-
-	if (Entity* modelEntity = entityRegistry.createEntityTemplate("ModelEntity"))
-	{
-		auto transformComponent = entityRegistry.createComponent<TransformComponent>(modelEntity);
-		if (auto modelComponent = entityRegistry.createComponent<ModelComponent>(modelEntity))
+		if (Entity* modelEntity = entityRegistry->createEntityTemplate("ModelEntity"))
 		{
-			modelComponent->setModel(assetManager.findAsset<Model>("Model_Error"));
-			modelComponent->setParent(transformComponent);
+			auto transformComponent = entityRegistry->createComponent<TransformComponent>(modelEntity);
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(modelEntity))
+			{
+				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Error"));
+				modelComponent->setParent(transformComponent);
+			}
 		}
 	}
 }
@@ -367,6 +419,8 @@ void Apparatus::startGameLoop()
 
 		// TODO: Shutdown
 	}
+
+	uninitEngineSystems();
 
 	Logger::close();
 }

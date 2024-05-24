@@ -5,13 +5,17 @@
 #include <functional>
 
 #include "../Server/Entity.h"
+#include "EngineSystem/EngineSystem.h"
 
 class Component;
 
-class EntityRegistry
+class EntityRegistry : public EngineSystem
 {
 public:
 	EntityRegistry();
+
+	virtual void init() override {}
+	virtual void uninit() override {}
 
 	Entity* createEntityTemplate(const std::string& templateName);
 	Entity* createEntityFromTemplate(const std::string& templateName);

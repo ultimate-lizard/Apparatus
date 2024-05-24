@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "Event.h"
+#include "../Core/EngineSystem/EngineSystem.h"
 
 class FuncWrapper
 {
@@ -35,9 +36,12 @@ private:
 	std::function<void(std::shared_ptr<T>)> func;
 };
 
-class EventDispatcher
+class EventDispatcher : public EngineSystem
 {
 public:
+	virtual void init() override {}
+	virtual void uninit() override {}
+
 	template <typename T>
 	void bind(std::function<void(std::shared_ptr<T>)> func)
 	{

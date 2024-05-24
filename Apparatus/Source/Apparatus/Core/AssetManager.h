@@ -8,18 +8,20 @@
 #include "Logger.h"
 #include "Importer.h"
 #include "../Rendering/Shader.h"
+#include "EngineSystem/EngineSystem.h"
 
-class AssetManager
+class AssetManager : public EngineSystem
 {
 public:
-	AssetManager();
+	AssetManager() = default;
 	~AssetManager() = default;
 
 	AssetManager(const AssetManager&) = delete;
 	AssetManager(AssetManager&&) = delete;
 	void operator=(const AssetManager&) = delete;
 
-	void initAssets();
+	virtual void init() override;
+	virtual void uninit() override;
 
 	template <class ResourceType, typename ... Args>
 	ResourceType* createAsset(const std::string& assetName, Args&& ... args);

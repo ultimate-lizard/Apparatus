@@ -2,6 +2,8 @@
 
 #include <map>
 
+#include <freetype/freetype.h>
+
 #include "../Core/Asset.h"
 #include "../Rendering/TextureArray.h"
 
@@ -13,10 +15,10 @@ struct Character
 	glm::ivec2 advance = glm::ivec2(0);
 };
 
-struct CharacterSet
+struct GlyphCache
 {
-	std::map<char, Character> characterMap;
-	TextureArray* characterTextureArray;
+	std::map<char, Character> glyphMap;
+	TextureArray* textureArray;
 	unsigned int fontSize = 16;
 	unsigned int textureSize = 256;
 };
@@ -24,19 +26,22 @@ struct CharacterSet
 class Font : public Asset
 {
 public:
-	Font();
+	Font(FT_Face face);
 
 	Font(const Font&) = delete;
 	Font(Font&&) = delete;
 
-	virtual void init() {}
+	virtual void init() override;
+	virtual void uninit() override;
 
-	void addCharacterSet(CharacterSet&& characterSet);
-	CharacterSet* getCharacterSet(size_t fontSize);
-	CharacterSet* getCurrentCharacterSet();
+	GlyphCache* getCharacterSet(size_t fontSize);
+	GlyphCache* getCurrentCharacterSet();
 
 private:
+	void createGlyphCache(unsigned int fontSize);
+
+	FT_Face face;
 	// Contains cached character sets of different sizes
-	std::map<size_t, CharacterSet> characterSetMap;
+	std::map<size_t, GlyphCache> characterSetMap;
 	unsigned int fontSize;
 };

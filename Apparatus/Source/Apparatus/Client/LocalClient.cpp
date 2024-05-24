@@ -7,6 +7,7 @@
 #include "../Level.h"
 #include "../Core/Logger.h"
 #include "../Core/TextureImporter.h"
+#include "../Core/AssetManager.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/ModelComponent.h"
 #include "../Components/CameraComponent.h"

@@ -4,7 +4,7 @@
 #include "TextureImporter.h"
 #include "FontImporter.h"
 
-AssetManager::AssetManager()
+void AssetManager::init()
 {
 	importers.push_back(std::make_unique<ModelImporter>());
 	importers.back().get()->assetManager = this;
@@ -22,13 +22,21 @@ AssetManager::AssetManager()
 	}
 }
 
-void AssetManager::initAssets()
+void AssetManager::uninit()
 {
-	for (auto iter = assetMap.begin(); iter != assetMap.end(); ++iter)
+	for (auto& pair : assetMap)
 	{
-		if (iter->second)
+		if (std::unique_ptr<Asset>& assetPtr = pair.second)
 		{
-			iter->second->init();
+			assetPtr->uninit();
+		}
+	}
+
+	for (auto& importer : importers)
+	{
+		if (importer)
+		{
+			importer->uninit();
 		}
 	}
 }
