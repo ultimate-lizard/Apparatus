@@ -53,10 +53,13 @@ void SpriteRenderer::render()
                 spriteShader->bind();
                 spriteShader->setUniform("projection", activeCamera->getProjection());
 
-                if (SpriteMesh* spriteMesh = sprite->getSpriteMesh())
+                if (Mesh* spriteMesh = sprite->getSpriteMesh())
                 {
                     spriteMesh->bind();
-                    glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(spriteMesh->getVertices().size()));
+
+                    std::shared_ptr<VertexBuffer<float>> vertexBuffer = spriteMesh->getVertexBuffer<VertexBuffer<float>>();
+                    assert(vertexBuffer);
+                    glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(vertexBuffer->vertices.size()));
                 }
             }
         }

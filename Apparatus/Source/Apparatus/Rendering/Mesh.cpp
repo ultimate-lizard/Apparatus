@@ -52,7 +52,7 @@ void Mesh::init()
 
 	if (vertexBuffer)
 	{
-		glBufferData(GL_ARRAY_BUFFER, vertexBuffer->getSize(), vertexBuffer->getData(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer->getDataSize(), vertexBuffer->getData(), GL_STATIC_DRAW);
 	}
 	else
 	{
@@ -91,7 +91,7 @@ void Mesh::setSubData(std::shared_ptr<VertexBufferInterface> vertices)
 
 	if (vertexBuffer)
 	{
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBuffer->getSize(), vertexBuffer->getData());
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBuffer->getDataSize(), vertexBuffer->getData());
 	}
 }
 
@@ -104,7 +104,7 @@ void Mesh::setSubData(std::shared_ptr<VertexBufferInterface> vertices, const std
 
 	if (vertexBuffer)
 	{
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBuffer->getSize(), vertexBuffer->getData());
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBuffer->getDataSize(), vertexBuffer->getData());
 	}
 
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, this->indices.size() * sizeof(unsigned int), this->indices.data());

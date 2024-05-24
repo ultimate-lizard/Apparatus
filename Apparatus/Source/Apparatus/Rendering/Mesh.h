@@ -22,7 +22,7 @@ struct ModelVertex
 struct VertexBufferInterface
 {
 	virtual void* getData() = 0;
-	virtual int getSize() const = 0;
+	virtual int getDataSize() const = 0;
 };
 
 template <typename VertexType>
@@ -33,7 +33,7 @@ struct VertexBuffer : public VertexBufferInterface
 		return vertices.data();
 	}
 
-	virtual int getSize() const override
+	virtual int getDataSize() const override
 	{
 		return static_cast<int>(vertices.size()) * sizeof(VertexType);
 	}

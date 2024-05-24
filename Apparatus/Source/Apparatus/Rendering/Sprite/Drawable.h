@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "VertexArrayObject.h"
+#include "../Mesh.h"
 
 class Material;
 
@@ -33,7 +34,7 @@ public:
 	void setColor(const glm::vec4& color);
 	const glm::vec4& getColor() const;
 
-	SpriteMesh* getSpriteMesh();
+	Mesh* getSpriteMesh();
 
 protected:
 	Material* material;
@@ -44,5 +45,5 @@ protected:
 
 	glm::vec4 color;
 
-	std::unique_ptr<SpriteMesh> spriteMesh;
+	std::unique_ptr<Mesh> spriteMesh;
 };

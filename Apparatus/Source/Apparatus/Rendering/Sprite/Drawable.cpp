@@ -9,7 +9,15 @@ Drawable::Drawable(int bufferSize) :
     depth(0.0f),
     color(0.0f)
 {
-    spriteMesh = std::make_unique<SpriteMesh>(bufferSize);
+    auto vao = std::make_unique<VertexArrayObject>();
+    assert(vao);
+    vao->setStride(5 * sizeof(float));
+    vao->addAttribute(3);
+    vao->addAttribute(2);
+
+    spriteMesh = std::make_unique<Mesh>(std::move(vao), bufferSize, 0);
+    assert(spriteMesh);
+    spriteMesh->init();
 }
 
 void Drawable::setMaterial(Material* material)
@@ -71,7 +79,7 @@ const glm::vec4& Drawable::getColor() const
     return color;
 }
 
-SpriteMesh* Drawable::getSpriteMesh()
+Mesh* Drawable::getSpriteMesh()
 {
     return spriteMesh.get();
 }

@@ -86,5 +86,9 @@ void Sprite::rebuildMesh()
     };
 
     spriteMesh->bind();
-    spriteMesh->setSubData(spriteVertices);
+
+    auto vertexBuffer = std::make_shared<VertexBuffer<float>>();
+    assert(vertexBuffer);
+    vertexBuffer->vertices = spriteVertices;
+    spriteMesh->setSubData(vertexBuffer);
 }

@@ -124,7 +124,11 @@ void TextBlock::rebuildMesh()
     }
 
     getSpriteMesh()->bind();
-    getSpriteMesh()->setSubData(textVertices);
+
+    auto vertexBuffer = std::make_shared<VertexBuffer<float>>();
+    assert(vertexBuffer);
+    vertexBuffer->vertices = textVertices;
+    getSpriteMesh()->setSubData(vertexBuffer);
 }
 
 void TextBlock::setText(const std::string& text)
