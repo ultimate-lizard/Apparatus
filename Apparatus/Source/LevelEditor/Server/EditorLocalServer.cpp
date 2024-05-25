@@ -36,7 +36,8 @@ void EditorLocalServer::start()
 {
 	LocalServer::start();
 
-	if (level)
+	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
+	if (level && assetManager)
 	{
 		if (Entity* selectionProxy = level->spawnEntity("SelectionProxy"))
 		{
@@ -44,7 +45,7 @@ void EditorLocalServer::start()
 
 			if (ModelComponent* proxyModelComponent = selectionProxy->findComponent<ModelComponent>())
 			{
-				proxyModelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Mesh_ScaleAll"));
+				proxyModelComponent->setModel(assetManager->findAsset<Model>("Model_Mesh_ScaleAll"));
 			}
 		}
 
@@ -59,7 +60,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = sceneModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_NewScene"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_NewScene"));
 			}
 		}
 
@@ -67,7 +68,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_CaveWall"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_CaveWall"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -80,7 +81,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_CellDoor"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_CellDoor"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -93,7 +94,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Table"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_Table"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -106,7 +107,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Shrine"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_Shrine"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -119,7 +120,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Cage"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_Cage"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -132,7 +133,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_LightPost"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_LightPost"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -145,7 +146,7 @@ void EditorLocalServer::start()
 		{
 			if (ModelComponent* modelComponent = dungeonModel->findComponent<ModelComponent>())
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Chair"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_Chair"));
 			}
 
 			if (TransformComponent* transform = dungeonModel->findComponent<TransformComponent>())
@@ -246,28 +247,31 @@ void EditorLocalServer::duplicateSelection()
 	{
 		Entity* selectedEntity = selectedTransformComponent->getOwner();
 
-		if (Entity* newSelection = Apparatus::getEntityRegistry().clone(selectedEntity))
+		if (EntityRegistry* entityRegistry = Apparatus::findEngineSystem<EntityRegistry>())
 		{
-			newSelection->init();
-			newSelection->onSpawn();
-
-			if (level)
+			if (Entity* newSelection = entityRegistry->clone(selectedEntity))
 			{
-				level->addEntity(newSelection);
-			}
+				newSelection->init();
+				newSelection->onSpawn();
 
-			bool shiftWasPressed = isShiftPressed();
+				if (level)
+				{
+					level->addEntity(newSelection);
+				}
 
-			if (!shiftWasPressed)
-			{
-				setShiftPressed(true);
-			}
+				bool shiftWasPressed = isShiftPressed();
 
-			selectEntity(newSelection);
+				if (!shiftWasPressed)
+				{
+					setShiftPressed(true);
+				}
 
-			if (!shiftWasPressed)
-			{
-				setShiftPressed(false);
+				selectEntity(newSelection);
+
+				if (!shiftWasPressed)
+				{
+					setShiftPressed(false);
+				}
 			}
 		}
 	}

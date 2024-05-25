@@ -44,10 +44,16 @@ void LocalClient::init()
 	viewport.setSize(windowSize);
 	
 	// Debug stuff
-	debugPrimitiveMaterial = Apparatus::getAssetManager().findAsset<Material>("Material_DebugPrimitive");
+	if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())
+	{
+		debugPrimitiveMaterial = assetManager->findAsset<Material>("Material_DebugPrimitive");
+	}
 
-	Apparatus::getEventDispatcher().bind<LightComponentCreationEvent>(std::bind(&LocalClient::onLightCreation, this, std::placeholders::_1));
-	Apparatus::getEventDispatcher().bind<WindowResizeEvent>(std::bind(&LocalClient::onWindowResize, this, std::placeholders::_1));
+	if (EventDispatcher* eventDispatcher = Apparatus::findEngineSystem<EventDispatcher>())
+	{
+		eventDispatcher->bind<LightComponentCreationEvent>(std::bind(&LocalClient::onLightCreation, this, std::placeholders::_1));
+		eventDispatcher->bind<WindowResizeEvent>(std::bind(&LocalClient::onWindowResize, this, std::placeholders::_1));
+	}
 
 	// UI stuff
 	uiContext.init();
@@ -381,7 +387,11 @@ void LocalClient::renderDebugPrimitives(const std::vector<ModelVertex>& vertices
 		vao->addAttribute(4);
 
 		// TODO: Take buffer size from somewhere else
-		mesh = Apparatus::getAssetManager().createAsset<Mesh>(meshName, std::move(vao), debugMeshBufferSize, debugMeshBufferSize);
+		if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())
+		{
+			mesh = assetManager->createAsset<Mesh>(meshName, std::move(vao), debugMeshBufferSize, debugMeshBufferSize);
+		}
+
 		debugMeshCache[drawSize] = mesh;
 	}
 	else

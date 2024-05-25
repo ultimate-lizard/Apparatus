@@ -8,7 +8,10 @@ void ImagePanel::init()
 {
     if (sprite = std::make_unique<Sprite>())
     {
-        sprite->setMaterial(Apparatus::getAssetManager().findAsset<Material>("Material_Panel"));
+        if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())
+        {
+            sprite->setMaterial(assetManager->findAsset<Material>("Material_Panel"));
+        }
     }
 }
 

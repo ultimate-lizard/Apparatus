@@ -57,10 +57,10 @@ public:
 
 	Level* getLevel();
 
-	static EntityRegistry& getEntityRegistry();
-	static AssetManager& getAssetManager();
-	static EventDispatcher& getEventDispatcher();
 	static Window& getWindow();
+
+	template <class SystemType>
+	static SystemType* findEngineSystem();
 
 protected:
 	virtual void init();
@@ -78,9 +78,6 @@ protected:
 	template <class SystemType, typename ... Args>
 	SystemType* createEngineSystem(Args&& ... args);
 
-	template <class SystemType>
-	SystemType* findEngineSystem();
-
 	// Replaces the current server with a new one. Doesn't do initialization automatically
 	template <class ServerType, typename ... Args>
 	ServerType* createServer(Args&& ... args);
@@ -88,9 +85,6 @@ protected:
 	// Creates and adds a new client to the engine. Doesn't do initialization automatically
 	template <class ClientType, typename ... Args>
 	ClientType* createClient(Args&& ... args);
-
-	Renderer* getRenderer();
-	SpriteRenderer* getSpriteRenderer();
 
 private:
 	int initEngineInternal();
@@ -102,23 +96,19 @@ private:
 	Window window;
 	bool running;
 
-	std::vector<std::unique_ptr<EngineSystem>> engineSystems;
-
-	std::unique_ptr<Renderer> renderer;
-	std::unique_ptr<SpriteRenderer> spriteRenderer;
+	static std::vector<std::unique_ptr<EngineSystem>> engineSystems;
+	static Window* globalWindowRef;
 
 	std::unique_ptr<Server> server;
 	std::vector<std::unique_ptr<Client>> clients;
 
 	std::unique_ptr<Level> level;
-
-	static ApparatusGlobalInstance globalState;
 };
 
-template<class SystemType, typename ...Args>
-inline SystemType* Apparatus::createEngineSystem(Args && ...args)
+template<class SystemType, typename ... Args>
+inline SystemType* Apparatus::createEngineSystem(Args && ... args)
 {
-	auto newSystemPtr = std::make_unique<SystemType>(std::forward<Args>()...);
+	auto newSystemPtr = std::make_unique<SystemType>(std::forward<Args>(args)...);
 	SystemType* newSystem = newSystemPtr.get();
 	engineSystems.push_back(std::move(newSystemPtr));
 

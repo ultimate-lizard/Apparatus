@@ -30,35 +30,41 @@ void Level::update(float dt)
 
 Entity* Level::spawnEntity(const std::string& templateName)
 {
-    if (Entity* spawnedEntity = Apparatus::getEntityRegistry().createEntityFromTemplate(templateName))
-    {
-        spawnedEntity->init();
-        spawnedEntity->onSpawn();
+	if (EntityRegistry* entityRegistry = Apparatus::findEngineSystem<EntityRegistry>())
+	{
+		if (Entity* spawnedEntity = entityRegistry->createEntityFromTemplate(templateName))
+		{
+			spawnedEntity->init();
+			spawnedEntity->onSpawn();
 
-        spawnedEntities.push_back(std::move(spawnedEntity));
+			spawnedEntities.push_back(std::move(spawnedEntity));
 
-        return spawnedEntity;
-    }
+			return spawnedEntity;
+		}
+	}
 
     return nullptr;
 }
 
 Entity* Level::spawnEntity(const std::string& templateName, const glm::vec3& position, const Rotator& rotator)
 {
-	if (Entity* spawnedEntity = Apparatus::getEntityRegistry().createEntityFromTemplate(templateName))
+	if (EntityRegistry* entityRegistry = Apparatus::findEngineSystem<EntityRegistry>())
 	{
-		if (TransformComponent* transformComponent = spawnedEntity->findComponent<TransformComponent>())
+		if (Entity* spawnedEntity = entityRegistry->createEntityFromTemplate(templateName))
 		{
-			transformComponent->setPosition(position);
-			transformComponent->setRotation(rotator);
+			if (TransformComponent* transformComponent = spawnedEntity->findComponent<TransformComponent>())
+			{
+				transformComponent->setPosition(position);
+				transformComponent->setRotation(rotator);
+			}
+
+			spawnedEntity->init();
+			spawnedEntity->onSpawn();
+
+			spawnedEntities.push_back(std::move(spawnedEntity));
+
+			return spawnedEntity;
 		}
-
-		spawnedEntity->init();
-		spawnedEntity->onSpawn();
-
-		spawnedEntities.push_back(std::move(spawnedEntity));
-
-		return spawnedEntity;
 	}
 
 	return nullptr;

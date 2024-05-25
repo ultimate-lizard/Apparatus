@@ -14,14 +14,23 @@
 
 UIContext::UIContext()
 {
-	Apparatus::getEventDispatcher().bind<WindowResizeEvent>(std::bind(&UIContext::onWindowResize, this, std::placeholders::_1));
+	if (EventDispatcher* eventDispatcher = Apparatus::findEngineSystem<EventDispatcher>())
+	{
+		eventDispatcher->bind<WindowResizeEvent>(std::bind(&UIContext::onWindowResize, this, std::placeholders::_1));
+	}
 }
 
 void UIContext::init()
 {
-	if (Shader* spriteShader = Apparatus::getAssetManager().createAsset<Shader>("Shader_SpriteShader", "../Shaders/SpriteDefault.vert", "../Shaders/SpriteDefault.frag"))
+	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
+	if (!assetManager)
 	{
-		if (Material* spriteMaterial = Apparatus::getAssetManager().createAsset<Material>("Material_Panel"))
+		return;
+	}
+
+	if (Shader* spriteShader = assetManager->createAsset<Shader>("Shader_SpriteShader", "../Shaders/SpriteDefault.vert", "../Shaders/SpriteDefault.frag"))
+	{
+		if (Material* spriteMaterial = assetManager->createAsset<Material>("Material_Panel"))
 		{
 			spriteMaterial->setShader(spriteShader);
 			spriteMaterial->createTextureParameter("spriteTexture", nullptr);
@@ -29,9 +38,9 @@ void UIContext::init()
 		}
 	}
 
-	if (Shader* ninePatchShader = Apparatus::getAssetManager().createAsset<Shader>("Shader_NinePatchShader", "../Shaders/SpriteDefault.vert", "../Shaders/NinePatchShader.frag"))
+	if (Shader* ninePatchShader = assetManager->createAsset<Shader>("Shader_NinePatchShader", "../Shaders/SpriteDefault.vert", "../Shaders/NinePatchShader.frag"))
 	{
-		if (Material* ninePatchMaterial = Apparatus::getAssetManager().createAsset<Material>("Material_NinePatchPanel"))
+		if (Material* ninePatchMaterial = assetManager->createAsset<Material>("Material_NinePatchPanel"))
 		{
 			ninePatchMaterial->setShader(ninePatchShader);
 			ninePatchMaterial->createVec4Parameter("borders", glm::vec4(0.0f));
@@ -42,9 +51,9 @@ void UIContext::init()
 		}
 	}
 
-	if (Shader* textShader = Apparatus::getAssetManager().createAsset<Shader>("Shader_Text", "../Shaders/Text.vert", "../Shaders/Text.frag"))
+	if (Shader* textShader = assetManager->createAsset<Shader>("Shader_Text", "../Shaders/Text.vert", "../Shaders/Text.frag"))
 	{
-		if (Material* textMaterial = Apparatus::getAssetManager().createAsset<Material>("Material_TextPanel"))
+		if (Material* textMaterial = assetManager->createAsset<Material>("Material_TextPanel"))
 		{
 			textMaterial->setShader(textShader);
 			textMaterial->createTextureArrayParameter("textTextureArray", nullptr);
@@ -52,9 +61,9 @@ void UIContext::init()
 		}
 	}
 
-	if (FontImporter* fontImporter = Apparatus::getAssetManager().getImporter<FontImporter>())
+	if (FontImporter* fontImporter = assetManager->getImporter<FontImporter>())
 	{
-		Apparatus::getAssetManager().createAsset("Font_Arial", fontImporter->import("../Fonts/Arial.ttf"));
+		assetManager->createAsset("Font_Arial", fontImporter->import("../Fonts/Arial.ttf"));
 	}
 }
 

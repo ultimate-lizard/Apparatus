@@ -44,7 +44,10 @@ std::unique_ptr<Component> LightComponent::clone()
 
 void LightComponent::init()
 {
-	Apparatus::getEventDispatcher().dispatch(std::make_shared<LightComponentCreationEvent>(this));
+	if (EventDispatcher* eventDispatcher = Apparatus::findEngineSystem<EventDispatcher>())
+	{
+		eventDispatcher->dispatch(std::make_shared<LightComponentCreationEvent>(this));
+	}
 }
 
 void LightComponent::update(float dt)

@@ -14,7 +14,10 @@ void NinePatchPanel::init()
 {
 	if (sprite = std::make_unique<Sprite>())
 	{
-		sprite->setMaterial(Apparatus::getAssetManager().findAsset<Material>("Material_NinePatchPanel"));
+		if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())
+		{
+			sprite->setMaterial(assetManager->findAsset<Material>("Material_NinePatchPanel"));
+		}
 	}
 }
 

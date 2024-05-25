@@ -9,9 +9,12 @@ void TextPanel::init()
 {
     if (textBlock = std::make_unique<TextBlock>())
     {
-        Font* defaultFont = Apparatus::getAssetManager().findAsset<Font>("Font_Arial");
-        textBlock->setFont(defaultFont);
-        textBlock->setMaterial(Apparatus::getAssetManager().findAsset<Material>("Material_TextPanel"));
+        if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())
+        {
+            Font* defaultFont = assetManager->findAsset<Font>("Font_Arial");
+            textBlock->setFont(defaultFont);
+            textBlock->setMaterial(assetManager->findAsset<Material>("Material_TextPanel"));
+        }
     }
 }
 

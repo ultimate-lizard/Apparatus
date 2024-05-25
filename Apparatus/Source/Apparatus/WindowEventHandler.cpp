@@ -133,7 +133,10 @@ void WindowEventHandler::handleWindowEvent()
 	Apparatus& app = Apparatus::get();
 	Window& window = app.getWindow();
 
-	Apparatus::getEventDispatcher().dispatch(std::make_shared<WindowResizeEvent>(window.getWindowSize()));
+	if (EventDispatcher* eventDispatcher = Apparatus::findEngineSystem<EventDispatcher>())
+	{
+		eventDispatcher->dispatch(std::make_shared<WindowResizeEvent>(window.getWindowSize()));
+	}
 
 	for (Client* client : app.getClients())
 	{

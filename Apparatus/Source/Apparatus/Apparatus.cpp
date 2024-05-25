@@ -12,7 +12,6 @@
 
 // TODO: These are probably temporary!
 #include "Rendering/Model.h"
-#include "Rendering/Mesh.h"
 #include "Rendering/Shader.h"
 #include "Rendering/Material.h"
 #include "Components/TransformComponent.h"
@@ -21,7 +20,8 @@
 #include "Components/ModelComponent.h"
 
 Apparatus* Apparatus::apparatus;
-Apparatus::ApparatusGlobalInstance Apparatus::globalState;
+std::vector<std::unique_ptr<EngineSystem>> Apparatus::engineSystems;
+Window* Apparatus::globalWindowRef;
 
 Apparatus::Apparatus(const std::string& gameTitle) :
 	gameTitle(gameTitle),
@@ -90,24 +90,9 @@ Level* Apparatus::getLevel()
 	return level.get();
 }
 
-EntityRegistry& Apparatus::getEntityRegistry()
-{
-	return *globalState.entityRegistry;
-}
-
-AssetManager& Apparatus::getAssetManager()
-{
-	return *globalState.assetManager;
-}
-
-EventDispatcher& Apparatus::getEventDispatcher()
-{
-	return *globalState.eventDispatcher;
-}
-
 Window& Apparatus::getWindow()
 {
-	return *globalState.window;
+	return *globalWindowRef;
 }
 
 void Apparatus::init()
@@ -127,6 +112,8 @@ void Apparatus::createEngineSystems()
 	createEngineSystem<EntityRegistry>();
 	createEngineSystem<AssetManager>();
 	createEngineSystem<EventDispatcher>();
+	createEngineSystem<Renderer>(window);
+	createEngineSystem<SpriteRenderer>();
 }
 
 void Apparatus::initEngineSystems()
@@ -151,16 +138,6 @@ void Apparatus::uninitEngineSystems()
 	}
 }
 
-Renderer* Apparatus::getRenderer()
-{
-	return renderer.get();
-}
-
-SpriteRenderer* Apparatus::getSpriteRenderer()
-{
-	return spriteRenderer.get();
-}
-
 int Apparatus::initEngineInternal()
 {
 	Logger::open("../Logs/");
@@ -183,40 +160,10 @@ int Apparatus::initEngineInternal()
 		return 1;
 	}
 
+	globalWindowRef = &window;
+
 	createEngineSystems();
 	initEngineSystems();
-
-	if (EntityRegistry* entityRegistry = findEngineSystem<EntityRegistry>())
-	{
-		globalState.entityRegistry = entityRegistry;
-	}
-
-	if (AssetManager* assetManager = findEngineSystem<AssetManager>())
-	{
-		globalState.assetManager = assetManager;
-	}
-
-	if (EventDispatcher* eventDispatcher = findEngineSystem<EventDispatcher>())
-	{
-		globalState.eventDispatcher = eventDispatcher;
-	}
-
-	globalState.window = &window;
-
-	renderer = std::make_unique<Renderer>(window);
-	if (renderer)
-	{
-		renderer->init();
-	}
-	else
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Unable to initialize Renderer!", nullptr);
-		return 1;
-	}
-
-	spriteRenderer = std::make_unique<SpriteRenderer>();
-
-	// SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "0");
 
 	// SDL_GL_SetSwapInterval(1);
 
@@ -348,8 +295,11 @@ void Apparatus::_createEntityTemplates()
 			auto transformComponent = entityRegistry->createComponent<TransformComponent>(modelEntity);
 			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(modelEntity))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Error"));
-				modelComponent->setParent(transformComponent);
+				if (AssetManager* assetManager = findEngineSystem<AssetManager>())
+				{
+					modelComponent->setModel(assetManager->findAsset<Model>("Model_Error"));
+					modelComponent->setParent(transformComponent);
+				}
 			}
 		}
 	}
@@ -407,11 +357,15 @@ void Apparatus::startGameLoop()
 		}
 
 		// Renderer
-		if (renderer)
+		if (Renderer* renderer = findEngineSystem<Renderer>())
 		{
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			renderer->render();
+		}
+
+		if (SpriteRenderer* spriteRenderer = findEngineSystem<SpriteRenderer>())
+		{
 			spriteRenderer->render();
 		}
 

@@ -20,183 +20,194 @@ void Editor::init()
 	Apparatus::init();
 
 	createServer<EditorLocalServer>();
-	createClient<EditorLocalClient>(getRenderer(), getSpriteRenderer());
+
+	Renderer* renderer = findEngineSystem<Renderer>();
+	SpriteRenderer* spriteRenderer = findEngineSystem<SpriteRenderer>();
+
+	createClient<EditorLocalClient>(renderer, spriteRenderer);
 }
 
 void Editor::_createEntityTemplates()
 {
 	Apparatus::_createEntityTemplates();
 
-	if (Entity* pointLightEntity = Apparatus::getEntityRegistry().createEntityTemplate("PointLight"))
+	EntityRegistry* entityRegistry = findEngineSystem<EntityRegistry>();
+	AssetManager* assetManager = findEngineSystem<AssetManager>();
+	if (!entityRegistry || !assetManager)
 	{
-		TransformComponent* lightTransform = Apparatus::getEntityRegistry().createComponent<TransformComponent>(pointLightEntity);
+		return;
+	}
 
-		if (ModelComponent* lightModel = Apparatus::getEntityRegistry().createComponent<ModelComponent>(pointLightEntity))
+	if (Entity* pointLightEntity = entityRegistry->createEntityTemplate("PointLight"))
+	{
+		TransformComponent* lightTransform = entityRegistry->createComponent<TransformComponent>(pointLightEntity);
+
+		if (ModelComponent* lightModel = entityRegistry->createComponent<ModelComponent>(pointLightEntity))
 		{
-			lightModel->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_PointLight"));
+			lightModel->setModel(assetManager->findAsset<Model>("Model_PointLight"));
 			lightModel->setParent(lightTransform);
 		}
 
-		if (LightComponent* pointLightComponent = Apparatus::getEntityRegistry().createComponent<LightComponent>(pointLightEntity, LightType::PointLight))
+		if (LightComponent* pointLightComponent = entityRegistry->createComponent<LightComponent>(pointLightEntity, LightType::PointLight))
 		{
 			pointLightComponent->setParent(lightTransform);
 		}
 	}
 
-	if (Entity* spotLightEntity = Apparatus::getEntityRegistry().createEntityTemplate("SpotLight"))
+	if (Entity* spotLightEntity = entityRegistry->createEntityTemplate("SpotLight"))
 	{
-		TransformComponent* lightTransform = Apparatus::getEntityRegistry().createComponent<TransformComponent>(spotLightEntity);
+		TransformComponent* lightTransform = entityRegistry->createComponent<TransformComponent>(spotLightEntity);
 
-		if (ModelComponent* lightModel = Apparatus::getEntityRegistry().createComponent<ModelComponent>(spotLightEntity))
+		if (ModelComponent* lightModel = entityRegistry->createComponent<ModelComponent>(spotLightEntity))
 		{
-			lightModel->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_SpotLight"));
+			lightModel->setModel(assetManager->findAsset<Model>("Model_SpotLight"));
 			lightModel->setParent(lightTransform);
 		}
 
-		if (LightComponent* spotLightComponent = Apparatus::getEntityRegistry().createComponent<LightComponent>(spotLightEntity, LightType::SpotLight))
+		if (LightComponent* spotLightComponent = entityRegistry->createComponent<LightComponent>(spotLightEntity, LightType::SpotLight))
 		{
 			spotLightComponent->setParent(lightTransform);
 		}
 	}
 
-	if (Entity* directionalLightEntity = Apparatus::getEntityRegistry().createEntityTemplate("DirectionalLight"))
+	if (Entity* directionalLightEntity = entityRegistry->createEntityTemplate("DirectionalLight"))
 	{
-		TransformComponent* lightTransform = Apparatus::getEntityRegistry().createComponent<TransformComponent>(directionalLightEntity);
+		TransformComponent* lightTransform = entityRegistry->createComponent<TransformComponent>(directionalLightEntity);
 
-		if (ModelComponent* lightModel = Apparatus::getEntityRegistry().createComponent<ModelComponent>(directionalLightEntity))
+		if (ModelComponent* lightModel = entityRegistry->createComponent<ModelComponent>(directionalLightEntity))
 		{
-			lightModel->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_DirectionalLight"));
+			lightModel->setModel(assetManager->findAsset<Model>("Model_DirectionalLight"));
 			lightModel->setParent(lightTransform);
 		}
 
-		if (LightComponent* directionalLightComponent = Apparatus::getEntityRegistry().createComponent<LightComponent>(directionalLightEntity, LightType::DirectionalLight))
+		if (LightComponent* directionalLightComponent = entityRegistry->createComponent<LightComponent>(directionalLightEntity, LightType::DirectionalLight))
 		{
 			directionalLightComponent->setParent(lightTransform);
 		}
 	}
 
-	if (Entity* selectionProxy = Apparatus::getEntityRegistry().createEntityTemplate("SelectionProxy"))
+	if (Entity* selectionProxy = entityRegistry->createEntityTemplate("SelectionProxy"))
 	{
-		TransformComponent* proxyTransformComponent = Apparatus::getEntityRegistry().createComponent<TransformComponent>(selectionProxy);
+		TransformComponent* proxyTransformComponent = entityRegistry->createComponent<TransformComponent>(selectionProxy);
 	}
 
-	if (Entity* gizmo = Apparatus::getEntityRegistry().createEntityTemplate("Gizmo"))
+	if (Entity* gizmo = entityRegistry->createEntityTemplate("Gizmo"))
 	{
-		if (auto gizmoTransform = Apparatus::getEntityRegistry().createComponent<TransformComponent>(gizmo))
+		if (auto gizmoTransform = entityRegistry->createComponent<TransformComponent>(gizmo))
 		{
 			gizmoTransform->setInheritRotation(false);
 			gizmoTransform->setInheritScale(false);
 
-			Apparatus::getEntityRegistry().createComponent<GizmoComponent>(gizmo);
+			entityRegistry->createComponent<GizmoComponent>(gizmo);
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "GizmoX"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "GizmoX"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_GizmoX"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_GizmoX"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "GizmoY"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "GizmoY"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_GizmoY"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_GizmoY"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "GizmoZ"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "GizmoZ"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_GizmoZ"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_GizmoZ"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "GizmoXY"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "GizmoXY"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_GizmoXY"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_GizmoXY"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "GizmoXZ"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "GizmoXZ"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_GizmoXZ"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_GizmoXZ"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "GizmoZY"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "GizmoZY"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_GizmoYZ"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_GizmoYZ"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto rollModelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "Roll"))
+			if (auto rollModelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "Roll"))
 			{
-				rollModelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Roll"));
+				rollModelComponent->setModel(assetManager->findAsset<Model>("Model_Roll"));
 				rollModelComponent->setParent(gizmoTransform);
 				rollModelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 
-				if (auto yawModelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "Yaw"))
+				if (auto yawModelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "Yaw"))
 				{
-					yawModelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Yaw"));
+					yawModelComponent->setModel(assetManager->findAsset<Model>("Model_Yaw"));
 					yawModelComponent->setParent(rollModelComponent);
 					yawModelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 
-					if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "Pitch"))
+					if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "Pitch"))
 					{
-						modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_Pitch"));
+						modelComponent->setModel(assetManager->findAsset<Model>("Model_Pitch"));
 						modelComponent->setParent(yawModelComponent);
 						modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 					}
 				}
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "ScaleUp"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "ScaleUp"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_ScaleUp"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_ScaleUp"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "ScaleDown"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "ScaleDown"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_ScaleDown"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_ScaleDown"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "ScaleLeft"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "ScaleLeft"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_ScaleLeft"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_ScaleLeft"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "ScaleRight"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "ScaleRight"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_ScaleRight"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_ScaleRight"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "ScaleFront"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "ScaleFront"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_ScaleFront"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_ScaleFront"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "ScaleBack"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "ScaleBack"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_ScaleBack"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_ScaleBack"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}
 
-			if (auto modelComponent = Apparatus::getEntityRegistry().createComponent<ModelComponent>(gizmo, "ScaleAll"))
+			if (auto modelComponent = entityRegistry->createComponent<ModelComponent>(gizmo, "ScaleAll"))
 			{
-				modelComponent->setModel(Apparatus::getAssetManager().findAsset<Model>("Model_ScaleAll"));
+				modelComponent->setModel(assetManager->findAsset<Model>("Model_ScaleAll"));
 				modelComponent->setParent(gizmoTransform);
 				modelComponent->setDepthBufferLayer(Renderer::getMaxDepthBufferLayer());
 			}

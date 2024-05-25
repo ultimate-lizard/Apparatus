@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 
 #include "Camera.h"
+#include "../Core/EngineSystem/EngineSystem.h"
 
 using SDL_GLContext = void*; // forward declaration
 struct SDL_Window;
@@ -36,7 +37,7 @@ struct RenderCommand
 	size_t depthBufferLayer = 0;
 };
 
-class Renderer
+class Renderer : public EngineSystem
 {
 public:
 	Renderer(Window& window);
@@ -46,7 +47,8 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 
-	void init();
+	virtual void init() override;
+	virtual void uninit() override {}
 
 	void render();
 

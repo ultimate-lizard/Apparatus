@@ -71,13 +71,18 @@ Material* Material::createInstance()
 {
 	std::string newName = getAssetName() + "_Instance_" + std::to_string(instanceCount[getAssetName()]);
 
-	Material* newMaterial = Apparatus::getAssetManager().createAsset<Material>(newName);
-	newMaterial->parameters = parameters;
-	newMaterial->shader = shader;
+    if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())
+    {
+        Material* newMaterial = assetManager->createAsset<Material>(newName);
+        newMaterial->parameters = parameters;
+        newMaterial->shader = shader;
 
-	instanceCount[getAssetName()] += 1;
+        instanceCount[getAssetName()] += 1;
 
-	return newMaterial;
+        return newMaterial;
+    }
+
+    return nullptr;
 }
 
 void Material::submitUniforms()
