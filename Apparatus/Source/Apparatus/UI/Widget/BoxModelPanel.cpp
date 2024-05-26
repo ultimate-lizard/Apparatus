@@ -70,6 +70,7 @@ glm::ivec2 BoxModelPanel::getGlobalSize() const
 void BoxModelPanel::setSize(const glm::ivec2& size)
 {
     this->size = size;
+    invalidate();
 }
 
 const glm::ivec2& BoxModelPanel::getSize() const
@@ -80,6 +81,7 @@ const glm::ivec2& BoxModelPanel::getSize() const
 void BoxModelPanel::setMargin(Side side, int margin)
 {
     margins[static_cast<size_t>(side)] = margin;
+    invalidate();
 }
 
 int BoxModelPanel::getMargin(Side side) const

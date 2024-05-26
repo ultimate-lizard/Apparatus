@@ -11,6 +11,7 @@ void ImagePanel::init()
         if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())
         {
             sprite->setMaterial(assetManager->findAsset<Material>("Material_Panel"));
+            invalidate();
         }
     }
 }
@@ -19,11 +20,16 @@ void ImagePanel::refresh()
 {
     Widget::refresh();
 
-    if (sprite)
+    if (invalidated)
     {
-        sprite->setPosition(getGlobalPosition());
-        sprite->setSize(getGlobalSize());
-        sprite->rebuildMesh();
+        if (sprite)
+        {
+            sprite->setPosition(getGlobalPosition());
+            sprite->setSize(getGlobalSize());
+            sprite->rebuildMesh();
+        }
+
+        invalidated = false;
     }
 }
 
@@ -45,6 +51,7 @@ void ImagePanel::setTexture(Texture* texture)
     if (sprite)
     {
         sprite->setTexture(texture);
+        invalidate();
     }
 }
 
@@ -53,6 +60,7 @@ void ImagePanel::setDepth(float depth)
     if (sprite)
     {
         sprite->setDepth(depth);
+        invalidate();
     }
 }
 

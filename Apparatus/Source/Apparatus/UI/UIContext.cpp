@@ -80,7 +80,7 @@ void UIContext::renderContext(SpriteRenderer* renderer)
 
 void UIContext::onWindowResize(std::shared_ptr<WindowResizeEvent> event)
 {
-	refreshWidgetTree();
+	invalidateTree();
 }
 
 void UIContext::refreshWidgetTree()
@@ -89,11 +89,21 @@ void UIContext::refreshWidgetTree()
 	{
 		if (widget)
 		{
-			// Find root widgets and start traversing from them
 			if (!widget->getParent())
 			{
 				widget->refresh();
 			}
+		}
+	}
+}
+
+void UIContext::invalidateTree()
+{
+	for (auto& widget : spawnedWidgets)
+	{
+		if (widget)
+		{
+			widget->invalidate();
 		}
 	}
 }

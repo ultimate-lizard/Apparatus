@@ -5,6 +5,9 @@ void HorizontalPanel::addChild(Widget* child)
     std::unique_ptr<BoxModelPanel> childContainer = std::make_unique<BoxModelPanel>();
     childContainer->addChild(child);
     childContainers.push_back(std::move(childContainer));
+
+    child->invalidate();
+    invalidate();
 }
 
 glm::ivec2 HorizontalPanel::getGlobalSize() const
@@ -37,17 +40,22 @@ void HorizontalPanel::refresh()
 {
     Widget::refresh();
 
-    float offset = 0.0f;
-
-    for (const std::unique_ptr<BoxModelPanel>& childContainer : childContainers)
+    if (invalidated)
     {
-        if (Widget* child = childContainer->getChild(0))
-        {
-            childContainer->setSize(child->getGlobalSize());
-            childContainer->setPosition(getGlobalPosition() + glm::ivec2(offset, 0));
-            childContainer->refresh();
+        float offset = 0.0f;
 
-            offset += childContainer->getGlobalSize().x;
+        for (const std::unique_ptr<BoxModelPanel>& childContainer : childContainers)
+        {
+            if (Widget* child = childContainer->getChild(0))
+            {
+                childContainer->setSize(child->getGlobalSize());
+                childContainer->setPosition(getGlobalPosition() + glm::ivec2(offset, 0));
+                childContainer->refresh();
+
+                offset += childContainer->getGlobalSize().x;
+            }
         }
+
+        invalidated = false;
     }
 }

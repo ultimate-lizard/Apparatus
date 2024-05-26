@@ -34,10 +34,10 @@ void EditorLocalClient::init()
 	{
 		if (TextureImporter* importer = assetManager->getImporter<TextureImporter>())
 		{
-			Texture * innerWindowTexture = assetManager->createAsset<Texture>("Texture_WindowInner", importer->import("../Textures/WindowInner.bmp"));
+			Texture* innerWindowTexture = assetManager->createAsset<Texture>("Texture_WindowInner", importer->import("../Textures/WindowInner.bmp"));
 			innerWindowTexture->setMinFilter(TextureFiltering::Nearest);
 			innerWindowTexture->setMagFilter(TextureFiltering::Nearest);
-			Texture * thick = assetManager->createAsset<Texture>("Texture_WindowThick", importer->import("../Textures/WindowThick.bmp"));
+			Texture* thick = assetManager->createAsset<Texture>("Texture_WindowThick", importer->import("../Textures/WindowThick.bmp"));
 			thick->setMinFilter(TextureFiltering::Nearest);
 			thick->setMagFilter(TextureFiltering::Nearest);
 
@@ -88,7 +88,6 @@ void EditorLocalClient::init()
 			textPanel2->setHorizontalAlignment(Widget::Alignment::Fill);
 			textPanel2->setDepth(0.9f);
 			textPanel2->setFontSize(20);
-			// textPanel2->setColor({ 1.0f, 0.0f, 1.0f, 1.0 });
 			textPanel2->setMargin(Widget::Side::Left, 8);
 			textPanel2->setMargin(Widget::Side::Right, 8);
 			textPanel2->setMargin(Widget::Side::Top, 8);
@@ -98,8 +97,6 @@ void EditorLocalClient::init()
 			innerPanel->addChild(textPanel2);
 
 			testPanel->addChild(horizontalPanel);
-
-			uiContext.refreshWidgetTree();
 		}
 	}
 }

@@ -6,7 +6,8 @@ Widget::Widget() :
     parent(nullptr),
     position(0),
     horizontalAlignment(Alignment::Left),
-    verticalAlignment(Alignment::Left)
+    verticalAlignment(Alignment::Left),
+    invalidated(true)
 {
 }
 
@@ -82,6 +83,8 @@ void Widget::addChild(Widget* child)
 
         children.push_back(child);
         child->parent = this;
+        child->invalidate();
+        invalidate();
     }
 }
 
@@ -103,6 +106,7 @@ size_t Widget::getChildrenCount() const
 void Widget::setPosition(const glm::ivec2& position)
 {
     this->position = position;
+    invalidate();
 }
 
 const glm::ivec2& Widget::getPosition() const
@@ -113,9 +117,16 @@ const glm::ivec2& Widget::getPosition() const
 void Widget::setHorizontalAlignment(Alignment alignment)
 {
     horizontalAlignment = alignment;
+    invalidate();
 }
 
 void Widget::setVerticalAlignment(Alignment alignment)
 {
     verticalAlignment = alignment;
+    invalidate();
+}
+
+void Widget::invalidate()
+{
+    invalidated = true;
 }

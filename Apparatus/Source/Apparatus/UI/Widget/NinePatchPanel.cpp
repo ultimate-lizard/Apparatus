@@ -17,37 +17,48 @@ void NinePatchPanel::init()
 		if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())
 		{
 			sprite->setMaterial(assetManager->findAsset<Material>("Material_NinePatchPanel"));
+			invalidate();
 		}
 	}
 }
 
 void NinePatchPanel::refresh()
 {
-	ImagePanel::refresh();
+	Widget::refresh();
 
-	if (sprite)
+	if (invalidated)
 	{
-		if (Material* spriteMaterial = sprite->getMaterial())
+		if (sprite)
 		{
-			MaterialParameters& params = spriteMaterial->getParameters();
+			sprite->setPosition(getGlobalPosition());
+			sprite->setSize(getGlobalSize());
+			sprite->rebuildMesh();
 
-			glm::ivec4 borders;
-			borders.x = getBorder(ImagePanel::Side::Left);
-			borders.y = getBorder(ImagePanel::Side::Right);
-			borders.z = getBorder(ImagePanel::Side::Top);
-			borders.w = getBorder(ImagePanel::Side::Bottom);
+			if (Material* spriteMaterial = sprite->getMaterial())
+			{
+				MaterialParameters& params = spriteMaterial->getParameters();
 
-			params.setVec4("borders", borders);
+				glm::ivec4 borders;
+				borders.x = getBorder(ImagePanel::Side::Left);
+				borders.y = getBorder(ImagePanel::Side::Right);
+				borders.z = getBorder(ImagePanel::Side::Top);
+				borders.w = getBorder(ImagePanel::Side::Bottom);
 
-			params.setVec2("textureBorderSize", sprite->getTextureSize());
-			params.setVec2("spriteSize", getGlobalSize());
+				params.setVec4("borders", borders);
+
+				params.setVec2("textureBorderSize", sprite->getTextureSize());
+				params.setVec2("spriteSize", getGlobalSize());
+			}
 		}
+
+		invalidated = false;
 	}
 }
 
 void NinePatchPanel::setBorder(Side side, int border)
 {
 	borders[static_cast<int>(side)] = border;
+	invalidate();
 }
 
 int NinePatchPanel::getBorder(Side side) const

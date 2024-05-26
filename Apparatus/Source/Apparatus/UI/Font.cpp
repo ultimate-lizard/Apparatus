@@ -89,11 +89,6 @@ GlyphCache* Font::getGlyphCache(unsigned int fontSize)
 	return createGlyphCache(fontSize);
 }
 
-//GlyphCache* Font::getCurrentGlyphCache()
-//{
-//	return getGlyphCache(fontSize);
-//}
-
 Font::Font(FT_Face face) :
 	face(face)
 {

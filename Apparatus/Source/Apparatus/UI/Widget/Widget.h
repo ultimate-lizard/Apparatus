@@ -53,6 +53,8 @@ public:
 	void setHorizontalAlignment(Alignment alignment);
 	void setVerticalAlignment(Alignment alignment);
 
+	void invalidate();
+
 protected:
 	std::string name;
 
@@ -63,4 +65,6 @@ protected:
 
 	Alignment horizontalAlignment;
 	Alignment verticalAlignment;
+
+	bool invalidated;
 };

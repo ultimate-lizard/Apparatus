@@ -22,11 +22,16 @@ void TextPanel::refresh()
 {
     Widget::refresh();
 
-    if (textBlock)
+    if (invalidated)
     {
-        textBlock->setPosition(getGlobalPosition());
-        textBlock->setSize(getGlobalSize());
-        textBlock->rebuildMesh();
+        if (textBlock)
+        {
+            textBlock->setPosition(getGlobalPosition());
+            textBlock->setSize(getGlobalSize());
+            textBlock->rebuildMesh();
+        }
+
+        invalidated = false;
     }
 }
 
@@ -48,6 +53,7 @@ void TextPanel::setText(const std::string& text)
     if (textBlock)
     {
         textBlock->setText(text);
+        invalidate();
     }
 }
 
@@ -56,6 +62,7 @@ void TextPanel::setColor(const glm::vec4& color)
     if (textBlock)
     {
         textBlock->setColor(color);
+        invalidate();
     }
 }
 
@@ -64,10 +71,12 @@ void TextPanel::setFontSize(unsigned int fontSize)
     if (textBlock)
     {
         textBlock->setFontSize(fontSize);
+        invalidate();
     }
 }
 
 void TextPanel::setDepth(float depth)
 {
     textBlock->setDepth(depth);
+    invalidate();
 }

@@ -32,6 +32,7 @@ public:
 	Material* findMaterialForWidget();
 
 	void refreshWidgetTree();
+	void invalidateTree();
 
 private:
 	std::vector<std::unique_ptr<Widget>> spawnedWidgets;
@@ -55,6 +56,8 @@ inline WidgetType* UIContext::createWidget(const std::string& name)
 		spawnedWidgets.push_back(std::move(newWidgetPtr));
 		return spawnedWidget;
 	}
+
+	// refreshWidgetTree();
 	
 	return nullptr;
 }

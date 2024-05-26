@@ -28,9 +28,5 @@ std::unique_ptr<Font> FontImporter::import(const std::string & path)
 		return nullptr;
 	}
 
-	auto font = std::make_unique<Font>(face);
-
-	// font->create
-
-    return font;
+    return std::make_unique<Font>(face);
 }
