@@ -20,12 +20,13 @@ public:
 	void setFont(Font* font);
 	Font* getFont();
 
-	void setFontSize(float fontScale);
-	float getFontScale();
+	void setFontSize(unsigned int fontScale);
+	unsigned int getFontSize();
 
 protected:
 	float calculateWordLength(const std::string& word);
 
 	std::string text;
 	Font* font;
+	unsigned int fontSize;
 };

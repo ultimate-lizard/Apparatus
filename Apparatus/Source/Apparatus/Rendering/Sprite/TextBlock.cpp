@@ -8,8 +8,11 @@
 static const int textBufferSize = 4000 * 6 * 5 * sizeof(float); // chars * vertices * attribute * float
 
 TextBlock::TextBlock() :
-    font(nullptr)
+    font(nullptr),
+    fontSize(14)
 {
+    color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
     auto vao = std::make_unique<VertexArrayObject>();
     assert(vao);
     vao->setStride(5 * sizeof(float));
@@ -23,6 +26,8 @@ TextBlock::TextBlock() :
 
 void TextBlock::rebuildMesh()
 {
+    Drawable::rebuildMesh();
+
     std::vector<float> textVertices;
 
     if (!font)
@@ -30,7 +35,7 @@ void TextBlock::rebuildMesh()
         return;
     }
 
-    GlyphCache* currentCharacterSet = font->getCurrentCharacterSet();
+    GlyphCache* currentCharacterSet = font->getGlyphCache(fontSize);
     if (!currentCharacterSet)
     {
         return;
@@ -156,29 +161,21 @@ Font* TextBlock::getFont()
     return font;
 }
 
-void TextBlock::setFontSize(float fontScale)
+void TextBlock::setFontSize(unsigned int fontSize)
 {
-    if (font)
-    {
-        //font->setFontSize(fontScale);
-    }
+    this->fontSize = fontSize;
 }
 
-float TextBlock::getFontScale()
+unsigned int TextBlock::getFontSize()
 {
-    if (font)
-    {
-        //return font->getFontScale();
-    }
-
-    return 0.0f;
+    return fontSize;
 }
 
 float TextBlock::calculateWordLength(const std::string& word)
 {
     float result = 0.0f;
 
-    GlyphCache* currentCharacterSet = font->getCurrentCharacterSet();
+    GlyphCache* currentCharacterSet = font->getGlyphCache(fontSize);
     if (!currentCharacterSet)
     {
         return 0.0;

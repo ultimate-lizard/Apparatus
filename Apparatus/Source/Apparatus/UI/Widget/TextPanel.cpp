@@ -59,7 +59,7 @@ void TextPanel::setColor(const glm::vec4& color)
     }
 }
 
-void TextPanel::setFontSize(float fontSize)
+void TextPanel::setFontSize(unsigned int fontSize)
 {
     if (textBlock)
     {

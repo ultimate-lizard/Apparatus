@@ -6,34 +6,38 @@
 #include "../Core/AssetManager.h"
 #include "../Rendering/TextureArray.h"
 
-void Font::createGlyphCache(unsigned int fontSize)
+GlyphCache* Font::createGlyphCache(unsigned int fontSize)
 {
 	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
 	if (!assetManager)
 	{
-		return;
+		return nullptr;
 	}
 
-	if (characterSetMap.find(fontSize) != characterSetMap.end())
+	auto glyphSearchIter = glyphCacheMap.find(fontSize);
+	if (glyphSearchIter != glyphCacheMap.end())
 	{
-		return;
+		return &glyphSearchIter->second;
 	}
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	// Get default size
+	// TODO: Implement UTF-8
+	const unsigned int characterAmount = 128;
 
-	// TODO: Those should be variables
-	int width = 14;
-	int height = 14;
-	int layerCount = 128;
+	int width = fontSize;
+	int height = fontSize;
+	int layerCount = characterAmount;
 
-	TextureArray* textureArray = assetManager->createAsset<TextureArray>("TextureArray_DummyFontName", width, height, layerCount, 1);
+	std::string textureName = "TextureArray_";
+	textureName += getAssetName() + "_" + std::to_string(fontSize);
+
+	TextureArray* textureArray = assetManager->createAsset<TextureArray>(textureName, width, height, layerCount, 1);
 	std::map<char, Character> characterMap;
 
 	FT_Set_Pixel_Sizes(face, width, height);
 
-	for (unsigned char c = 0; c < 128; ++c)
+	for (unsigned char c = 0; c < characterAmount; ++c)
 	{
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
 		{
@@ -56,10 +60,12 @@ void Font::createGlyphCache(unsigned int fontSize)
 	GlyphCache glyphCache;
 	glyphCache.glyphMap = std::move(characterMap);
 	glyphCache.textureArray = textureArray;
-	glyphCache.fontSize = 14;
+	glyphCache.fontSize = fontSize;
 	glyphCache.textureSize = height;
 
-	characterSetMap[glyphCache.fontSize] = std::move(glyphCache);
+	glyphCacheMap[glyphCache.fontSize] = std::move(glyphCache);
+
+	return &glyphCacheMap[fontSize];
 }
 
 void Font::init()
@@ -72,25 +78,24 @@ void Font::uninit()
 	FT_Done_Face(face);
 }
 
-GlyphCache* Font::getCharacterSet(size_t fontSize)
+GlyphCache* Font::getGlyphCache(unsigned int fontSize)
 {
-	auto setSearchIter = characterSetMap.find(fontSize);
-	if (setSearchIter != characterSetMap.cend())
+	auto setSearchIter = glyphCacheMap.find(fontSize);
+	if (setSearchIter != glyphCacheMap.cend())
 	{
 		return &setSearchIter->second;
 	}
 
-	return nullptr;
+	return createGlyphCache(fontSize);
 }
 
-GlyphCache* Font::getCurrentCharacterSet()
-{
-	return getCharacterSet(fontSize);
-}
+//GlyphCache* Font::getCurrentGlyphCache()
+//{
+//	return getGlyphCache(fontSize);
+//}
 
 Font::Font(FT_Face face) :
-	face(face),
-	fontSize(14)
+	face(face)
 {
 
 }

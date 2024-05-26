@@ -66,6 +66,8 @@ const glm::ivec2& Sprite::getTextureSize() const
 
 void Sprite::rebuildMesh()
 {
+    Drawable::rebuildMesh();
+
     if (!spriteMesh)
     {
         return;

@@ -17,7 +17,7 @@ public:
 	Drawable(const Drawable&) = delete;
 	Drawable(Drawable&&) = delete;
 
-	virtual void rebuildMesh() = 0;
+	virtual void rebuildMesh();
 
 	void setPosition(const glm::ivec2& position);
 	const glm::ivec2& getPosition() const;

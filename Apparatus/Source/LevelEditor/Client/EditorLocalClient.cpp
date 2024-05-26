@@ -72,18 +72,27 @@ void EditorLocalClient::init()
 
 			TextPanel* textPanel = uiContext.createWidget<TextPanel>("Panel_TextPanel");
 			textPanel->setText("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-			textPanel->setFontSize(14.0f);
-			textPanel->setColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+			textPanel->setFontSize(14);
 			textPanel->setHorizontalAlignment(Widget::Alignment::Fill);
 			textPanel->setMargin(Widget::Side::Left, 8);
 			textPanel->setMargin(Widget::Side::Right, 8);
 			textPanel->setMargin(Widget::Side::Top, 8);
 			textPanel->setMargin(Widget::Side::Bottom, 8);
-			textPanel->setDepth(0.9f);
 			textPanel->setColor({ 0.0f, 0.0f, 1.0f, 1.0 });
 
+			TextPanel* textPanel2 = uiContext.createWidget<TextPanel>("Panel_TextPanel2");
+			textPanel2->setText("This is another cool text block!");
+			textPanel2->setHorizontalAlignment(Widget::Alignment::Fill);
+			textPanel2->setDepth(0.9f);
+			textPanel2->setFontSize(20);
+			// textPanel2->setColor({ 1.0f, 0.0f, 1.0f, 1.0 });
+			textPanel2->setMargin(Widget::Side::Left, 8);
+			textPanel2->setMargin(Widget::Side::Right, 8);
+			textPanel2->setMargin(Widget::Side::Top, 8);
+			textPanel2->setMargin(Widget::Side::Bottom, 8);
+
 			innerPanel2->addChild(textPanel);
-			innerPanel2->setDepth(0.1f);
+			innerPanel->addChild(textPanel2);
 
 			testPanel->addChild(horizontalPanel);
 

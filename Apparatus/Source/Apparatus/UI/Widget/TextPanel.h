@@ -15,7 +15,7 @@ public:
 	TextBlock* getTextBlock();
 	void setText(const std::string& text);
 	void setColor(const glm::vec4& color);
-	void setFontSize(float fontSize);
+	void setFontSize(unsigned int fontSize);
 
 	void setDepth(float depth);
 

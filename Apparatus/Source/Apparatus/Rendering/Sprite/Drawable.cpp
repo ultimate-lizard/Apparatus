@@ -25,6 +25,15 @@ Material* Drawable::getMaterial()
     return material;
 }
 
+void Drawable::rebuildMesh()
+{
+    if (material)
+    {
+        MaterialParameters& params = material->getParameters();
+        params.setVec4("spriteColor", color);
+    }
+}
+
 void Drawable::setPosition(const glm::ivec2& position)
 {
     this->position = position;
@@ -58,12 +67,6 @@ float Drawable::getDepth() const
 void Drawable::setColor(const glm::vec4& color)
 {
     this->color = color;
-
-    if (material)
-    {
-        MaterialParameters& params = material->getParameters();
-        params.setVec4("spriteColor", color);
-    }
 }
 
 const glm::vec4& Drawable::getColor() const

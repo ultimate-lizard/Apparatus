@@ -34,14 +34,12 @@ public:
 	virtual void init() override;
 	virtual void uninit() override;
 
-	GlyphCache* getCharacterSet(size_t fontSize);
-	GlyphCache* getCurrentCharacterSet();
+	GlyphCache* getGlyphCache(unsigned int fontSize);
+	GlyphCache* createGlyphCache(unsigned int fontSize);
 
 private:
-	void createGlyphCache(unsigned int fontSize);
 
 	FT_Face face;
 	// Contains cached character sets of different sizes
-	std::map<size_t, GlyphCache> characterSetMap;
-	unsigned int fontSize;
+	std::map<size_t, GlyphCache> glyphCacheMap;
 };
