@@ -2,6 +2,7 @@
 
 #include "../../Apparatus.h"
 #include "../../Rendering/Material.h"
+#include "../../Rendering/Texture.h"
 #include "../../Core/AssetManager.h"
 
 void ImagePanel::init()
@@ -51,6 +52,12 @@ void ImagePanel::setTexture(Texture* texture)
     if (sprite)
     {
         sprite->setTexture(texture);
+
+        if (size == glm::ivec2(0))
+        {
+            size = texture->getSize();
+        }
+
         invalidate();
     }
 }
