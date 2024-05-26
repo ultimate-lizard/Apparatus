@@ -21,7 +21,8 @@ LocalClient::LocalClient(Renderer* renderer, SpriteRenderer* spriteRenderer) :
 	renderer(renderer),
 	spriteRenderer(spriteRenderer),
 	activeController(nullptr),
-	defaultController(nullptr)
+	defaultController(nullptr),
+	uiContext(&inputHandler)
 {
 	
 }
@@ -57,49 +58,8 @@ void LocalClient::init()
 
 	// UI stuff
 	uiContext.init();
+	inputHandler.setUIContext(&uiContext);
 	uiCamera.setOrthographic(0.0f, static_cast<float>(windowSize.x), 0.0f, static_cast<float>(windowSize.y), -1.0f, 1.0f);
-
-	// TODO: This is test UI
-	//if (TextureImporter* importer = Apparatus::getAssetManager().getImporter<TextureImporter>())
-	//{
-	//	Texture* panelTexture = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_PanelBackground", "../Textures/Panel.bmp"));
-	//	Texture* thickWindowTexture = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_WindowThick", "../Textures/WindowThick.bmp"));
-	//	Texture* innerWindowTexture = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_WindowInner", "../Textures/WindowInner.bmp"));
-	//	Texture* missingTexture = Apparatus::getAssetManager().createAsset<Texture>(importer->import("Texture_MissingTexture", "../Textures/MissingTexture.bmp"));
-
-	//	Panel* secondWindow = uiContext.createPanel<Panel>("Panel_Second", missingTexture);
-	//	secondWindow->setSize({ 512, 512 });
-	//	secondWindow->setVerticalAlignment(Panel::Alignment::Center);
-	//	secondWindow->setHorizontalAlignment(Panel::Alignment::Fill);
-
-	//	Panel* third = uiContext.createPanel<Panel>("Panel_Second2", panelTexture);
-	//	third->setSize({ 512, 512 });
-	//	third->setVerticalAlignment(Panel::Alignment::Center);
-	//	third->setHorizontalAlignment(Panel::Alignment::Center);
-
-	//	NinePatchPanel* ninePatch = uiContext.createPanel<NinePatchPanel>("Panel_Nine", thickWindowTexture);
-	//	ninePatch->setBorder(Panel::Side::Left, 6);
-	//	ninePatch->setBorder(Panel::Side::Right, 6);
-	//	ninePatch->setBorder(Panel::Side::Top, 6);
-	//	ninePatch->setBorder(Panel::Side::Bottom, 6);
-	//	ninePatch->setSize({ 256, 512 });
-	//	ninePatch->setVerticalAlignment(Panel::Alignment::Left);
-	//	ninePatch->setHorizontalAlignment(Panel::Alignment::Right);
-	//	ninePatch->setPadding(Panel::Side::Top, 32);
-	//	ninePatch->setPadding(Panel::Side::Bottom, 32);
-	//	ninePatch->setPadding(Panel::Side::Left, 32);
-	//	ninePatch->setPadding(Panel::Side::Right, 32);
-
-	//	NinePatchPanel* ninePatch2 = uiContext.createPanel<NinePatchPanel>("Panel_Nine2", innerWindowTexture);
-	//	ninePatch->addChild(ninePatch2);
-	//	ninePatch2->setSize({ 64, 64 });
-	//	ninePatch2->setBorder(Panel::Side::Left, 6);
-	//	ninePatch2->setBorder(Panel::Side::Right, 6);
-	//	ninePatch2->setBorder(Panel::Side::Top, 6);
-	//	ninePatch2->setBorder(Panel::Side::Bottom, 6);
-	//	ninePatch2->setVerticalAlignment(Panel::Alignment::Left);
-	//	ninePatch2->setHorizontalAlignment(Panel::Alignment::Fill);
-	//}
 }
 
 void LocalClient::onLightCreation(std::shared_ptr<LightComponentCreationEvent> event)

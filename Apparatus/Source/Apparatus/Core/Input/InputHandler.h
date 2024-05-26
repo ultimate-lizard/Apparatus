@@ -7,6 +7,8 @@
 #include "InputMap.h"
 #include "../Window/WindowEventHandler.h"
 
+class UIContext;
+
 struct KeyBinding
 {
 	KeyEventType type;
@@ -35,6 +37,9 @@ public:
 
 	void update();
 
+	// Adds UI Context to pass input to before dispatching the input to the delegates
+	void setUIContext(UIContext* uiContext);
+
 private:
 	std::map<InputKey, std::string> keyActionMap;
 	std::map<InputAxis, AxisAction> axisActionMap;
@@ -44,4 +49,6 @@ private:
 	std::map<std::string, std::function<void(float)>> axisBindingsMap;
 
 	std::vector<InputKey> registeredKeyAxis;
+
+	UIContext* uiContext;
 };

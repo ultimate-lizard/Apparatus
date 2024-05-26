@@ -10,9 +10,11 @@
 #include "../Core/AssetManager/Importer/TextureImporter.h"
 #include "../Core/AssetManager/Importer/FontImporter.h"
 #include "../Core/AssetManager/AssetManager.h"
+#include "../Core/Input/InputHandler.h"
 #include "Widget/NinePatchPanel.h"
 
-UIContext::UIContext()
+UIContext::UIContext(InputHandler* inputHandler) :
+	inputHandler(inputHandler)
 {
 	if (EventDispatcher* eventDispatcher = Apparatus::findEngineSystem<EventDispatcher>())
 	{
@@ -76,6 +78,29 @@ void UIContext::renderContext(SpriteRenderer* renderer)
 			widget->render(renderer);
 		}
 	}
+}
+
+bool UIContext::handleInput(InputKey key, KeyEventType type)
+{
+	if (key == InputKey::MouseLeftButton)
+	{
+		for (auto& widget : spawnedWidgets)
+		{
+			if (widget)
+			{
+				const glm::ivec2 cursorPosition = Apparatus::getWindow().getMouseCursorPosition();
+				if (widget->getGlobalPosition().x < cursorPosition.x && widget->getGlobalPosition().x + widget->getGlobalSize().x > cursorPosition.x &&
+					widget->getGlobalPosition().y < cursorPosition.y && widget->getGlobalPosition().y + widget->getGlobalSize().y > cursorPosition.y &&
+					widget->isMouseCaptureEnabled())
+				{
+					widget->onKeyInput(key, type);
+					return type != KeyEventType::Release;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 void UIContext::onWindowResize(std::shared_ptr<WindowResizeEvent> event)

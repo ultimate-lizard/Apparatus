@@ -7,6 +7,8 @@
 
 void ImagePanel::init()
 {
+    setMouseCaptureEnabled(true);
+
     if (sprite = std::make_unique<Sprite>())
     {
         if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())

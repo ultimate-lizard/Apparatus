@@ -1,6 +1,7 @@
 #include "InputHandler.h"
 
 #include "../Logger.h"
+#include "../../UI/UIContext.h"
 
 InputHandler::InputHandler()
 {
@@ -52,9 +53,18 @@ void InputHandler::handleKey(InputKey key, KeyEventType type)
 				return b.type == type;
 			});
 
-			if (bindingSearchResult != bindings.cend())
+			bool inputCaptured = false;
+			if (uiContext)
 			{
-				bindingSearchResult->function();
+				inputCaptured = uiContext->handleInput(key, type);
+			}
+			
+			if (!inputCaptured)
+			{
+				if (bindingSearchResult != bindings.cend())
+				{
+					bindingSearchResult->function();
+				}
 			}
 		}
 	}
@@ -119,4 +129,9 @@ void InputHandler::update()
 			}
 		}
 	}
+}
+
+void InputHandler::setUIContext(UIContext* uiContext)
+{
+	this->uiContext = uiContext;
 }

@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+#include "../../Core/Input/InputHandler.h"
+
 class SpriteRenderer;
 
 class Widget
@@ -55,6 +57,11 @@ public:
 
 	void invalidate();
 
+	void setMouseCaptureEnabled(bool enabled);
+	bool isMouseCaptureEnabled() const;
+
+	virtual void onKeyInput(InputKey key, KeyEventType type) {}
+
 protected:
 	std::string name;
 
@@ -67,4 +74,6 @@ protected:
 	Alignment verticalAlignment;
 
 	bool invalidated;
+	
+	bool mouseCaptureEnabled;
 };

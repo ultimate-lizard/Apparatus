@@ -7,7 +7,8 @@ Widget::Widget() :
     position(0),
     horizontalAlignment(Alignment::Left),
     verticalAlignment(Alignment::Left),
-    invalidated(true)
+    invalidated(true),
+    mouseCaptureEnabled(false)
 {
 }
 
@@ -129,4 +130,14 @@ void Widget::setVerticalAlignment(Alignment alignment)
 void Widget::invalidate()
 {
     invalidated = true;
+}
+
+void Widget::setMouseCaptureEnabled(bool enabled)
+{
+    this->mouseCaptureEnabled = enabled;
+}
+
+bool Widget::isMouseCaptureEnabled() const
+{
+    return mouseCaptureEnabled;
 }

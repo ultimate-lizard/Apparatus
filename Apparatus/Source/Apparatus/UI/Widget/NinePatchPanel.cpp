@@ -12,6 +12,8 @@ NinePatchPanel::NinePatchPanel() :
 
 void NinePatchPanel::init()
 {
+	setMouseCaptureEnabled(true);
+
 	if (sprite = std::make_unique<Sprite>())
 	{
 		if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())
@@ -26,29 +28,26 @@ void NinePatchPanel::refresh()
 {
 	Widget::refresh();
 
-	if (invalidated)
+	if (invalidated && sprite)
 	{
-		if (sprite)
+		sprite->setPosition(getGlobalPosition());
+		sprite->setSize(getGlobalSize());
+		sprite->rebuildMesh();
+
+		if (Material* spriteMaterial = sprite->getMaterial())
 		{
-			sprite->setPosition(getGlobalPosition());
-			sprite->setSize(getGlobalSize());
-			sprite->rebuildMesh();
+			MaterialParameters& params = spriteMaterial->getParameters();
 
-			if (Material* spriteMaterial = sprite->getMaterial())
-			{
-				MaterialParameters& params = spriteMaterial->getParameters();
+			glm::ivec4 borders;
+			borders.x = getBorder(ImagePanel::Side::Left);
+			borders.y = getBorder(ImagePanel::Side::Right);
+			borders.z = getBorder(ImagePanel::Side::Top);
+			borders.w = getBorder(ImagePanel::Side::Bottom);
 
-				glm::ivec4 borders;
-				borders.x = getBorder(ImagePanel::Side::Left);
-				borders.y = getBorder(ImagePanel::Side::Right);
-				borders.z = getBorder(ImagePanel::Side::Top);
-				borders.w = getBorder(ImagePanel::Side::Bottom);
+			params.setVec4("borders", borders);
 
-				params.setVec4("borders", borders);
-
-				params.setVec2("textureBorderSize", sprite->getTextureSize());
-				params.setVec2("spriteSize", getGlobalSize());
-			}
+			params.setVec2("textureBorderSize", sprite->getTextureSize());
+			params.setVec2("spriteSize", getGlobalSize());
 		}
 
 		invalidated = false;
