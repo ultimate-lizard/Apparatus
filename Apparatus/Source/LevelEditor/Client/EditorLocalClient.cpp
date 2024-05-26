@@ -35,8 +35,11 @@ void EditorLocalClient::init()
 		if (TextureImporter* importer = assetManager->getImporter<TextureImporter>())
 		{
 			Texture * innerWindowTexture = assetManager->createAsset<Texture>("Texture_WindowInner", importer->import("../Textures/WindowInner.bmp"));
+			innerWindowTexture->setMinFilter(TextureFiltering::Nearest);
+			innerWindowTexture->setMagFilter(TextureFiltering::Nearest);
 			Texture * thick = assetManager->createAsset<Texture>("Texture_WindowThick", importer->import("../Textures/WindowThick.bmp"));
-			Texture * holeTex = assetManager->createAsset<Texture>("Texture_HoleInner", importer->import("../Textures/HoleInner.bmp"));
+			thick->setMinFilter(TextureFiltering::Nearest);
+			thick->setMagFilter(TextureFiltering::Nearest);
 
 			auto testPanel = uiContext.createWidget<NinePatchPanel>("Panel_NinePatchPanel");
 			testPanel->setTexture(thick);

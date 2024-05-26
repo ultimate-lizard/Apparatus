@@ -7,6 +7,14 @@
 
 #include "../Core/Asset.h"
 
+enum class TextureFiltering
+{
+	Nearest,
+	Linear,
+	MipNearest,
+	MipLinear
+};
+
 class Texture : public Asset
 {
 public:
@@ -25,7 +33,12 @@ public:
 
 	const glm::ivec2& getSize() const;
 
+	void setMagFilter(TextureFiltering filtering);
+	void setMinFilter(TextureFiltering filtering);
+
 private:
+	int getGlFiltering(TextureFiltering filtering);
+
 	std::string texturePath;
 	unsigned int id;
 	int bytesPerPixel;

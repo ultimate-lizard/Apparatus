@@ -48,3 +48,43 @@ const glm::ivec2& Texture::getSize() const
 {
 	return size;
 }
+
+void Texture::setMagFilter(TextureFiltering filtering)
+{
+	bind();
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, getGlFiltering(filtering));
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	unbind();
+}
+
+void Texture::setMinFilter(TextureFiltering filtering)
+{
+	bind();
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, getGlFiltering(filtering));
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	unbind();
+}
+
+int Texture::getGlFiltering(TextureFiltering filtering)
+{
+	int glFiltering = GL_NEAREST;
+
+	switch (filtering)
+	{
+	case TextureFiltering::Linear:
+		glFiltering = GL_LINEAR;
+		break;
+	case TextureFiltering::MipNearest:
+		glFiltering = GL_NEAREST_MIPMAP_NEAREST;
+		break;
+	case TextureFiltering::MipLinear:
+		glFiltering = GL_LINEAR_MIPMAP_LINEAR;
+		break;
+	}
+
+	return glFiltering;
+}
