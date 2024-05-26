@@ -4,8 +4,7 @@
 #include <Apparatus/Components/ModelComponent.h>
 #include <Apparatus/Components/LightComponent.h>
 #include <Apparatus/Core/EntityRegistry.h>
-#include <Apparatus/Core/AssetManager.h>
-// #include <Apparatus/Apparatus.h>
+#include <Apparatus/Core/AssetManager/AssetManager.h>
 #include "../Server/EditorLocalServer.h"
 #include "../Client/EditorLocalClient.h"
 #include "../Components/GizmoComponent.h"

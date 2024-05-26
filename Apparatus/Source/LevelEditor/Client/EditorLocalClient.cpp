@@ -2,8 +2,8 @@
 
 #include <Apparatus/Apparatus.h>
 #include <Apparatus/Core/Logger.h>
-#include <Apparatus/Core/TextureImporter.h>
-#include <Apparatus/Core/AssetManager.h>
+#include <Apparatus/Core/AssetManager/Importer/TextureImporter.h>
+#include <Apparatus/Core/AssetManager/AssetManager.h>
 #include <Apparatus/Server/LocalServer.h>
 #include <Apparatus/Components/ModelComponent.h>
 #include <Apparatus/Components/TransformComponent.h>

@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 
 #include "../Apparatus.h"
-#include "../Core/AssetManager.h"
+#include "../Core/AssetManager/AssetManager.h"
 #include "../Rendering/TextureArray.h"
 
 GlyphCache* Font::createGlyphCache(unsigned int fontSize)

@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "Event.h"
-#include "../Core/EngineSystem/EngineSystem.h"
+#include "../Core/EngineSystem.h"
 
 class FuncWrapper
 {

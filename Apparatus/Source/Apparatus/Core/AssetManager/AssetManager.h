@@ -5,10 +5,10 @@
 #include <vector>
 
 #include "Asset.h"
-#include "Logger.h"
-#include "Importer.h"
-#include "../Rendering/Shader.h"
-#include "EngineSystem/EngineSystem.h"
+#include "../Logger.h"
+#include "Importer/Importer.h"
+#include "../../Rendering/Shader.h"
+#include "../EngineSystem.h"
 
 class AssetManager : public EngineSystem
 {

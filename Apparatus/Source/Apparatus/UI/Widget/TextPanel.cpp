@@ -3,7 +3,7 @@
 #include "../Font.h"
 #include "../../Apparatus.h"
 #include "../../Rendering/Material.h"
-#include "../../Core/AssetManager.h"
+#include "../../Core/AssetManager/AssetManager.h"
 
 void TextPanel::init()
 {

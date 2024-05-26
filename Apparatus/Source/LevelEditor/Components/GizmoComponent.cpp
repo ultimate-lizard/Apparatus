@@ -6,9 +6,8 @@
 #include <Apparatus/Server/Entity.h>
 #include <Apparatus/Components/TransformComponent.h>
 #include <Apparatus/Components/ModelComponent.h>
-
 #include <Apparatus/Rendering/Vector.h>
-#include <Apparatus/Window.h>
+#include <Apparatus/Core/Window/Window.h>
 
 #include "../Components/SelectableComponent.h"
 #include "../Client/EditorLocalClient.h"

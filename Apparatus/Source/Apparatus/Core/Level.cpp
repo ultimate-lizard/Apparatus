@@ -2,15 +2,15 @@
 
 #include <algorithm>
 
-#include "Server/Entity.h"
-#include "Server/LocalServer.h"
-#include "Rendering/Renderer.h"
-#include "Rendering/Light.h"
-#include "Components/TransformComponent.h"
-#include "Components/ModelComponent.h"
-#include "Core/EntityRegistry.h"
-#include "Util/CollisionDetection.h"
-#include "Apparatus.h"
+#include "EntityRegistry.h"
+#include "../Server/Entity.h"
+#include "../Server/LocalServer.h"
+#include "../Rendering/Renderer.h"
+#include "../Rendering/Light.h"
+#include "../Components/TransformComponent.h"
+#include "../Components/ModelComponent.h"
+#include "../Util/CollisionDetection.h"
+#include "../Apparatus.h"
 
 void Level::init()
 {

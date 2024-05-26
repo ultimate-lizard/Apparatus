@@ -2,7 +2,7 @@
 
 #include <deque>
 
-#include "../../Core/EngineSystem/EngineSystem.h"
+#include "../../Core/EngineSystem.h"
 
 class Texture;
 class Material;

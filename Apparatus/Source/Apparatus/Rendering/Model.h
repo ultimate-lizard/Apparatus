@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include "../Core/Asset.h"
+#include "../Core/AssetManager/Asset.h"
 
 class Shader;
 class Mesh;

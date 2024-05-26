@@ -4,7 +4,7 @@
 
 #include <SDL2/SDL.h>
 
-#include "../InputHandler.h"
+#include "../Core/Input/InputHandler.h"
 #include "LocalClient.h"
 #include "../Core/Logger.h"
 #include "../Components/MovementComponent.h"

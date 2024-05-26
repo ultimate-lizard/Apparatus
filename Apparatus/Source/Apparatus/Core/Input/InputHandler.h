@@ -5,7 +5,7 @@
 #include <functional>
 
 #include "InputMap.h"
-#include "WindowEventHandler.h"
+#include "../Window/WindowEventHandler.h"
 
 struct KeyBinding
 {

@@ -3,12 +3,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#include "Level.h"
-#include "Core/ModelImporter.h"
+#include "Core/Level.h"
 #include "Server/LocalServer.h"
 #include "Client/LocalClient.h"
 #include "Core/EntityRegistry.h"
-#include "Core/AssetManager.h"
+#include "Core/AssetManager/AssetManager.h"
+#include "Core/AssetManager/Importer/ModelImporter.h"
 
 // TODO: These are probably temporary!
 #include "Rendering/Model.h"

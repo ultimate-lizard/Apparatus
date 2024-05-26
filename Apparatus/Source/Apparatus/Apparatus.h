@@ -4,10 +4,10 @@
 #include <memory>
 #include <vector>
 
-#include "Window.h"
-#include "Level.h"
-#include "WindowEventHandler.h"
-#include "Core/EngineSystem/EngineSystem.h"
+#include "Core/Window/Window.h"
+#include "Core/Level.h"
+#include "Core/Window/WindowEventHandler.h"
+#include "Core/EngineSystem.h"
 #include "Rendering/Renderer.h"
 #include "Server/Server.h"
 #include "Client/Client.h"

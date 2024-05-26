@@ -2,7 +2,7 @@
 
 #include <SDL2/SDL_image.h>
 
-#include "../Core/Logger.h"
+#include "../../Logger.h"
 
 std::unique_ptr<Texture> TextureImporter::import(const std::string& path)
 {

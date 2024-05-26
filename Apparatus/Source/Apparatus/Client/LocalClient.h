@@ -7,7 +7,7 @@
 
 #include "Client.h"
 #include "Controller.h"
-#include "../InputHandler.h"
+#include "../Core/Input/InputHandler.h"
 #include "../UI/UIContext.h"
 #include "../Util/Primitive.h"
 #include "../Rendering/Renderer.h"

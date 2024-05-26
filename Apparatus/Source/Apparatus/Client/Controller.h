@@ -5,8 +5,6 @@
 class Entity;
 class Client;
 
-#include "../Core/NameProvider.h"
-
 class Controller
 {
 public:

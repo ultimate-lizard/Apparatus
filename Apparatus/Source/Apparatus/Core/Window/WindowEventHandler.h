@@ -6,7 +6,7 @@
 
 #include <SDL2/SDL_events.h>
 
-#include "InputMap.h"
+#include "../Input/InputMap.h"
 
 class Apparatus;
 class InputHandler;
@@ -20,7 +20,7 @@ enum KeyEventType
 class WindowEventHandler
 {
 public:
-	WindowEventHandler();
+	WindowEventHandler() = default;
 
 	void handleEvents();
 	void addInputHandler(InputHandler* inputHandler);

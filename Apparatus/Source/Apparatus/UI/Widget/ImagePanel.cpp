@@ -3,7 +3,7 @@
 #include "../../Apparatus.h"
 #include "../../Rendering/Material.h"
 #include "../../Rendering/Texture.h"
-#include "../../Core/AssetManager.h"
+#include "../../Core/AssetManager/AssetManager.h"
 
 void ImagePanel::init()
 {

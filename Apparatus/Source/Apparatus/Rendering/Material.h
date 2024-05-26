@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 
-#include "../Core/Asset.h"
+#include "../Core/AssetManager/Asset.h"
 #include "MaterialParameter.h"
 
 class Shader;

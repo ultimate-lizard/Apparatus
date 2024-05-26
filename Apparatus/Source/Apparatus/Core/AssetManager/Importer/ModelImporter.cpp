@@ -7,11 +7,11 @@
 #include <assimp/postprocess.h>
 #include <assimp/mesh.h>
 
-#include "../Rendering/Mesh.h"
-#include "../Rendering/Texture.h"
-#include "../Rendering/Material.h"
-#include "Logger.h"
-#include "AssetManager.h"
+#include "../../../Rendering/Mesh.h"
+#include "../../../Rendering/Texture.h"
+#include "../../../Rendering/Material.h"
+#include "../../Logger.h"
+#include "../AssetManager.h"
 #include "TextureImporter.h"
 
 ModelImporter::ModelImporter() :

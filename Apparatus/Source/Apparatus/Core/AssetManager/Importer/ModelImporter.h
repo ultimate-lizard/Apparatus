@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "Importer.h"
-#include "../Rendering/Model.h"
+#include "../../../Rendering/Model.h"
 
 class Shader;
 struct aiNode;

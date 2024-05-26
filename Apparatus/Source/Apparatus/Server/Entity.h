@@ -6,8 +6,6 @@
 #include <map>
 
 #include "../Components/Component.h"
-#include "../Core/NameProvider.h"
-#include "../Core/LifecycleInterface.h"
 
 class SceneNode;
 

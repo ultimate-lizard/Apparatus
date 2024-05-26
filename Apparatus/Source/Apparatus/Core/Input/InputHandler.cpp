@@ -1,6 +1,6 @@
 #include "InputHandler.h"
 
-#include "Core/Logger.h"
+#include "../Logger.h"
 
 InputHandler::InputHandler()
 {

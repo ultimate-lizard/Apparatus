@@ -4,7 +4,7 @@
 #include <string>
 
 #include "../Core/Logger.h"
-#include "../Core/AssetManager.h"
+#include "../Core/AssetManager/AssetManager.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "TextureArray.h"

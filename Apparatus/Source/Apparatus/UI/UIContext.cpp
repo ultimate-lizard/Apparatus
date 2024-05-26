@@ -7,9 +7,9 @@
 #include "../Rendering/TextureArray.h"
 #include "../Rendering/Sprite/Sprite.h"
 #include "../Rendering/Sprite/TextBlock.h"
-#include "../Core/TextureImporter.h"
-#include "../Core/FontImporter.h"
-#include "../Core/AssetManager.h"
+#include "../Core/AssetManager/Importer/TextureImporter.h"
+#include "../Core/AssetManager/Importer/FontImporter.h"
+#include "../Core/AssetManager/AssetManager.h"
 #include "Widget/NinePatchPanel.h"
 
 UIContext::UIContext()

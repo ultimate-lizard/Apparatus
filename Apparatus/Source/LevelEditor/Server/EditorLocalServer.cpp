@@ -1,8 +1,8 @@
 #include "EditorLocalServer.h"
 
-#include <Apparatus/Level.h>
+#include <Apparatus/Core/Level.h>
 #include <Apparatus/Util/BoundingBox.h>
-#include <Apparatus/Core/AssetManager.h>
+#include <Apparatus/Core/AssetManager/AssetManager.h>
 #include <Apparatus/Core/EntityRegistry.h>
 #include <Apparatus/Rendering/Renderer.h>
 #include <Apparatus/Client/LocalClient.h>

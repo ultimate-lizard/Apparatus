@@ -3,7 +3,6 @@
 #include <vector>
 #include <memory>
 
-#include "../Core/NameProvider.h"
 #include "../Rendering/Viewport.h"
 
 class Camera;

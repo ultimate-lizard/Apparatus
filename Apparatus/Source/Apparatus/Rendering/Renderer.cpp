@@ -12,7 +12,7 @@
 #include "Shader.h"
 #include "Light.h"
 #include "Texture.h"
-#include "../Window.h"
+#include "../Core/Window/Window.h"
 #include "../Core/Logger.h"
 #include "../Server/Entity.h"
 #include "../Components/ModelComponent.h"

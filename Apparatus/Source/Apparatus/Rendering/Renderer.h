@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 
 #include "Camera.h"
-#include "../Core/EngineSystem/EngineSystem.h"
+#include "../Core/EngineSystem.h"
 
 using SDL_GLContext = void*; // forward declaration
 struct SDL_Window;

@@ -4,8 +4,8 @@
 #include <typeindex>
 #include <functional>
 
+#include "EngineSystem.h"
 #include "../Server/Entity.h"
-#include "EngineSystem/EngineSystem.h"
 
 class Component;
 

@@ -1,11 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include <freetype/freetype.h>
 
 #include "Importer.h"
-#include "../UI/Font.h"
+#include "../../../UI/Font.h"
 
 class FontImporter : public Importer
 {

@@ -3,9 +3,6 @@
 #include <string>
 #include <memory>
 
-#include "../Core/LifecycleInterface.h"
-#include "../Core/NameProvider.h"
-
 class Entity;
 
 class Component

@@ -5,7 +5,7 @@
 
 #include <glm/glm.hpp>
 
-#include "../Core/Asset.h"
+#include "../Core/AssetManager/Asset.h"
 #include "Sprite/VertexArrayObject.h"
 
 struct aiMesh;

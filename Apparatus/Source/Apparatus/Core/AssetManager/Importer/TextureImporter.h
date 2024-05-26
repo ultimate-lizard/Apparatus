@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "Importer.h"
-#include "../Rendering/Texture.h"
+#include "../../../Rendering/Texture.h"
 
 class TextureImporter : public Importer
 {

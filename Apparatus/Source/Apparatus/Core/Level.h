@@ -6,7 +6,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Rendering/Rotator.h"
+#include "../Rendering/Rotator.h"
 
 class Entity;
 class ModelComponent;

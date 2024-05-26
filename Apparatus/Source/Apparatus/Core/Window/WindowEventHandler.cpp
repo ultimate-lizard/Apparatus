@@ -1,13 +1,8 @@
 #include "WindowEventHandler.h"
 
-#include "Apparatus.h"
-#include "InputHandler.h"
-#include "Rendering/Camera.h"
-
-WindowEventHandler::WindowEventHandler()
-{
-
-}
+#include "../../Apparatus.h"
+#include "../Input/InputHandler.h"
+#include "../../Rendering/Camera.h"
 
 void WindowEventHandler::handleEvents()
 {

@@ -1,9 +1,9 @@
 #include "FontImporter.h"
 
-#include "../Rendering/TextureArray.h"
-#include "../Apparatus.h"
-#include "../UI/Font.h"
-#include "Logger.h"
+#include "../../../Rendering/TextureArray.h"
+#include "../../../Apparatus.h"
+#include "../../../UI/Font.h"
+#include "../../Logger.h"
 
 void FontImporter::init()
 {

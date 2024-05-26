@@ -10,7 +10,7 @@
 #include <Apparatus/Server/LocalServer.h>
 #include <Apparatus/Util/DebugPrimitive.h>
 #include <Apparatus/Util/CollisionDetection.h>
-#include <Apparatus/Level.h>
+#include <Apparatus/Core/Level.h>
 
 #include "EditorLocalClient.h"
 #include "../Components/SelectableComponent.h"

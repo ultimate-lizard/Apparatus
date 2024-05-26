@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../Core/LifecycleInterface.h"
-
 class Apparatus;
 class Client;
 

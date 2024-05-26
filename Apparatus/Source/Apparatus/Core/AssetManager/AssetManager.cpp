@@ -1,8 +1,8 @@
 #include "AssetManager.h"
 
-#include "ModelImporter.h"
-#include "TextureImporter.h"
-#include "FontImporter.h"
+#include "Importer/ModelImporter.h"
+#include "Importer/TextureImporter.h"
+#include "Importer/FontImporter.h"
 
 void AssetManager::init()
 {

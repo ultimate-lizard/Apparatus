@@ -4,7 +4,7 @@
 
 #include <freetype/freetype.h>
 
-#include "../Core/Asset.h"
+#include "../Core/AssetManager/Asset.h"
 #include "../Rendering/TextureArray.h"
 
 struct Character

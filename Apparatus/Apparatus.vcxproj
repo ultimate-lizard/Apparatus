@@ -150,11 +150,11 @@
     <ClCompile Include="Source\Apparatus\Client\Controller.cpp" />
     <ClCompile Include="Source\Apparatus\Client\HumanControllerBase.cpp" />
     <ClCompile Include="Source\Apparatus\Client\GenericHumanController.cpp" />
-    <ClCompile Include="Source\Apparatus\Core\FontImporter.cpp" />
-    <ClCompile Include="Source\Apparatus\Core\TextureImporter.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\AssetManager\Importer\FontImporter.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\AssetManager\Importer\TextureImporter.cpp" />
     <ClCompile Include="Source\Apparatus\Event\Event.cpp" />
     <ClCompile Include="Source\Apparatus\Event\EventDispatcher.cpp" />
-    <ClCompile Include="Source\Apparatus\InputHandler.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\Input\InputHandler.cpp" />
     <ClCompile Include="Source\Apparatus\Client\LocalClient.cpp" />
     <ClCompile Include="Source\Apparatus\Core\EntityRegistry.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Sprite\Drawable.cpp" />
@@ -164,7 +164,7 @@
     <ClCompile Include="Source\Apparatus\Rendering\Sprite\TextBlock.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\TextureArray.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\UniformBufferObject.cpp" />
-    <ClCompile Include="Source\Apparatus\Level.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\Level.cpp" />
     <ClCompile Include="Source\Apparatus\Components\LightComponent.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Light.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\MaterialParameter.cpp" />
@@ -182,17 +182,16 @@
     <ClCompile Include="Source\Apparatus\Components\ModelComponent.cpp" />
     <ClCompile Include="Source\Apparatus\Components\MovementComponent.cpp" />
     <ClCompile Include="Source\Apparatus\Components\TransformComponent.cpp" />
-    <ClCompile Include="Source\Apparatus\Core\NameProvider.cpp" />
-    <ClCompile Include="Source\Apparatus\Core\Importer.cpp" />
-    <ClCompile Include="Source\Apparatus\Core\Asset.cpp" />
-    <ClCompile Include="Source\Apparatus\Core\AssetManager.cpp" />
-    <ClCompile Include="Source\Apparatus\WindowEventHandler.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\AssetManager\Importer\Importer.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\AssetManager\Asset.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\AssetManager\AssetManager.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\Window\WindowEventHandler.cpp" />
     <ClCompile Include="Source\Apparatus\Core\Logger.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Camera.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Material.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Mesh.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Model.cpp" />
-    <ClCompile Include="Source\Apparatus\Core\ModelImporter.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\AssetManager\Importer\ModelImporter.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Renderer.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\Rotator.cpp" />
     <ClCompile Include="Source\Apparatus\Rendering\SceneNode.cpp" />
@@ -204,7 +203,7 @@
     <ClCompile Include="Source\Apparatus\Server\Server.cpp" />
     <ClCompile Include="Source\Apparatus\Util\CollisionDetection.cpp" />
     <ClCompile Include="Source\Apparatus\Util\DebugPrimitive.cpp" />
-    <ClCompile Include="Source\Apparatus\Window.cpp" />
+    <ClCompile Include="Source\Apparatus\Core\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\DebugPrimitive.frag" />
@@ -225,12 +224,12 @@
     <ClInclude Include="Source\Apparatus\Client\Controller.h" />
     <ClInclude Include="Source\Apparatus\Client\HumanControllerBase.h" />
     <ClInclude Include="Source\Apparatus\Client\GenericHumanController.h" />
-    <ClInclude Include="Source\Apparatus\Core\EngineSystem\EngineSystem.h" />
-    <ClInclude Include="Source\Apparatus\Core\FontImporter.h" />
-    <ClInclude Include="Source\Apparatus\Core\TextureImporter.h" />
+    <ClInclude Include="Source\Apparatus\Core\EngineSystem.h" />
+    <ClInclude Include="Source\Apparatus\Core\AssetManager\Importer\FontImporter.h" />
+    <ClInclude Include="Source\Apparatus\Core\AssetManager\Importer\TextureImporter.h" />
     <ClInclude Include="Source\Apparatus\Event\EventDispatcher.h" />
     <ClInclude Include="Source\Apparatus\Event\Event.h" />
-    <ClInclude Include="Source\Apparatus\InputHandler.h" />
+    <ClInclude Include="Source\Apparatus\Core\Input\InputHandler.h" />
     <ClInclude Include="Source\Apparatus\Client\LocalClient.h" />
     <ClInclude Include="Source\Apparatus\Core\EntityRegistry.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Sprite\Drawable.h" />
@@ -240,7 +239,7 @@
     <ClInclude Include="Source\Apparatus\Rendering\Sprite\TextBlock.h" />
     <ClInclude Include="Source\Apparatus\Rendering\TextureArray.h" />
     <ClInclude Include="Source\Apparatus\Rendering\UniformBufferObject.h" />
-    <ClInclude Include="Source\Apparatus\Level.h" />
+    <ClInclude Include="Source\Apparatus\Core\Level.h" />
     <ClInclude Include="Source\Apparatus\Components\LightComponent.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Light.h" />
     <ClInclude Include="Source\Apparatus\Rendering\MaterialParameter.h" />
@@ -259,19 +258,17 @@
     <ClInclude Include="Source\Apparatus\Components\ModelComponent.h" />
     <ClInclude Include="Source\Apparatus\Components\MovementComponent.h" />
     <ClInclude Include="Source\Apparatus\Components\TransformComponent.h" />
-    <ClInclude Include="Source\Apparatus\Core\NameProvider.h" />
-    <ClInclude Include="Source\Apparatus\Core\Importer.h" />
-    <ClInclude Include="Source\Apparatus\InputMap.h" />
-    <ClInclude Include="Source\Apparatus\Core\LifecycleInterface.h" />
-    <ClInclude Include="Source\Apparatus\Core\Asset.h" />
-    <ClInclude Include="Source\Apparatus\Core\AssetManager.h" />
-    <ClInclude Include="Source\Apparatus\WindowEventHandler.h" />
+    <ClInclude Include="Source\Apparatus\Core\AssetManager\Importer\Importer.h" />
+    <ClInclude Include="Source\Apparatus\Core\Input\InputMap.h" />
+    <ClInclude Include="Source\Apparatus\Core\AssetManager\Asset.h" />
+    <ClInclude Include="Source\Apparatus\Core\AssetManager\AssetManager.h" />
+    <ClInclude Include="Source\Apparatus\Core\Window\WindowEventHandler.h" />
     <ClInclude Include="Source\Apparatus\Core\Logger.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Camera.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Material.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Mesh.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Model.h" />
-    <ClInclude Include="Source\Apparatus\Core\ModelImporter.h" />
+    <ClInclude Include="Source\Apparatus\Core\AssetManager\Importer\ModelImporter.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Renderer.h" />
     <ClInclude Include="Source\Apparatus\Rendering\Rotator.h" />
     <ClInclude Include="Source\Apparatus\Rendering\SceneNode.h" />
@@ -284,7 +281,7 @@
     <ClInclude Include="Source\Apparatus\Util\Primitive.h" />
     <ClInclude Include="Source\Apparatus\Server\Server.h" />
     <ClInclude Include="Source\Apparatus\Util\DebugPrimitive.h" />
-    <ClInclude Include="Source\Apparatus\Window.h" />
+    <ClInclude Include="Source\Apparatus\Core\Window\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
