@@ -45,7 +45,7 @@ public:
 	const std::string& getName() const;
 
 	Widget* getParent();
-	virtual void addChild(Widget* child);
+	virtual bool addChild(Widget* child);
 	Widget* getChild(size_t index) const;
 	size_t getChildrenCount() const;
 
@@ -67,7 +67,7 @@ public:
 
 	virtual void onMouseEnter() {}
 	virtual void onMouseLeave() {}
-	virtual void onKeyInput(InputKey key, KeyEventType type) {}
+	virtual bool onKeyInput(InputKey key, KeyEventType type) { return false; }
 
 protected:
 	std::string name;

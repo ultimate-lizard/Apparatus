@@ -24,7 +24,7 @@ public:
 
 	virtual void onMouseEnter() override;
 	virtual void onMouseLeave() override;
-	virtual void onKeyInput(InputKey key, KeyEventType type);
+	virtual bool onKeyInput(InputKey key, KeyEventType type) override;
 
 private:
 	ImagePanel* idleStatePanel;
@@ -33,4 +33,6 @@ private:
 	ImagePanel* currentStatePanel;
 
 	ButtonState buttonState;
+
+	bool hovered;
 };

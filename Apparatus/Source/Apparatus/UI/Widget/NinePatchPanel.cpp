@@ -60,6 +60,14 @@ void NinePatchPanel::setBorder(Side side, int border)
 	invalidate();
 }
 
+void NinePatchPanel::setBorder(int border)
+{
+	for (size_t i = 0; i < 4; ++i)
+	{
+		borders[i] = border;
+	}
+}
+
 int NinePatchPanel::getBorder(Side side) const
 {
 	return borders[static_cast<int>(side)];

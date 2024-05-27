@@ -42,6 +42,14 @@ void EditorLocalClient::init()
 			thick->setMinFilter(TextureFiltering::Nearest);
 			thick->setMagFilter(TextureFiltering::Nearest);
 
+			Texture* textureHover = assetManager->createAsset<Texture>("Texture_ButtonHover", importer->import("../Textures/ButtonInnerHover.bmp"));
+			textureHover->setMinFilter(TextureFiltering::Nearest);
+			textureHover->setMagFilter(TextureFiltering::Nearest);
+
+			Texture* texturePress = assetManager->createAsset<Texture>("Texture_ButtonPress", importer->import("../Textures/ButtonInnerPressed.bmp"));
+			texturePress->setMinFilter(TextureFiltering::Nearest);
+			texturePress->setMagFilter(TextureFiltering::Nearest);
+
 			auto testPanel = uiContext.createWidget<NinePatchPanel>("Panel_NinePatchPanel");
 			testPanel->setTexture(thick);
 			testPanel->setBorder(Widget::Side::Left, 6);
@@ -101,14 +109,29 @@ void EditorLocalClient::init()
 
 			Button* button = uiContext.createWidget<Button>("Panel_Button1");
 			NinePatchPanel* buttonIdle = uiContext.createWidget<NinePatchPanel>("Panel_Button1_Idle");
-			buttonIdle->setTexture(thick);
-			buttonIdle->setBorder(Widget::Side::Left, 6);
-			buttonIdle->setBorder(Widget::Side::Right, 6);
-			buttonIdle->setBorder(Widget::Side::Top, 6);
-			buttonIdle->setBorder(Widget::Side::Bottom, 6);
+			buttonIdle->setTexture(innerWindowTexture);
+			buttonIdle->setBorder(6);
 			buttonIdle->setMouseCaptureEnabled(false);
 
+			NinePatchPanel* buttonHover = uiContext.createWidget<NinePatchPanel>("Panel_Button1_Hover");
+			buttonHover->setTexture(textureHover);
+			buttonHover->setBorder(6);
+			buttonHover->setMouseCaptureEnabled(false);
+
+			NinePatchPanel* buttonPress = uiContext.createWidget<NinePatchPanel>("Panel_Button1_Press");
+			buttonPress->setTexture(texturePress);
+			buttonPress->setBorder(6);
+			buttonPress->setMouseCaptureEnabled(false);
+
 			button->setPanelForState(buttonIdle, Button::ButtonState::Idle);
+			button->setPanelForState(buttonHover, Button::ButtonState::Hover);
+			button->setPanelForState(buttonPress, Button::ButtonState::Press);
+
+			// button->setPosition({ 32, 32 });
+
+			testPanel->addChild(button);
+			button->setMargin(Widget::Side::Left, 16);
+			button->setMargin(Widget::Side::Top, 16);
 		}
 	}
 }

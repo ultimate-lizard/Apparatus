@@ -8,7 +8,8 @@ Button::Button() :
 	hoverStatePanel(nullptr),
 	pressStatePanel(nullptr),
 	currentStatePanel(nullptr),
-	buttonState(ButtonState::Idle)
+	buttonState(ButtonState::Idle),
+	hovered(false)
 {
 	mouseCaptureEnabled = true;
 }
@@ -45,9 +46,9 @@ void Button::setButtonState(ButtonState state)
 
 glm::ivec2 Button::getGlobalSize() const
 {
-	if (currentStatePanel)
+	if (idleStatePanel)
 	{
-		return currentStatePanel->getSize();
+		return idleStatePanel->getSize();
 	}
 
 	return {};
@@ -59,7 +60,6 @@ void Button::refresh()
 
 	if (invalidated)
 	{
-		// TODO: Make them invisible
 		if (idleStatePanel)
 		{
 			idleStatePanel->setVisibility(false);
@@ -93,7 +93,6 @@ void Button::refresh()
 			break;
 		}
 
-		// TODO: Make it visible
 		if (currentStatePanel)
 		{
 			currentStatePanel->setVisibility(true);
@@ -110,6 +109,8 @@ void Button::onMouseEnter()
 		setButtonState(Button::ButtonState::Hover);
 	}
 
+	hovered = true;
+
 	invalidate();
 }
 
@@ -120,24 +121,28 @@ void Button::onMouseLeave()
 		setButtonState(Button::ButtonState::Idle);
 	}
 
+	hovered = false;
+
 	invalidate();
 }
 
-void Button::onKeyInput(InputKey key, KeyEventType type)
+bool Button::onKeyInput(InputKey key, KeyEventType type)
 {
 	if (key == InputKey::MouseLeftButton)
 	{
-		if (type == KeyEventType::Press)
+		if (type == KeyEventType::Press && hovered)
 		{
 			setButtonState(Button::ButtonState::Press);
 		}
 		else
 		{
-			setButtonState(Button::ButtonState::Idle);
+			setButtonState(hovered ? Button::ButtonState::Hover : Button::ButtonState::Idle);
 		}
+
+		invalidate();
+
+		return true;
 	}
 
-	LOG("The buttom has been pressed!", LogLevel::Info);
-
-	invalidate();
+	return false;
 }

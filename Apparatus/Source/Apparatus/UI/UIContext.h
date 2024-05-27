@@ -45,6 +45,8 @@ private:
 	std::map<std::type_index, Material*> widgetMaterialMap;
 
 	InputHandler* inputHandler;
+
+	glm::ivec2 previousCursorPosition;
 };
 
 template<class WidgetType>

@@ -1,6 +1,7 @@
 #include "Widget.h"
 
 #include "../../Apparatus.h"
+#include "../../Core/Logger.h"
 
 Widget::Widget() :
     parent(nullptr),
@@ -71,7 +72,7 @@ Widget* Widget::getParent()
     return parent;
 }
 
-void Widget::addChild(Widget* child)
+bool Widget::addChild(Widget* child)
 {
     if (child)
     {
@@ -88,7 +89,11 @@ void Widget::addChild(Widget* child)
         child->parent = this;
         child->invalidate();
         invalidate();
+
+        return true;
     }
+
+    return false;
 }
 
 Widget* Widget::getChild(size_t index) const
@@ -159,8 +164,12 @@ void Widget::onMouseMove(const glm::ivec2& cursorPosition)
     if (getGlobalPosition().x < cursorPosition.x && getGlobalPosition().x + getGlobalSize().x > cursorPosition.x &&
         getGlobalPosition().y < cursorPosition.y && getGlobalPosition().y + getGlobalSize().y > cursorPosition.y)
     {
-        containsCursor = true;
-        onMouseEnter();
+        if (!containsCursor)
+        {
+            containsCursor = true;
+            onMouseEnter();
+            LOG("On mouse enter", LogLevel::Info);
+        }
     }
     else
     {
@@ -168,6 +177,7 @@ void Widget::onMouseMove(const glm::ivec2& cursorPosition)
         {
             containsCursor = false;
             onMouseLeave();
+            LOG("On mouse leave", LogLevel::Info);
         }
     }
 }

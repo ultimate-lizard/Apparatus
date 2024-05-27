@@ -14,7 +14,8 @@
 #include "Widget/NinePatchPanel.h"
 
 UIContext::UIContext(InputHandler* inputHandler) :
-	inputHandler(inputHandler)
+	inputHandler(inputHandler),
+	previousCursorPosition(0)
 {
 	if (EventDispatcher* eventDispatcher = Apparatus::findEngineSystem<EventDispatcher>())
 	{
@@ -71,18 +72,20 @@ void UIContext::init()
 
 void UIContext::update()
 {
-	for (auto& widget : spawnedWidgets)
+	glm::ivec2 currentCursorPosition = Apparatus::getWindow().getMouseCursorPosition();
+
+	if (previousCursorPosition != currentCursorPosition)
 	{
-		if (widget && Apparatus::getWindow().isCursorVisible())
+		for (auto& widget : spawnedWidgets)
 		{
-			const glm::ivec2 cursorPosition = Apparatus::getWindow().getMouseCursorPosition();
-			if (widget->getGlobalPosition().x < cursorPosition.x && widget->getGlobalPosition().x + widget->getGlobalSize().x > cursorPosition.x &&
-				widget->getGlobalPosition().y < cursorPosition.y && widget->getGlobalPosition().y + widget->getGlobalSize().y > cursorPosition.y)
+			if (widget && Apparatus::getWindow().isCursorVisible())
 			{
-				widget->onMouseMove(cursorPosition);
+				widget->onMouseMove(currentCursorPosition);
 			}
 		}
 	}
+
+	previousCursorPosition = currentCursorPosition;
 }
 
 void UIContext::renderContext(SpriteRenderer* renderer)
@@ -107,13 +110,16 @@ bool UIContext::handleInput(InputKey key, KeyEventType type)
 		{
 			if (widget && Apparatus::getWindow().isCursorVisible())
 			{
-				const glm::ivec2 cursorPosition = Apparatus::getWindow().getMouseCursorPosition();
-				if (widget->getGlobalPosition().x < cursorPosition.x && widget->getGlobalPosition().x + widget->getGlobalSize().x > cursorPosition.x &&
+				// const glm::ivec2 cursorPosition = Apparatus::getWindow().getMouseCursorPosition();
+				/*if (widget->getGlobalPosition().x < cursorPosition.x && widget->getGlobalPosition().x + widget->getGlobalSize().x > cursorPosition.x &&
 					widget->getGlobalPosition().y < cursorPosition.y && widget->getGlobalPosition().y + widget->getGlobalSize().y > cursorPosition.y &&
 					widget->isMouseCaptureEnabled())
 				{
-					widget->onKeyInput(key, type);
-					return type != KeyEventType::Release;
+					
+				}*/
+				if (widget->onKeyInput(key, type) && type != KeyEventType::Release)
+				{
+					return true;
 				}
 			}
 		}

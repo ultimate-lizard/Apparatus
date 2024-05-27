@@ -11,6 +11,7 @@ public:
 	virtual void refresh() override;
 
 	void setBorder(Side side, int border);
+	void setBorder(int border);
 	int getBorder(Side side) const;
 
 private:
