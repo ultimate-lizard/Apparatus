@@ -69,13 +69,32 @@ void UIContext::init()
 	}
 }
 
+void UIContext::update()
+{
+	for (auto& widget : spawnedWidgets)
+	{
+		if (widget && Apparatus::getWindow().isCursorVisible())
+		{
+			const glm::ivec2 cursorPosition = Apparatus::getWindow().getMouseCursorPosition();
+			if (widget->getGlobalPosition().x < cursorPosition.x && widget->getGlobalPosition().x + widget->getGlobalSize().x > cursorPosition.x &&
+				widget->getGlobalPosition().y < cursorPosition.y && widget->getGlobalPosition().y + widget->getGlobalSize().y > cursorPosition.y)
+			{
+				widget->onMouseMove(cursorPosition);
+			}
+		}
+	}
+}
+
 void UIContext::renderContext(SpriteRenderer* renderer)
 {
 	for (auto iter = spawnedWidgets.begin(); iter != spawnedWidgets.end(); ++iter)
 	{
 		if (Widget* widget = iter->get())
 		{
-			widget->render(renderer);
+			if (widget->isVisible())
+			{
+				widget->render(renderer);
+			}
 		}
 	}
 }
@@ -86,7 +105,7 @@ bool UIContext::handleInput(InputKey key, KeyEventType type)
 	{
 		for (auto& widget : spawnedWidgets)
 		{
-			if (widget)
+			if (widget && Apparatus::getWindow().isCursorVisible())
 			{
 				const glm::ivec2 cursorPosition = Apparatus::getWindow().getMouseCursorPosition();
 				if (widget->getGlobalPosition().x < cursorPosition.x && widget->getGlobalPosition().x + widget->getGlobalSize().x > cursorPosition.x &&

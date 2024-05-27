@@ -170,6 +170,7 @@
     <ClCompile Include="Source\Apparatus\Rendering\MaterialParameter.cpp" />
     <ClCompile Include="Source\Apparatus\UI\Font.cpp" />
     <ClCompile Include="Source\Apparatus\UI\Widget\BoxModelPanel.cpp" />
+    <ClCompile Include="Source\Apparatus\UI\Widget\Button.cpp" />
     <ClCompile Include="Source\Apparatus\UI\Widget\HorizontalPanel.cpp" />
     <ClCompile Include="Source\Apparatus\UI\Widget\ImagePanel.cpp" />
     <ClCompile Include="Source\Apparatus\UI\Widget\NinePatchPanel.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="Source\Apparatus\Rendering\Vector.h" />
     <ClInclude Include="Source\Apparatus\UI\Font.h" />
     <ClInclude Include="Source\Apparatus\UI\Widget\BoxModelPanel.h" />
+    <ClInclude Include="Source\Apparatus\UI\Widget\Button.h" />
     <ClInclude Include="Source\Apparatus\UI\Widget\HorizontalPanel.h" />
     <ClInclude Include="Source\Apparatus\UI\Widget\ImagePanel.h" />
     <ClInclude Include="Source\Apparatus\UI\Widget\NinePatchPanel.h" />

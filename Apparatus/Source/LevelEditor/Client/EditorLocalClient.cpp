@@ -11,6 +11,7 @@
 #include <Apparatus/Rendering/Sprite/Sprite.h>
 #include <Apparatus/UI/Widget/HorizontalPanel.h>
 #include <Apparatus/UI/Widget/TextPanel.h>
+#include <Apparatus/UI/Widget/Button.h>
 
 #include "EditorController.h"
 #include "../Components/SelectableComponent.h"
@@ -97,6 +98,17 @@ void EditorLocalClient::init()
 			innerPanel->addChild(textPanel2);
 
 			testPanel->addChild(horizontalPanel);
+
+			Button* button = uiContext.createWidget<Button>("Panel_Button1");
+			NinePatchPanel* buttonIdle = uiContext.createWidget<NinePatchPanel>("Panel_Button1_Idle");
+			buttonIdle->setTexture(thick);
+			buttonIdle->setBorder(Widget::Side::Left, 6);
+			buttonIdle->setBorder(Widget::Side::Right, 6);
+			buttonIdle->setBorder(Widget::Side::Top, 6);
+			buttonIdle->setBorder(Widget::Side::Bottom, 6);
+			buttonIdle->setMouseCaptureEnabled(false);
+
+			button->setPanelForState(buttonIdle, Button::ButtonState::Idle);
 		}
 	}
 }

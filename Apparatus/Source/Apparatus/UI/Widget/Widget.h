@@ -60,6 +60,13 @@ public:
 	void setMouseCaptureEnabled(bool enabled);
 	bool isMouseCaptureEnabled() const;
 
+	void setVisibility(bool visible);
+	bool isVisible() const;
+
+	virtual void onMouseMove(const glm::ivec2& cursorPosition);
+
+	virtual void onMouseEnter() {}
+	virtual void onMouseLeave() {}
 	virtual void onKeyInput(InputKey key, KeyEventType type) {}
 
 protected:
@@ -76,4 +83,6 @@ protected:
 	bool invalidated;
 	
 	bool mouseCaptureEnabled;
+	bool visible;
+	bool containsCursor;
 };

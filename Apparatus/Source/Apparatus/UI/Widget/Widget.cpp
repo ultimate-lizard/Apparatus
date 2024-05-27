@@ -8,7 +8,9 @@ Widget::Widget() :
     horizontalAlignment(Alignment::Left),
     verticalAlignment(Alignment::Left),
     invalidated(true),
-    mouseCaptureEnabled(false)
+    mouseCaptureEnabled(false),
+    visible(true),
+    containsCursor(false)
 {
 }
 
@@ -140,4 +142,32 @@ void Widget::setMouseCaptureEnabled(bool enabled)
 bool Widget::isMouseCaptureEnabled() const
 {
     return mouseCaptureEnabled;
+}
+
+void Widget::setVisibility(bool visible)
+{
+    this->visible = visible;
+}
+
+bool Widget::isVisible() const
+{
+    return visible;
+}
+
+void Widget::onMouseMove(const glm::ivec2& cursorPosition)
+{
+    if (getGlobalPosition().x < cursorPosition.x && getGlobalPosition().x + getGlobalSize().x > cursorPosition.x &&
+        getGlobalPosition().y < cursorPosition.y && getGlobalPosition().y + getGlobalSize().y > cursorPosition.y)
+    {
+        containsCursor = true;
+        onMouseEnter();
+    }
+    else
+    {
+        if (containsCursor)
+        {
+            containsCursor = false;
+            onMouseLeave();
+        }
+    }
 }

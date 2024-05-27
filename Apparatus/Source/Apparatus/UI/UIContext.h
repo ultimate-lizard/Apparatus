@@ -22,6 +22,7 @@ public:
 	UIContext(InputHandler* inputHandler);
 
 	void init();
+	void update();
 
 	void renderContext(SpriteRenderer* renderer);
 
