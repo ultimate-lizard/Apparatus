@@ -1,6 +1,6 @@
 #include "HorizontalPanel.h"
 
-bool HorizontalPanel::addChild(Widget* child)
+void HorizontalPanel::addChild(Widget* child)
 {
     std::unique_ptr<BoxModelPanel> childContainer = std::make_unique<BoxModelPanel>();
     childContainer->addChild(child);
@@ -8,8 +8,6 @@ bool HorizontalPanel::addChild(Widget* child)
 
     child->invalidate();
     invalidate();
-
-    return true;
 }
 
 glm::ivec2 HorizontalPanel::getGlobalSize() const

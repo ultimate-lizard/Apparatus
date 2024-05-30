@@ -14,8 +14,7 @@
 #include "Widget/NinePatchPanel.h"
 
 UIContext::UIContext(InputHandler* inputHandler) :
-	inputHandler(inputHandler),
-	previousCursorPosition(0)
+	inputHandler(inputHandler)
 {
 	if (EventDispatcher* eventDispatcher = Apparatus::findEngineSystem<EventDispatcher>())
 	{
@@ -72,20 +71,7 @@ void UIContext::init()
 
 void UIContext::update()
 {
-	glm::ivec2 currentCursorPosition = Apparatus::getWindow().getMouseCursorPosition();
 
-	if (previousCursorPosition != currentCursorPosition)
-	{
-		for (auto& widget : spawnedWidgets)
-		{
-			if (widget && Apparatus::getWindow().isCursorVisible())
-			{
-				widget->onMouseMove(currentCursorPosition);
-			}
-		}
-	}
-
-	previousCursorPosition = currentCursorPosition;
 }
 
 void UIContext::renderContext(SpriteRenderer* renderer)
@@ -102,22 +88,20 @@ void UIContext::renderContext(SpriteRenderer* renderer)
 	}
 }
 
-bool UIContext::handleInput(InputKey key, KeyEventType type)
+bool UIContext::handleKeyInput(InputKey key, KeyEventType type)
 {
+	if (!Apparatus::getWindow().isCursorVisible())
+	{
+		return false;
+	}
+
 	if (key == InputKey::MouseLeftButton)
 	{
 		for (auto& widget : spawnedWidgets)
 		{
-			if (widget && Apparatus::getWindow().isCursorVisible())
+			if (widget)
 			{
-				// const glm::ivec2 cursorPosition = Apparatus::getWindow().getMouseCursorPosition();
-				/*if (widget->getGlobalPosition().x < cursorPosition.x && widget->getGlobalPosition().x + widget->getGlobalSize().x > cursorPosition.x &&
-					widget->getGlobalPosition().y < cursorPosition.y && widget->getGlobalPosition().y + widget->getGlobalSize().y > cursorPosition.y &&
-					widget->isMouseCaptureEnabled())
-				{
-					
-				}*/
-				if (widget->onKeyInput(key, type) && type != KeyEventType::Release)
+				if (widget->onKeyInput(key, type) && type != KeyEventType::Release && widget->isMouseCaptureEnabled())
 				{
 					return true;
 				}
@@ -126,6 +110,26 @@ bool UIContext::handleInput(InputKey key, KeyEventType type)
 	}
 
 	return false;
+}
+
+void UIContext::handleAxisInput(InputAxis axis, float value)
+{
+	if (!Apparatus::getWindow().isCursorVisible())
+	{
+		return;
+	}
+
+	if (axis == InputAxis::MouseX || axis == InputAxis::MouseY)
+	{
+		glm::ivec2 currentCursorPosition = Apparatus::getWindow().getMouseCursorPosition();
+		for (auto& widget : spawnedWidgets)
+		{
+			if (widget)
+			{
+				widget->onMouseMove(currentCursorPosition);
+			}
+		}
+	}
 }
 
 void UIContext::onWindowResize(std::shared_ptr<WindowResizeEvent> event)

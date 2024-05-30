@@ -123,15 +123,20 @@ void EditorLocalClient::init()
 			buttonPress->setBorder(6);
 			buttonPress->setMouseCaptureEnabled(false);
 
-			button->setPanelForState(buttonIdle, Button::ButtonState::Idle);
-			button->setPanelForState(buttonHover, Button::ButtonState::Hover);
-			button->setPanelForState(buttonPress, Button::ButtonState::Press);
+			button->addPanelForState(buttonIdle, Button::ButtonState::Idle);
+			button->addPanelForState(buttonHover, Button::ButtonState::Hover);
+			button->addPanelForState(buttonPress, Button::ButtonState::Press);
 
-			// button->setPosition({ 32, 32 });
+			TextPanel* label = uiContext.createWidget<TextPanel>("Panel_Button1_Label");
+			label->setText("Ok");
+			label->setFontSize(18);
+			label->setMargin(Widget::Side::Left, 3);
+			label->setMargin(Widget::Side::Top, 3);
+			button->addLabel(label);
+
+			button->setPosition({ 32, 32 });
 
 			testPanel->addChild(button);
-			button->setMargin(Widget::Side::Left, 16);
-			button->setMargin(Widget::Side::Top, 16);
 		}
 	}
 }

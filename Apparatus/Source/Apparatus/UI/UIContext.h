@@ -36,7 +36,8 @@ public:
 	Material* findMaterialForWidget();
 
 	// Returns whether the input was captured
-	bool handleInput(InputKey key, KeyEventType type);
+	bool handleKeyInput(InputKey key, KeyEventType type);
+	void handleAxisInput(InputAxis axis, float value);
 
 private:
 	void onWindowResize(std::shared_ptr<WindowResizeEvent> event);
@@ -45,8 +46,6 @@ private:
 	std::map<std::type_index, Material*> widgetMaterialMap;
 
 	InputHandler* inputHandler;
-
-	glm::ivec2 previousCursorPosition;
 };
 
 template<class WidgetType>

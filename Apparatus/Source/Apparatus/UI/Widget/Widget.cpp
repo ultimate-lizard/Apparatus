@@ -72,7 +72,7 @@ Widget* Widget::getParent()
     return parent;
 }
 
-bool Widget::addChild(Widget* child)
+void Widget::addChild(Widget* child)
 {
     if (child)
     {
@@ -89,11 +89,7 @@ bool Widget::addChild(Widget* child)
         child->parent = this;
         child->invalidate();
         invalidate();
-
-        return true;
     }
-
-    return false;
 }
 
 Widget* Widget::getChild(size_t index) const
@@ -161,14 +157,13 @@ bool Widget::isVisible() const
 
 void Widget::onMouseMove(const glm::ivec2& cursorPosition)
 {
-    if (getGlobalPosition().x < cursorPosition.x && getGlobalPosition().x + getGlobalSize().x > cursorPosition.x &&
-        getGlobalPosition().y < cursorPosition.y && getGlobalPosition().y + getGlobalSize().y > cursorPosition.y)
+    if (isContaining(cursorPosition))
     {
         if (!containsCursor)
         {
             containsCursor = true;
             onMouseEnter();
-            LOG("On mouse enter", LogLevel::Info);
+            // LOG("On mouse enter " + getName(), LogLevel::Info);
         }
     }
     else
@@ -177,7 +172,13 @@ void Widget::onMouseMove(const glm::ivec2& cursorPosition)
         {
             containsCursor = false;
             onMouseLeave();
-            LOG("On mouse leave", LogLevel::Info);
+            // LOG("On mouse leave " + getName(), LogLevel::Info);
         }
     }
+}
+
+bool Widget::isContaining(const glm::ivec2& coordiante) const
+{
+    return getGlobalPosition().x < coordiante.x && getGlobalPosition().x + getGlobalSize().x > coordiante.x &&
+        getGlobalPosition().y < coordiante.y && getGlobalPosition().y + getGlobalSize().y > coordiante.y;
 }

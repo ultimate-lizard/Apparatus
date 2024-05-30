@@ -42,25 +42,25 @@ InputHandler::InputHandler()
 
 void InputHandler::handleKey(InputKey key, KeyEventType type)
 {
-	auto foundActionPair = keyActionMap.find(key);
-	if (foundActionPair != keyActionMap.end())
+	bool inputCaptured = false;
+	if (uiContext)
 	{
-		auto foundBinding = keyBindingsMap.find(foundActionPair->second);
-		if (foundBinding != keyBindingsMap.end())
-		{
-			const std::vector<KeyBinding>& bindings = foundBinding->second;
-			auto bindingSearchResult = std::find_if(bindings.cbegin(), bindings.cend(), [type](const KeyBinding& b) {
-				return b.type == type;
-			});
+		inputCaptured = uiContext->handleKeyInput(key, type);
+	}
 
-			bool inputCaptured = false;
-			if (uiContext)
+	if (!inputCaptured)
+	{
+		auto foundActionPair = keyActionMap.find(key);
+		if (foundActionPair != keyActionMap.end())
+		{
+			auto foundBinding = keyBindingsMap.find(foundActionPair->second);
+			if (foundBinding != keyBindingsMap.end())
 			{
-				inputCaptured = uiContext->handleInput(key, type);
-			}
-			
-			if (!inputCaptured)
-			{
+				const std::vector<KeyBinding>& bindings = foundBinding->second;
+				auto bindingSearchResult = std::find_if(bindings.cbegin(), bindings.cend(), [type](const KeyBinding& b) {
+					return b.type == type;
+					});
+
 				if (bindingSearchResult != bindings.cend())
 				{
 					bindingSearchResult->function();
@@ -72,6 +72,11 @@ void InputHandler::handleKey(InputKey key, KeyEventType type)
 
 void InputHandler::handleAxis(InputAxis axis, float value)
 {
+	if (uiContext)
+	{
+		uiContext->handleAxisInput(axis, value);
+	}
+
 	auto foundAxisPair = axisActionMap.find(axis);
 	if (foundAxisPair != axisActionMap.end())
 	{

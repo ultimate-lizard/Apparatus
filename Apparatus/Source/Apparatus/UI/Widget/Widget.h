@@ -45,7 +45,7 @@ public:
 	const std::string& getName() const;
 
 	Widget* getParent();
-	virtual bool addChild(Widget* child);
+	virtual void addChild(Widget* child);
 	Widget* getChild(size_t index) const;
 	size_t getChildrenCount() const;
 
@@ -68,6 +68,8 @@ public:
 	virtual void onMouseEnter() {}
 	virtual void onMouseLeave() {}
 	virtual bool onKeyInput(InputKey key, KeyEventType type) { return false; }
+
+	bool isContaining(const glm::ivec2& coordiante) const;
 
 protected:
 	std::string name;

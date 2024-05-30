@@ -2,19 +2,24 @@
 
 #include "../../Core/Logger.h"
 #include "ImagePanel.h"
+#include "TextPanel.h"
+#include "../../Apparatus.h"
 
 Button::Button() :
 	idleStatePanel(nullptr),
 	hoverStatePanel(nullptr),
 	pressStatePanel(nullptr),
 	currentStatePanel(nullptr),
+	label(nullptr),
+	labelClickOffset(2),
+	labelPosition(0),
 	buttonState(ButtonState::Idle),
 	hovered(false)
 {
 	mouseCaptureEnabled = true;
 }
 
-void Button::setPanelForState(ImagePanel* panel, ButtonState state)
+void Button::addPanelForState(ImagePanel* panel, ButtonState state)
 {
 	if (panel)
 	{
@@ -37,6 +42,20 @@ void Button::setPanelForState(ImagePanel* panel, ButtonState state)
 	}
 }
 
+void Button::addLabel(TextPanel* textPanel)
+{
+	if (textPanel)
+	{
+		this->label = textPanel;
+
+		addChild(textPanel);
+
+		labelPosition = textPanel->getPosition();
+
+		invalidate();
+	}
+}
+
 void Button::setButtonState(ButtonState state)
 {
 	this->buttonState = state;
@@ -46,9 +65,9 @@ void Button::setButtonState(ButtonState state)
 
 glm::ivec2 Button::getGlobalSize() const
 {
-	if (idleStatePanel)
+	if (currentStatePanel)
 	{
-		return idleStatePanel->getSize();
+		return currentStatePanel->getSize();
 	}
 
 	return {};
@@ -69,10 +88,18 @@ void Button::refresh()
 		{
 			hoverStatePanel->setVisibility(false);
 		}
+		else
+		{
+			hoverStatePanel = idleStatePanel;
+		}
 
 		if (pressStatePanel)
 		{
 			pressStatePanel->setVisibility(false);
+		}
+		else
+		{
+			pressStatePanel = idleStatePanel;
 		}
 
 		if (currentStatePanel)
@@ -128,21 +155,52 @@ void Button::onMouseLeave()
 
 bool Button::onKeyInput(InputKey key, KeyEventType type)
 {
+	const glm::ivec2 cursorPosition = Apparatus::getWindow().getMouseCursorPosition();
+	if (!isContaining(cursorPosition))
+	{
+		return false;
+	}
+
 	if (key == InputKey::MouseLeftButton)
 	{
 		if (type == KeyEventType::Press && hovered)
 		{
 			setButtonState(Button::ButtonState::Press);
+
+			if (label)
+			{
+				label->setPosition(labelPosition + labelClickOffset);
+			}
 		}
 		else
 		{
 			setButtonState(hovered ? Button::ButtonState::Hover : Button::ButtonState::Idle);
+
+			if (label)
+			{
+				label->setPosition(labelPosition);
+			}
 		}
 
 		invalidate();
+
+		if (type == KeyEventType::Press)
+		{
+			LOG("Click!", LogLevel::Trace);
+		}
 
 		return true;
 	}
 
 	return false;
+}
+
+void Button::setLabelClickOffset(int offset)
+{
+	this->labelClickOffset = offset;
+}
+
+void Button::addChild(Widget* child)
+{
+	Widget::addChild(child);
 }
