@@ -24,6 +24,8 @@ public:
 	unsigned int getFontSize();
 
 protected:
+	void setSize(const glm::ivec2& size) {}
+
 	float calculateWordLength(const std::string& word);
 
 	std::string text;
