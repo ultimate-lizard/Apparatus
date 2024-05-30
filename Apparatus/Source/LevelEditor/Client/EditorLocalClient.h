@@ -23,5 +23,7 @@ protected:
 
 	void setupGlobalEditorInput();
 
+	void createUI();
+
 	bool inEditMode;
 };
