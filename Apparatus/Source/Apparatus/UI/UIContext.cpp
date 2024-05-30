@@ -12,6 +12,8 @@
 #include "../Core/AssetManager/AssetManager.h"
 #include "../Core/Input/InputHandler.h"
 #include "Widget/NinePatchPanel.h"
+#include "Widget/Button.h"
+#include "Widget/TextPanel.h"
 
 UIContext::UIContext(InputHandler* inputHandler) :
 	inputHandler(inputHandler)
@@ -67,11 +69,6 @@ void UIContext::init()
 	{
 		assetManager->createAsset("Font_Arial", fontImporter->import("../Fonts/Arial.ttf"));
 	}
-}
-
-void UIContext::update()
-{
-
 }
 
 void UIContext::renderContext(SpriteRenderer* renderer)
@@ -130,6 +127,48 @@ void UIContext::handleAxisInput(InputAxis axis, float value)
 			}
 		}
 	}
+}
+
+Button* UIContext::createNinePatchButton(const std::string& name, const std::string& idleTextureName, const std::string& hoverTextureName, const std::string& pressTextureName, unsigned int border, const std::string& label, unsigned int fontSize)
+{
+	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
+	assert(assetManager);
+
+	Button* button = createWidget<Button>(name);
+	assert(button);
+	// TODO: This should be found automatically?
+	button->setSize({ 40, 32 });
+
+	NinePatchPanel* idlePanel = createWidget<NinePatchPanel>(name + "NinePatchPanel_Idle");
+	assert(idlePanel);
+	idlePanel->setTexture(assetManager->findAsset<Texture>(idleTextureName));
+	idlePanel->setBorder(border);
+
+	NinePatchPanel* hoverPanel = createWidget<NinePatchPanel>(name + "NinePatchPanel_Hover");
+	assert(hoverPanel);
+	hoverPanel->setTexture(assetManager->findAsset<Texture>(hoverTextureName));
+	hoverPanel->setBorder(border);
+
+	NinePatchPanel* pressPanel = createWidget<NinePatchPanel>(name + "NinePatchPanel_Press");
+	pressPanel->setTexture(assetManager->findAsset<Texture>(pressTextureName));
+	pressPanel->setBorder(border);
+
+	if (!label.empty())
+	{
+		TextPanel* fileLabel = createWidget<TextPanel>(name + "TextPanel_Label");
+		fileLabel->setText(label);
+		fileLabel->setFontSize(fontSize);
+		// fileLabel->setHorizontalAlignment(Widget::Alignment::Center);
+		// fileLabel->setVerticalAlignment(Widget::Alignment::Center);
+
+		button->addLabel(fileLabel);
+	}
+
+	button->addPanelForState(idlePanel, Button::ButtonState::Idle);
+	button->addPanelForState(hoverPanel, Button::ButtonState::Hover);
+	button->addPanelForState(pressPanel, Button::ButtonState::Press);
+
+	return button;
 }
 
 void UIContext::onWindowResize(std::shared_ptr<WindowResizeEvent> event)

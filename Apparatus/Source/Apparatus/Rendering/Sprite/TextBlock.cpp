@@ -51,7 +51,8 @@ void TextBlock::rebuildMesh()
     float y = static_cast<float>(getPosition().y);
     float xstart = x;
 
-    float fontScale = static_cast<float>(currentCharacterSet->fontSize) / currentCharacterSet->textureSize;
+    glm::ivec2 textDimensions(0);
+    int lineWidth = 0;
 
     // Iterate over each line
     std::stringstream textStream(text);
@@ -76,9 +77,10 @@ void TextBlock::rebuildMesh()
 
             // Constraint the text in its size dimensions
             const float wordLength = calculateWordLength(word);
+            lineWidth += wordLength;
             if (size.x != 0 && wordLength + x >= size.x + position.x)
             {
-                y += currentCharacterSet->textureSize * fontScale;
+                y += currentCharacterSet->textureSize;
                 x = xstart;
             }
 
@@ -100,7 +102,7 @@ void TextBlock::rebuildMesh()
 
                 if (*iter == '\n')
                 {
-                    y += currentCharacterSet->textureSize * fontScale;
+                    y += currentCharacterSet->textureSize;
                     x = xstart;
                     continue;
                 }
@@ -111,10 +113,10 @@ void TextBlock::rebuildMesh()
                 const float textureMaxY = 1.0f;
 
                 // TODO: get size properly
-                glm::vec2 glyphSize(currentCharacterSet->textureSize * fontScale);
+                glm::vec2 glyphSize(currentCharacterSet->textureSize);
 
-                float positionX = x + character.bearing.x * fontScale;
-                float positionY = y + (currentCharacterSet->textureSize - character.bearing.y) * fontScale;
+                float positionX = x + character.bearing.x;
+                float positionY = y + (currentCharacterSet->textureSize - character.bearing.y);
                 glm::vec2 glyphPosition(positionX, positionY);
 
                 const std::vector<float> glyphVertices = {
@@ -128,9 +130,18 @@ void TextBlock::rebuildMesh()
 
                 textVertices.insert(textVertices.end(), glyphVertices.begin(), glyphVertices.end());
 
-                x += (character.advance.x >> 6) * fontScale;
+                x += (character.advance.x >> 6);
             }
         }
+
+        if (lineWidth > textDimensions.x)
+        {
+            textDimensions.x = lineWidth;
+        }
+
+        textDimensions.y = y;
+
+        lineWidth = 0;
     }
 
     getSpriteMesh()->bind();

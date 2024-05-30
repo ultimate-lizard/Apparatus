@@ -79,7 +79,6 @@ void LocalClient::onLightCreation(std::shared_ptr<LightComponentCreationEvent> e
 void LocalClient::update(float dt)
 {
 	inputHandler.update();
-	uiContext.update();
 
 	// Render debug primitives
 	composeDebugPrimitiveRenderData();

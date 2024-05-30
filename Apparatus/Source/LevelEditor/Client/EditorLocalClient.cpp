@@ -31,6 +31,7 @@ void EditorLocalClient::init()
 
 	setupGlobalEditorInput();
 
+	createUIAssets();
 	createUI();
 }
 
@@ -87,56 +88,68 @@ void EditorLocalClient::setupGlobalEditorInput()
 	getInputHandler().bindKeyAction("ToggleEditMode", KeyEventType::Press, std::bind(&EditorLocalClient::toggleEditMode, this));
 }
 
+void EditorLocalClient::createUIAssets()
+{
+	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
+	if (!assetManager)
+	{
+		return;
+	}
+
+	TextureImporter* textureImporter = assetManager->getImporter<TextureImporter>();
+	if (!textureImporter)
+	{
+		return;
+	}
+
+	Texture* panelTopTexture = assetManager->createAsset<Texture>("Texture_Panel", textureImporter->import("../Textures/Panel.bmp"));
+	assert(panelTopTexture);
+	panelTopTexture->setMinFilter(TextureFiltering::Nearest);
+	panelTopTexture->setMagFilter(TextureFiltering::Nearest);
+
+	Texture* panelTopButtonTexture = assetManager->createAsset<Texture>("Texture_PanelInner", textureImporter->import("../Textures/PanelInner.bmp"));
+	assert(panelTopButtonTexture);
+	panelTopButtonTexture->setMinFilter(TextureFiltering::Nearest);
+	panelTopButtonTexture->setMagFilter(TextureFiltering::Nearest);
+
+	Texture* panelTopButtonTexturePressed = assetManager->createAsset<Texture>("Texture_PanelInnerPressed", textureImporter->import("../Textures/ButtonInnerPressed.bmp"));
+	assert(panelTopButtonTexturePressed);
+	panelTopButtonTexturePressed->setMinFilter(TextureFiltering::Nearest);
+	panelTopButtonTexturePressed->setMagFilter(TextureFiltering::Nearest);
+}
+
 void EditorLocalClient::createUI()
 {
-	if (AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>())
+	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
+	if (!assetManager)
 	{
-		if (TextureImporter* importer = assetManager->getImporter<TextureImporter>())
-		{
-			Texture* panelTopTexture = assetManager->createAsset<Texture>("Texture_PanelTop", importer->import("../Textures/PanelTop.bmp"));
-			panelTopTexture->setMinFilter(TextureFiltering::Nearest);
-			panelTopTexture->setMagFilter(TextureFiltering::Nearest);
-
-			Texture* panelTopButtonTexture = assetManager->createAsset<Texture>("Texture_PanelTopButton", importer->import("../Textures/WindowInner.bmp"));
-			panelTopButtonTexture->setMinFilter(TextureFiltering::Nearest);
-			panelTopButtonTexture->setMagFilter(TextureFiltering::Nearest);
-
-			Texture * panelTopButtonTexturePressed = assetManager->createAsset<Texture>("Texture_ButtonInnerPressed", importer->import("../Textures/ButtonInnerPressed.bmp"));
-			panelTopButtonTexturePressed->setMinFilter(TextureFiltering::Nearest);
-			panelTopButtonTexturePressed->setMagFilter(TextureFiltering::Nearest);
-
-			ImagePanel* topPanel = uiContext.createWidget<ImagePanel>("Panel_Top");
-			topPanel->setSize({ 32, 32 });
-			topPanel->setHorizontalAlignment(Widget::Alignment::Fill);
-			topPanel->setTexture(panelTopTexture);
-
-			Button* fileButton = uiContext.createWidget<Button>("Button_File");
-			
-			NinePatchPanel* topPanelButtonIdle = uiContext.createWidget<NinePatchPanel>("NinePatchPanel_TopPanelButtonIdle");
-			topPanelButtonIdle->setTexture(panelTopTexture);
-			topPanelButtonIdle->setBorder(6);
-			topPanelButtonIdle->setSize({ 40, 32 });
-
-			NinePatchPanel* topPanelButtonHover = uiContext.createWidget<NinePatchPanel>("NinePatchPanel_TopPanelButtonHover");
-			topPanelButtonHover->setTexture(panelTopButtonTexture);
-			topPanelButtonHover->setBorder(6);
-			topPanelButtonHover->setSize({ 40, 32 });
-
-			NinePatchPanel* topPanelButtonPress = uiContext.createWidget<NinePatchPanel>("NinePatchPanel_TopPanelButtonPress");
-			topPanelButtonPress->setTexture(panelTopButtonTexturePressed);
-			topPanelButtonPress->setBorder(6);
-			topPanelButtonPress->setSize({ 40, 32 });
-			
-			TextPanel* fileLabel = uiContext.createWidget<TextPanel>("TextPanel_FileLabel");
-			fileLabel->setText("File");
-			fileLabel->setMargin(Widget::Side::Left, 4);
-			fileLabel->setMargin(Widget::Side::Top, 4);
-			fileLabel->setFontSize(18);
-
-			fileButton->addLabel(fileLabel);
-			fileButton->addPanelForState(topPanelButtonIdle, Button::ButtonState::Idle);
-			fileButton->addPanelForState(topPanelButtonHover, Button::ButtonState::Hover);
-			fileButton->addPanelForState(topPanelButtonPress, Button::ButtonState::Press);
-		}
+		return;
 	}
+
+	ImagePanel* topPanel = uiContext.createWidget<ImagePanel>("Panel_Top");
+	topPanel->setSize({ 40, 40 });
+	topPanel->setHorizontalAlignment(Widget::Alignment::Fill);
+	topPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
+
+	Button* fileButton = uiContext.createNinePatchButton("Button_File", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "File", 16);
+	Button* editButton = uiContext.createNinePatchButton("Button_Edit", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Edit", 16);
+
+	HorizontalPanel* topHorizontalPanel = uiContext.createWidget<HorizontalPanel>("HorizontalPanel_Top");
+	topHorizontalPanel->addChild(fileButton);
+	topHorizontalPanel->addChild(editButton);
+	topHorizontalPanel->setPosition({ 4, 4 });
+
+	NinePatchPanel* testPanel = uiContext.createWidget<NinePatchPanel>("NinePatchPanel_Test");
+	testPanel->setPosition({ 256, 256 });
+	testPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
+	testPanel->setSize({ 256, 256 });
+
+	TextPanel* testText = uiContext.createWidget<TextPanel>("TextPanel_Test");
+	testText->setText("This is a very long and cool text. It should not fit into the parent rectangle");
+	testText->setHorizontalAlignment(Widget::Alignment::Fill);
+	// testText->setHorizontalAlignment(Widget::Alignment::Center);
+	// testText->setVerticalAlignment(Widget::Alignment::Center);
+	
+
+	testPanel->addChild(testText);
 }

@@ -23,6 +23,7 @@ protected:
 
 	void setupGlobalEditorInput();
 
+	void createUIAssets();
 	void createUI();
 
 	bool inEditMode;

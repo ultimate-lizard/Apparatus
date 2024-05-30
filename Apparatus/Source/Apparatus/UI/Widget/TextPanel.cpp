@@ -34,6 +34,16 @@ void TextPanel::refresh()
         invalidated = false;
     }
 }
+//
+//glm::ivec2 TextPanel::getGlobalSize() const
+//{
+//    if (textBlock)
+//    {
+//        textBlock->getSize();
+//    }
+//
+//    return glm::ivec2();
+//}
 
 void TextPanel::render(SpriteRenderer* renderer)
 {

@@ -15,6 +15,8 @@
 
 class Material;
 class InputHandler;
+class Button;
+class Texture;
 
 class UIContext
 {
@@ -22,7 +24,6 @@ public:
 	UIContext(InputHandler* inputHandler);
 
 	void init();
-	void update();
 
 	void renderContext(SpriteRenderer* renderer);
 
@@ -38,6 +39,8 @@ public:
 	// Returns whether the input was captured
 	bool handleKeyInput(InputKey key, KeyEventType type);
 	void handleAxisInput(InputAxis axis, float value);
+
+	Button* createNinePatchButton(const std::string& name, const std::string& idleTextureName, const std::string& hoverTextureName, const std::string& pressTextureName, unsigned int border, const std::string& label = "", unsigned int fontSize = 18);
 
 private:
 	void onWindowResize(std::shared_ptr<WindowResizeEvent> event);

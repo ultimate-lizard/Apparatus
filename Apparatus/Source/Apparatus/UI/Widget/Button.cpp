@@ -12,7 +12,6 @@ Button::Button() :
 	currentStatePanel(nullptr),
 	label(nullptr),
 	labelClickOffset(2),
-	labelPosition(0),
 	buttonState(ButtonState::Idle),
 	hovered(false)
 {
@@ -50,8 +49,6 @@ void Button::addLabel(TextPanel* textPanel)
 
 		addChild(textPanel);
 
-		labelPosition = textPanel->getPosition();
-
 		invalidate();
 	}
 }
@@ -65,12 +62,7 @@ void Button::setButtonState(ButtonState state)
 
 glm::ivec2 Button::getGlobalSize() const
 {
-	if (currentStatePanel)
-	{
-		return currentStatePanel->getSize();
-	}
-
-	return {};
+	return size;
 }
 
 void Button::refresh()
@@ -82,11 +74,13 @@ void Button::refresh()
 		if (idleStatePanel)
 		{
 			idleStatePanel->setVisibility(false);
+			idleStatePanel->setSize(getSize());
 		}
 
 		if (hoverStatePanel)
 		{
 			hoverStatePanel->setVisibility(false);
+			hoverStatePanel->setSize(getSize());
 		}
 		else
 		{
@@ -96,6 +90,7 @@ void Button::refresh()
 		if (pressStatePanel)
 		{
 			pressStatePanel->setVisibility(false);
+			pressStatePanel->setSize(getSize());
 		}
 		else
 		{
@@ -123,6 +118,18 @@ void Button::refresh()
 		if (currentStatePanel)
 		{
 			currentStatePanel->setVisibility(true);
+		}
+
+		if (label)
+		{
+			if (buttonState == Button::ButtonState::Press)
+			{
+				label->setPosition(glm::ivec2(labelClickOffset));
+			}
+			else
+			{
+				label->setPosition(glm::ivec2(0));
+			}
 		}
 
 		invalidated = false;
@@ -166,20 +173,10 @@ bool Button::onKeyInput(InputKey key, KeyEventType type)
 		if (type == KeyEventType::Press && hovered)
 		{
 			setButtonState(Button::ButtonState::Press);
-
-			if (label)
-			{
-				label->setPosition(labelPosition + labelClickOffset);
-			}
 		}
 		else
 		{
 			setButtonState(hovered ? Button::ButtonState::Hover : Button::ButtonState::Idle);
-
-			if (label)
-			{
-				label->setPosition(labelPosition);
-			}
 		}
 
 		invalidate();

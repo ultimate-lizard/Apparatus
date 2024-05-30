@@ -40,7 +40,6 @@ private:
 
 	TextPanel* label;
 	int labelClickOffset;
-	glm::ivec2 labelPosition;
 
 	ButtonState buttonState;
 
