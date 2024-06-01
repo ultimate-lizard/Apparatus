@@ -129,7 +129,7 @@ void UIContext::handleAxisInput(InputAxis axis, float value)
 	}
 }
 
-Button* UIContext::createNinePatchButton(const std::string& name, const std::string& idleTextureName, const std::string& hoverTextureName, const std::string& pressTextureName, unsigned int border, const std::string& label, unsigned int fontSize)
+Button* UIContext::createNinePatchButton(const std::string& name, const std::string& idleTextureName, const std::string& hoverTextureName, const std::string& pressTextureName, unsigned int border, const std::string& labelText, unsigned int fontSize)
 {
 	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
 	assert(assetManager);
@@ -153,15 +153,15 @@ Button* UIContext::createNinePatchButton(const std::string& name, const std::str
 	pressPanel->setTexture(assetManager->findAsset<Texture>(pressTextureName));
 	pressPanel->setBorder(border);
 
-	if (!label.empty())
+	if (!labelText.empty())
 	{
-		TextPanel* fileLabel = createWidget<TextPanel>(name + "TextPanel_Label");
-		fileLabel->setText(label);
-		fileLabel->setFontSize(fontSize);
-		// fileLabel->setHorizontalAlignment(Widget::Alignment::Center);
-		// fileLabel->setVerticalAlignment(Widget::Alignment::Center);
+		TextPanel* label = createWidget<TextPanel>(name + "TextPanel_Label");
+		label->setText(labelText);
+		label->setFontSize(fontSize);
+		label->setHorizontalAlignment(Widget::Alignment::Center);
+		label->setVerticalAlignment(Widget::Alignment::Center);
 
-		button->addLabel(fileLabel);
+		button->addLabel(label);
 	}
 
 	button->addPanelForState(idlePanel, Button::ButtonState::Idle);

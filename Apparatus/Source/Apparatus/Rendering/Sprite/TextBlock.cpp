@@ -9,7 +9,8 @@ static const int textBufferSize = 4000 * 6 * 5 * sizeof(float); // chars * verti
 
 TextBlock::TextBlock() :
     font(nullptr),
-    fontSize(14)
+    fontSize(14),
+    justification(TextBlock::Justification::Left)
 {
     color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -51,9 +52,6 @@ void TextBlock::rebuildMesh()
     float y = static_cast<float>(getPosition().y);
     float xstart = x;
 
-    glm::ivec2 textDimensions(0);
-    int lineWidth = 0;
-
     // Iterate over each line
     std::stringstream textStream(text);
     for (std::string line; std::getline(textStream, line);)
@@ -77,7 +75,7 @@ void TextBlock::rebuildMesh()
 
             // Constraint the text in its size dimensions
             const float wordLength = calculateWordLength(word);
-            lineWidth += wordLength;
+
             if (size.x != 0 && wordLength + x >= size.x + position.x)
             {
                 y += currentCharacterSet->textureSize;
@@ -133,16 +131,9 @@ void TextBlock::rebuildMesh()
                 x += (character.advance.x >> 6);
             }
         }
-
-        if (lineWidth > textDimensions.x)
-        {
-            textDimensions.x = lineWidth;
-        }
-
-        textDimensions.y = y;
-
-        lineWidth = 0;
     }
+
+    //dimensions = textDimensions;
 
     getSpriteMesh()->bind();
 
@@ -180,6 +171,16 @@ void TextBlock::setFontSize(unsigned int fontSize)
 unsigned int TextBlock::getFontSize()
 {
     return fontSize;
+}
+
+void TextBlock::setJustification(TextBlock::Justification justification)
+{
+    this->justification = justification;
+}
+
+TextBlock::Justification TextBlock::getJustification() const
+{
+    return justification;
 }
 
 float TextBlock::calculateWordLength(const std::string& word)

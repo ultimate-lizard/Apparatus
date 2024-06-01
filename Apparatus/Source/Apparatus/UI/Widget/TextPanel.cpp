@@ -22,28 +22,15 @@ void TextPanel::refresh()
 {
     Widget::refresh();
 
-    if (invalidated)
+    if (invalidated && textBlock)
     {
-        if (textBlock)
-        {
-            textBlock->setPosition(getGlobalPosition());
-            textBlock->setSize(getGlobalSize());
-            textBlock->rebuildMesh();
-        }
+        textBlock->setPosition(getGlobalPosition());
+        textBlock->setSize(getGlobalSize());
+        textBlock->rebuildMesh();
 
         invalidated = false;
     }
 }
-//
-//glm::ivec2 TextPanel::getGlobalSize() const
-//{
-//    if (textBlock)
-//    {
-//        textBlock->getSize();
-//    }
-//
-//    return glm::ivec2();
-//}
 
 void TextPanel::render(SpriteRenderer* renderer)
 {

@@ -146,7 +146,9 @@ void EditorLocalClient::createUI()
 
 	TextPanel* testText = uiContext.createWidget<TextPanel>("TextPanel_Test");
 	testText->setText("This is a very long and cool text. It should not fit into the parent rectangle");
-	testText->setHorizontalAlignment(Widget::Alignment::Fill);
+	testText->setHorizontalAlignment(Widget::Alignment::Center);
+	testText->setVerticalAlignment(Widget::Alignment::Center);
+	testText->setSize({ 64, 64 });
 	// testText->setHorizontalAlignment(Widget::Alignment::Center);
 	// testText->setVerticalAlignment(Widget::Alignment::Center);
 	

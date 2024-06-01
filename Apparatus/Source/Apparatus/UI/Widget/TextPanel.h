@@ -10,8 +10,6 @@ public:
 	virtual void init() override;
 	virtual void refresh() override;
 
-	// virtual glm::ivec2 getGlobalSize() const override;
-
 	virtual void render(SpriteRenderer* renderer) override;
 
 	TextBlock* getTextBlock();
