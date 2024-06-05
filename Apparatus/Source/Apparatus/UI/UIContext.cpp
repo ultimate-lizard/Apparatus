@@ -136,37 +136,22 @@ Button* UIContext::createNinePatchButton(const std::string& name, const std::str
 
 	Button* button = createWidget<Button>(name);
 	assert(button);
+
+	button->setIdleTexture(assetManager->findAsset<Texture>(idleTextureName));
+	button->setHoverTexture(assetManager->findAsset<Texture>(hoverTextureName));
+	button->setPressTexture(assetManager->findAsset<Texture>(pressTextureName));
+
 	// TODO: This should be found automatically?
 	button->setSize({ 40, 32 });
-
-	NinePatchPanel* idlePanel = createWidget<NinePatchPanel>(name + "NinePatchPanel_Idle");
-	assert(idlePanel);
-	idlePanel->setTexture(assetManager->findAsset<Texture>(idleTextureName));
-	idlePanel->setBorder(border);
-
-	NinePatchPanel* hoverPanel = createWidget<NinePatchPanel>(name + "NinePatchPanel_Hover");
-	assert(hoverPanel);
-	hoverPanel->setTexture(assetManager->findAsset<Texture>(hoverTextureName));
-	hoverPanel->setBorder(border);
-
-	NinePatchPanel* pressPanel = createWidget<NinePatchPanel>(name + "NinePatchPanel_Press");
-	pressPanel->setTexture(assetManager->findAsset<Texture>(pressTextureName));
-	pressPanel->setBorder(border);
 
 	if (!labelText.empty())
 	{
 		TextPanel* label = createWidget<TextPanel>(name + "TextPanel_Label");
 		label->setText(labelText);
 		label->setFontSize(fontSize);
-		label->setHorizontalAlignment(Widget::Alignment::Center);
-		label->setVerticalAlignment(Widget::Alignment::Center);
 
-		button->addLabel(label);
+		button->addChild(label);
 	}
-
-	button->addPanelForState(idlePanel, Button::ButtonState::Idle);
-	button->addPanelForState(hoverPanel, Button::ButtonState::Hover);
-	button->addPanelForState(pressPanel, Button::ButtonState::Press);
 
 	return button;
 }

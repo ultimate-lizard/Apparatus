@@ -9,7 +9,7 @@ void HorizontalPanel::addChild(Widget* child)
     invalidate();
 
     // TODO: Unparent the child first!!!
-    children.push_back(child);
+    // children.push_back(child);
 }
 
 glm::ivec2 HorizontalPanel::getGlobalSize() const
@@ -40,7 +40,13 @@ glm::ivec2 HorizontalPanel::getGlobalSize() const
 
 void HorizontalPanel::refresh()
 {
-    Widget::refresh();
+    for (const std::unique_ptr<BoxModelPanel>& childContainer : childContainers)
+    {
+        if (childContainer)
+        {
+            childContainer->refresh();
+        }
+    }
 
     if (invalidated)
     {

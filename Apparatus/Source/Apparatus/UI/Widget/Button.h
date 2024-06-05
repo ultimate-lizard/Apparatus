@@ -4,6 +4,8 @@
 
 class ImagePanel;
 class TextPanel;
+class Sprite;
+class Texture;
 
 class Button : public BoxModelPanel
 {
@@ -17,31 +19,43 @@ public:
 
 	Button();
 
-	void addPanelForState(ImagePanel* idleState, ButtonState state);
-	void addLabel(TextPanel* textPanel);
-	void setButtonState(ButtonState state);
+	virtual void init() override;
+
+	// void addPanelForState(ImagePanel* idleState, ButtonState state);
+	// void addLabel(TextPanel* textPanel);
 
 	virtual glm::ivec2 getGlobalSize() const override;
 	virtual void refresh() override;
+
+	virtual void render(SpriteRenderer* renderer) override;
 
 	virtual void onMouseEnter() override;
 	virtual void onMouseLeave() override;
 	virtual bool onKeyInput(InputKey key, KeyEventType type) override;
 
+	void setIdleTexture(Texture* texture);
+	void setHoverTexture(Texture* texture);
+	void setPressTexture(Texture* texture);
+
+	void setButtonState(ButtonState state);
 	void setLabelClickOffset(int offset);
 
 private:
-	virtual void addChild(Widget* child) override;
+	std::unique_ptr<Sprite> idleSprite;
+	std::unique_ptr<Sprite> hoverSprite;
+	std::unique_ptr<Sprite> pressSprite;
+	Sprite* currentSprite;
+	
+	//ImagePanel* idleStatePanel;
+	//ImagePanel* hoverStatePanel;
+	//ImagePanel* pressStatePanel;
+	//ImagePanel* currentStatePanel;
 
-	ImagePanel* idleStatePanel;
-	ImagePanel* hoverStatePanel;
-	ImagePanel* pressStatePanel;
-	ImagePanel* currentStatePanel;
-
-	TextPanel* label;
-	int labelClickOffset;
+	// TextPanel* label;
 
 	ButtonState buttonState;
 
 	bool hovered;
+
+	int childClickOffset;
 };

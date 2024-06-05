@@ -4,54 +4,77 @@
 #include "ImagePanel.h"
 #include "TextPanel.h"
 #include "../../Apparatus.h"
+#include "../../Rendering/Sprite/Sprite.h"
+#include "../../Rendering/Material.h"
+#include "../../Core/AssetManager/AssetManager.h"
 
 Button::Button() :
-	idleStatePanel(nullptr),
-	hoverStatePanel(nullptr),
-	pressStatePanel(nullptr),
-	currentStatePanel(nullptr),
-	label(nullptr),
-	labelClickOffset(2),
+	//idleStatePanel(nullptr),
+	//hoverStatePanel(nullptr),
+	//pressStatePanel(nullptr),
+	//currentStatePanel(nullptr),
+	//label(nullptr),
+	currentSprite(nullptr),
 	buttonState(ButtonState::Idle),
-	hovered(false)
+	hovered(false),
+	childClickOffset(2)
 {
 	mouseCaptureEnabled = true;
 }
 
-void Button::addPanelForState(ImagePanel* panel, ButtonState state)
+void Button::init()
 {
-	if (panel)
-	{
-		switch (state)
-		{
-		case Button::ButtonState::Idle:
-			idleStatePanel = panel;
-			break;
-		case Button::ButtonState::Hover:
-			hoverStatePanel = panel;
-			break;
-		case Button::ButtonState::Press:
-			pressStatePanel = panel;
-			break;
-		}
+	Widget::init();
 
-		addChild(panel);
+	idleSprite = std::make_unique<Sprite>();
+	hoverSprite = std::make_unique<Sprite>();
+	pressSprite = std::make_unique<Sprite>();
 
-		invalidate();
-	}
+	currentSprite = idleSprite.get();
+
+	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
+	Material* buttonMaterial = assetManager->findAsset<Material>("Material_Panel");
+	idleSprite->setMaterial(buttonMaterial);
+	hoverSprite->setMaterial(buttonMaterial);
+	pressSprite->setMaterial(buttonMaterial);
+
+	//invalidate();
 }
 
-void Button::addLabel(TextPanel* textPanel)
-{
-	if (textPanel)
-	{
-		this->label = textPanel;
-
-		addChild(textPanel);
-
-		invalidate();
-	}
-}
+//void Button::addPanelForState(ImagePanel* panel, ButtonState state)
+//{
+//	if (panel)
+//	{
+//		switch (state)
+//		{
+//		case Button::ButtonState::Idle:
+//			idleStatePanel = panel;
+//			break;
+//		case Button::ButtonState::Hover:
+//			hoverStatePanel = panel;
+//			break;
+//		case Button::ButtonState::Press:
+//			pressStatePanel = panel;
+//			break;
+//		}
+//
+//		addChild(panel);
+//
+//		invalidate();
+//	}
+//}
+//
+//void Button::addLabel(TextPanel* textPanel)
+//{
+//	if (textPanel)
+//	{
+//		this->label = textPanel;
+//
+//		addChild(textPanel);
+//
+//		invalidate();
+//	}
+//}
 
 void Button::setButtonState(ButtonState state)
 {
@@ -71,69 +94,52 @@ void Button::refresh()
 
 	if (invalidated)
 	{
-		if (idleStatePanel)
-		{
-			idleStatePanel->setVisibility(false);
-			idleStatePanel->setSize(getSize());
-		}
-
-		if (hoverStatePanel)
-		{
-			hoverStatePanel->setVisibility(false);
-			hoverStatePanel->setSize(getSize());
-		}
-		else
-		{
-			hoverStatePanel = idleStatePanel;
-		}
-
-		if (pressStatePanel)
-		{
-			pressStatePanel->setVisibility(false);
-			pressStatePanel->setSize(getSize());
-		}
-		else
-		{
-			pressStatePanel = idleStatePanel;
-		}
-
-		if (currentStatePanel)
-		{
-			currentStatePanel->setVisibility(false);
-		}
-
 		switch (buttonState)
 		{
 		case Button::ButtonState::Idle:
-			currentStatePanel = idleStatePanel;
+			currentSprite = idleSprite.get();
 			break;
 		case Button::ButtonState::Hover:
-			currentStatePanel = hoverStatePanel;
+			currentSprite = hoverSprite.get();
 			break;
 		case Button::ButtonState::Press:
-			currentStatePanel = pressStatePanel;
+			currentSprite = pressSprite.get();
 			break;
 		}
 
-		if (currentStatePanel)
+		if (!currentSprite && idleSprite)
 		{
-			currentStatePanel->setVisibility(true);
+			currentSprite = pressSprite.get();
 		}
 
-		if (label)
+		for (Widget* child : children)
 		{
 			if (buttonState == Button::ButtonState::Press)
 			{
-				label->setPosition(glm::ivec2(labelClickOffset));
+				child->setPosition(glm::ivec2(childClickOffset));
 			}
 			else
 			{
-				label->setPosition(glm::ivec2(0));
+				child->setPosition(glm::ivec2(0));
 			}
+		}
+
+		if (currentSprite)
+		{
+			currentSprite->setPosition(getGlobalPosition());
+			auto globalSize = getGlobalSize();
+			currentSprite->setSize(globalSize);
+			currentSprite->setTextureSize(globalSize);
+			currentSprite->rebuildMesh();
 		}
 
 		invalidated = false;
 	}
+}
+
+void Button::render(SpriteRenderer* renderer)
+{
+	renderer->push(currentSprite);
 }
 
 void Button::onMouseEnter()
@@ -192,12 +198,25 @@ bool Button::onKeyInput(InputKey key, KeyEventType type)
 	return false;
 }
 
-void Button::setLabelClickOffset(int offset)
+void Button::setIdleTexture(Texture* texture)
 {
-	this->labelClickOffset = offset;
+	idleSprite->setTexture(texture);
+	invalidate();
 }
 
-void Button::addChild(Widget* child)
+void Button::setHoverTexture(Texture* texture)
 {
-	Widget::addChild(child);
+	hoverSprite->setTexture(texture);
+	invalidate();
+}
+
+void Button::setPressTexture(Texture* texture)
+{
+	pressSprite->setTexture(texture);
+	invalidate();
+}
+
+void Button::setLabelClickOffset(int offset)
+{
+	this->childClickOffset = offset;
 }

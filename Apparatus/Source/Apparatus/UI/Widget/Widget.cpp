@@ -133,6 +133,11 @@ void Widget::setVerticalAlignment(Alignment alignment)
 void Widget::invalidate()
 {
     invalidated = true;
+
+    for (Widget* child : children)
+    {
+        child->invalidate();
+    }
 }
 
 void Widget::setMouseCaptureEnabled(bool enabled)
