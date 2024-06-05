@@ -40,7 +40,10 @@ public:
 	void setButtonState(ButtonState state);
 	void setLabelClickOffset(int offset);
 
-private:
+protected:
+	virtual void initMaterial();
+	virtual void refreshSprite();
+	
 	std::unique_ptr<Sprite> idleSprite;
 	std::unique_ptr<Sprite> hoverSprite;
 	std::unique_ptr<Sprite> pressSprite;

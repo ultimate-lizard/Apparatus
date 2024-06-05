@@ -173,6 +173,7 @@
     <ClCompile Include="Source\Apparatus\UI\Widget\Button.cpp" />
     <ClCompile Include="Source\Apparatus\UI\Widget\HorizontalPanel.cpp" />
     <ClCompile Include="Source\Apparatus\UI\Widget\ImagePanel.cpp" />
+    <ClCompile Include="Source\Apparatus\UI\Widget\NinePatchButton.cpp" />
     <ClCompile Include="Source\Apparatus\UI\Widget\NinePatchPanel.cpp" />
     <ClCompile Include="Source\Apparatus\UI\Widget\Widget.cpp" />
     <ClCompile Include="Source\Apparatus\UI\Widget\TextPanel.cpp" />
@@ -250,6 +251,7 @@
     <ClInclude Include="Source\Apparatus\UI\Widget\Button.h" />
     <ClInclude Include="Source\Apparatus\UI\Widget\HorizontalPanel.h" />
     <ClInclude Include="Source\Apparatus\UI\Widget\ImagePanel.h" />
+    <ClInclude Include="Source\Apparatus\UI\Widget\NinePatchButton.h" />
     <ClInclude Include="Source\Apparatus\UI\Widget\NinePatchPanel.h" />
     <ClInclude Include="Source\Apparatus\UI\Widget\Widget.h" />
     <ClInclude Include="Source\Apparatus\UI\Widget\TextPanel.h" />

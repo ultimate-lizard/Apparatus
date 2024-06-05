@@ -66,6 +66,8 @@ void NinePatchPanel::setBorder(int border)
 	{
 		borders[i] = border;
 	}
+
+	invalidate();
 }
 
 int NinePatchPanel::getBorder(Side side) const

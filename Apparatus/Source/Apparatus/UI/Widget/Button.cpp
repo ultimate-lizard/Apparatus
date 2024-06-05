@@ -32,13 +32,7 @@ void Button::init()
 
 	currentSprite = idleSprite.get();
 
-	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
-	Material* buttonMaterial = assetManager->findAsset<Material>("Material_Panel");
-	idleSprite->setMaterial(buttonMaterial);
-	hoverSprite->setMaterial(buttonMaterial);
-	pressSprite->setMaterial(buttonMaterial);
-
-	//invalidate();
+	initMaterial();
 }
 
 //void Button::addPanelForState(ImagePanel* panel, ButtonState state)
@@ -124,14 +118,7 @@ void Button::refresh()
 			}
 		}
 
-		if (currentSprite)
-		{
-			currentSprite->setPosition(getGlobalPosition());
-			auto globalSize = getGlobalSize();
-			currentSprite->setSize(globalSize);
-			currentSprite->setTextureSize(globalSize);
-			currentSprite->rebuildMesh();
-		}
+		refreshSprite();
 
 		invalidated = false;
 	}
@@ -219,4 +206,27 @@ void Button::setPressTexture(Texture* texture)
 void Button::setLabelClickOffset(int offset)
 {
 	this->childClickOffset = offset;
+}
+
+void Button::initMaterial()
+{
+	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
+	Material* buttonMaterial = assetManager->findAsset<Material>("Material_Panel");
+	idleSprite->setMaterial(buttonMaterial);
+	hoverSprite->setMaterial(buttonMaterial);
+	pressSprite->setMaterial(buttonMaterial);
+}
+
+void Button::refreshSprite()
+{
+	if (!currentSprite)
+	{
+		return;
+	}
+
+	currentSprite->setPosition(getGlobalPosition());
+	const glm::ivec2 globalSize = getGlobalSize();
+	currentSprite->setSize(globalSize);
+	currentSprite->setTextureSize(globalSize);
+	currentSprite->rebuildMesh();
 }

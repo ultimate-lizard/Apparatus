@@ -12,7 +12,7 @@
 #include "../Core/AssetManager/AssetManager.h"
 #include "../Core/Input/InputHandler.h"
 #include "Widget/NinePatchPanel.h"
-#include "Widget/Button.h"
+#include "Widget/NinePatchButton.h"
 #include "Widget/TextPanel.h"
 
 UIContext::UIContext(InputHandler* inputHandler) :
@@ -134,7 +134,7 @@ Button* UIContext::createNinePatchButton(const std::string& name, const std::str
 	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
 	assert(assetManager);
 
-	Button* button = createWidget<Button>(name);
+	NinePatchButton* button = createWidget<NinePatchButton>(name);
 	assert(button);
 
 	button->setIdleTexture(assetManager->findAsset<Texture>(idleTextureName));
@@ -143,6 +143,7 @@ Button* UIContext::createNinePatchButton(const std::string& name, const std::str
 
 	// TODO: This should be found automatically?
 	button->setSize({ 40, 32 });
+	button->setBorder(border);
 
 	if (!labelText.empty())
 	{
