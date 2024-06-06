@@ -19,11 +19,11 @@ void ImagePanel::init()
     }
 }
 
-void ImagePanel::refresh()
+bool ImagePanel::refresh()
 {
-    Widget::refresh();
+    bool wasInvalidated = BoxModelPanel::refresh();
 
-    if (invalidated)
+    if (wasInvalidated)
     {
         if (sprite)
         {
@@ -34,6 +34,8 @@ void ImagePanel::refresh()
 
         invalidated = false;
     }
+
+    return wasInvalidated;
 }
 
 void ImagePanel::render(SpriteRenderer* renderer)

@@ -132,8 +132,6 @@ void EditorLocalClient::createUI()
 	topPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
 
 	Button* fileButton = uiContext.createNinePatchButton("Button_File", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "File", 16);
-	fileButton->setSizeToContentEnabled(true);
-
 	Button* editButton = uiContext.createNinePatchButton("Button_Edit", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Edit", 16);
 
 	HorizontalPanel* topHorizontalPanel = uiContext.createWidget<HorizontalPanel>("HorizontalPanel_Top");
@@ -145,15 +143,15 @@ void EditorLocalClient::createUI()
 	testPanel->setPosition({ 256, 256 });
 	testPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
 	testPanel->setSize({ 256, 256 });
+	testPanel->setSizeToContentEnabled(true);
 
 	TextPanel* testText = uiContext.createWidget<TextPanel>("TextPanel_Test");
 	testText->setText("This is a very long and cool text. It should not fit into the parent rectangle");
-	testText->setHorizontalAlignment(Widget::Alignment::Center);
-	testText->setVerticalAlignment(Widget::Alignment::Center);
 	testText->setSize({ 64, 64 });
-	// testText->setHorizontalAlignment(Widget::Alignment::Center);
-	// testText->setVerticalAlignment(Widget::Alignment::Center);
-	
+	//testText->setHorizontalAlignment(Widget::Alignment::Fill);
+	//testText->setVerticalAlignment(Widget::Alignment::Fill);
 
+	// TODO: Work out the word wrapping. It should work with the above options but it in fact doesn't
+	
 	testPanel->addChild(testText);
 }

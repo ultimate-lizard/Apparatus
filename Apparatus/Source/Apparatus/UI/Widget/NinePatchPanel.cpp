@@ -24,11 +24,11 @@ void NinePatchPanel::init()
 	}
 }
 
-void NinePatchPanel::refresh()
+bool NinePatchPanel::refresh()
 {
-	Widget::refresh();
+	bool wasInvalidated = ImagePanel::refresh();
 
-	if (invalidated && sprite)
+	if (wasInvalidated)
 	{
 		sprite->setPosition(getGlobalPosition());
 		sprite->setSize(getGlobalSize());
@@ -52,6 +52,8 @@ void NinePatchPanel::refresh()
 
 		invalidated = false;
 	}
+
+	return wasInvalidated;
 }
 
 void NinePatchPanel::setBorder(Side side, int border)

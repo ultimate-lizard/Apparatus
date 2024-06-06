@@ -33,8 +33,10 @@ public:
 	void setJustification(TextBlock::Justification justification);
 	TextBlock::Justification getJustification() const;
 
+	glm::ivec2 getDimensions() const;
+
 protected:
-	float calculateWordLength(const std::string& word);
+	float calculateWordLength(const std::string& word) const;
 
 	std::string text;
 	Font* font;

@@ -98,11 +98,11 @@ void Button::setButtonState(ButtonState state)
 //	return size;
 //}
 
-void Button::refresh()
+bool Button::refresh()
 {
-	Widget::refresh();
+	bool wasInvalidated = BoxModelPanel::refresh();
 
-	if (invalidated)
+	if (wasInvalidated)
 	{
 		switch (buttonState)
 		{
@@ -138,6 +138,8 @@ void Button::refresh()
 
 		invalidated = false;
 	}
+
+	return wasInvalidated;
 }
 
 void Button::render(SpriteRenderer* renderer)

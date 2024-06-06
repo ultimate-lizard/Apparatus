@@ -18,18 +18,40 @@ void TextPanel::init()
     }
 }
 
-void TextPanel::refresh()
+bool TextPanel::refresh()
 {
-    Widget::refresh();
+    bool wasInvalidated = Widget::refresh();
 
-    if (invalidated && textBlock)
+    if (wasInvalidated && textBlock)
     {
         textBlock->setPosition(getGlobalPosition());
-        textBlock->setSize(getGlobalSize());
+        // Size is boundaries of the text. If 0, no boundaries are set.
+        // Global size is the actual size of the text
+        textBlock->setSize(getSize());
         textBlock->rebuildMesh();
 
         invalidated = false;
     }
+
+    return wasInvalidated;
+}
+
+glm::ivec2 TextPanel::getGlobalSize() const
+{
+    // Force update text boundaries before calculating the dimensions
+    textBlock->setSize(getSize());
+
+    glm::ivec2 dimensions = textBlock->getDimensions();
+    
+    if (horizontalAlignment != Alignment::Fill && verticalAlignment != Alignment::Fill)
+    {
+        dimensions.x += getMargin(Widget::Side::Left);
+        dimensions.x += getMargin(Widget::Side::Right);
+        dimensions.y += getMargin(Widget::Side::Top);
+        dimensions.y += getMargin(Widget::Side::Bottom);
+    }
+
+    return dimensions;
 }
 
 void TextPanel::render(SpriteRenderer* renderer)
@@ -47,29 +69,20 @@ TextBlock* TextPanel::getTextBlock()
 
 void TextPanel::setText(const std::string& text)
 {
-    if (textBlock)
-    {
-        textBlock->setText(text);
-        invalidate();
-    }
+    textBlock->setText(text);
+    invalidate();
 }
 
 void TextPanel::setColor(const glm::vec4& color)
 {
-    if (textBlock)
-    {
-        textBlock->setColor(color);
-        invalidate();
-    }
+    textBlock->setColor(color);
+    invalidate();
 }
 
 void TextPanel::setFontSize(unsigned int fontSize)
 {
-    if (textBlock)
-    {
-        textBlock->setFontSize(fontSize);
-        invalidate();
-    }
+    textBlock->setFontSize(fontSize);
+    invalidate();
 }
 
 void TextPanel::setDepth(float depth)

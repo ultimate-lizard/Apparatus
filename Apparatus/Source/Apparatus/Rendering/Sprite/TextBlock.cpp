@@ -183,7 +183,98 @@ TextBlock::Justification TextBlock::getJustification() const
     return justification;
 }
 
-float TextBlock::calculateWordLength(const std::string& word)
+glm::ivec2 TextBlock::getDimensions() const
+{
+    if (!font)
+    {
+        return size;
+    }
+
+    GlyphCache* currentCharacterSet = font->getGlyphCache(fontSize);
+    if (!currentCharacterSet)
+    {
+        return size;
+    }
+
+    float x = static_cast<float>(getPosition().x);
+    float y = static_cast<float>(getPosition().y);
+    const float xstart = x;
+
+    const glm::ivec2 originalPosition(x, y);
+
+    glm::ivec2 dimensions(0);
+
+    // Iterate over each line
+    std::stringstream textStream(text);
+    for (std::string line; std::getline(textStream, line);)
+    {
+        // Iterate over each word
+        std::stringstream lineStream(line);
+        while (lineStream)
+        {
+            std::string word;
+            lineStream >> word;
+
+            // Add symbols that were omitted by the stream iteration
+            if (lineStream.peek() == std::char_traits<char>::eof())
+            {
+                word += '\n';
+            }
+            else
+            {
+                word += ' ';
+            }
+
+            // Constraint the text in its size dimensions
+            const float wordLength = calculateWordLength(word);
+
+            if (size.x != 0 && wordLength + x >= size.x + position.x)
+            {
+                y += currentCharacterSet->textureSize;
+                x = xstart;
+            }
+
+            if (size.y != 0 && y > size.y + position.y)
+            {
+                continue;
+            }
+
+            for (auto iter = word.begin(); iter != word.end(); ++iter)
+            {
+                const auto characterMap = currentCharacterSet->glyphMap;
+                auto searchIter = characterMap.find(*iter);
+                if (searchIter == characterMap.end())
+                {
+                    continue;
+                }
+
+                const Character& character = searchIter->second;
+
+                if (*iter == '\n')
+                {
+                    y += currentCharacterSet->textureSize;
+                    x = xstart;
+                    continue;
+                }
+
+                x += (character.advance.x >> 6);
+
+                if (x > dimensions.x)
+                {
+                    dimensions.x = x;
+                }
+            }
+        }
+    }
+
+    dimensions.y = y;
+    dimensions.x -= originalPosition.x;
+    dimensions.y -= originalPosition.y;
+
+    return dimensions;
+}
+
+float TextBlock::calculateWordLength(const std::string& word) const
 {
     float result = 0.0f;
 

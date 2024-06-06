@@ -25,7 +25,7 @@ public:
 	// void addLabel(TextPanel* textPanel);
 
 	//virtual glm::ivec2 getGlobalSize() const override;
-	virtual void refresh() override;
+	virtual bool refresh() override;
 
 	virtual void render(SpriteRenderer* renderer) override;
 

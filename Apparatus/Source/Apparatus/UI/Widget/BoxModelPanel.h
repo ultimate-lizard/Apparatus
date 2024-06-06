@@ -15,10 +15,13 @@ public:
 	void setSize(const glm::ivec2& size);
 	virtual const glm::ivec2& getSize() const override;
 
+	virtual bool refresh() override;
+
 	void setSizeToContentEnabled(bool enabled);
 	bool isSizeToContentEnabled() const;
 
 	void setMargin(Side side, int margin);
+	void setMargin(int margin);
 	int getMargin(Side side) const;
 
 protected:
@@ -26,4 +29,5 @@ protected:
 	std::array<int, 4> margins;
 
 	bool sizeToContent;
+	glm::ivec2 contentSize;
 };

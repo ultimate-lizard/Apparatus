@@ -38,17 +38,22 @@ glm::ivec2 HorizontalPanel::getGlobalSize() const
     return size;
 }
 
-void HorizontalPanel::refresh()
+bool HorizontalPanel::refresh()
 {
+    bool wasInvalidated = invalidated;
+
     for (const std::unique_ptr<BoxModelPanel>& childContainer : childContainers)
     {
         if (childContainer)
         {
-            childContainer->refresh();
+            if (childContainer->refresh())
+            {
+                wasInvalidated = true;
+            }
         }
     }
 
-    if (invalidated)
+    if (wasInvalidated)
     {
         float offset = 0.0f;
 
@@ -65,4 +70,6 @@ void HorizontalPanel::refresh()
 
         invalidated = false;
     }
+
+    return wasInvalidated;
 }

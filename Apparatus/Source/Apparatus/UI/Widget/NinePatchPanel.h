@@ -8,7 +8,7 @@ public:
 	NinePatchPanel();
 
 	virtual void init() override;
-	virtual void refresh() override;
+	virtual bool refresh() override;
 
 	void setBorder(Side side, int border);
 	void setBorder(int border);

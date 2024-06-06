@@ -6,7 +6,8 @@
 BoxModelPanel::BoxModelPanel() :
     size(0),
     margins({ 0 }),
-    sizeToContent(false)
+    sizeToContent(false),
+    contentSize(size)
 {
 }
 
@@ -50,18 +51,7 @@ glm::ivec2 BoxModelPanel::getGlobalSize() const
 
     if (sizeToContent)
     {
-        glm::ivec2 maxSize(0);
-
-        for (Widget* child : children)
-        {
-            const glm::ivec2 childSize = child->getGlobalSize();
-            if (glm::all(glm::greaterThan(childSize, maxSize)))
-            {
-                maxSize = childSize;
-            }
-        }
-
-        size = maxSize;
+        size = contentSize;
     }
 
     glm::ivec2 parentSize = Apparatus::getWindow().getWindowSize();
@@ -103,6 +93,31 @@ const glm::ivec2& BoxModelPanel::getSize() const
     return size;
 }
 
+bool BoxModelPanel::refresh()
+{
+    bool wasInvalidated = Widget::refresh();
+
+    if (sizeToContent && wasInvalidated)
+    {
+        glm::ivec2 maxSize(0);
+
+        for (Widget* child : children)
+        {
+            const glm::ivec2 childSize = child->getGlobalSize();
+            if (glm::all(glm::greaterThan(childSize, maxSize)))
+            {
+                maxSize = childSize;
+            }
+        }
+
+        contentSize = maxSize;
+
+        invalidated = false;
+    }
+
+    return wasInvalidated;
+}
+
 void BoxModelPanel::setSizeToContentEnabled(bool enabled)
 {
     this->sizeToContent = enabled;
@@ -117,6 +132,16 @@ bool BoxModelPanel::isSizeToContentEnabled() const
 void BoxModelPanel::setMargin(Side side, int margin)
 {
     margins[static_cast<size_t>(side)] = margin;
+    invalidate();
+}
+
+void BoxModelPanel::setMargin(int margin)
+{
+    for (size_t i = 0; i < 4; ++i)
+    {
+        margins[i] = margin;
+    }
+
     invalidate();
 }
 

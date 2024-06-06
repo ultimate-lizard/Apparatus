@@ -15,12 +15,14 @@ Widget::Widget() :
 {
 }
 
-void Widget::refresh()
+bool Widget::refresh()
 {
     for (Widget* child : children)
     {
         child->refresh();
     }
+
+    return invalidated;
 }
 
 glm::ivec2 Widget::getGlobalPosition() const

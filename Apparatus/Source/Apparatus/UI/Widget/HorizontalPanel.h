@@ -9,7 +9,7 @@ public:
 
 	virtual glm::ivec2 getGlobalSize() const override;
 	virtual const glm::ivec2& getSize() const { return getGlobalSize(); }
-	virtual void refresh() override;
+	virtual bool refresh() override;
 
 protected:
 	std::vector<std::unique_ptr<BoxModelPanel>> childContainers;

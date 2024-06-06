@@ -34,7 +34,7 @@ public:
 	virtual ~Widget() = default;
 
 	virtual void init() {}
-	virtual void refresh();
+	virtual bool refresh();
 
 	virtual glm::ivec2 getGlobalPosition() const;
 	virtual glm::ivec2 getGlobalSize() const = 0;

@@ -8,7 +8,7 @@ class ImagePanel : public BoxModelPanel
 {
 public:
 	virtual void init() override;
-	virtual void refresh() override;
+	virtual bool refresh() override;
 
 	virtual void render(SpriteRenderer* renderer) override;
 

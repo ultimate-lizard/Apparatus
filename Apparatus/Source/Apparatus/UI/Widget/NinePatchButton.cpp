@@ -8,9 +8,9 @@
 
 class Material;
 
-void NinePatchButton::refresh()
+bool NinePatchButton::refresh()
 {
-    Button::refresh();
+    bool wasInvalidated = Button::refresh();
 
     std::vector<Sprite*> sprites;
     sprites.push_back(idleSprite.get());
@@ -38,6 +38,8 @@ void NinePatchButton::refresh()
         params.setVec2("textureBorderSize", sprite->getTextureSize());
         params.setVec2("spriteSize", getGlobalSize());
     }
+
+    return wasInvalidated;
 }
 
 void NinePatchButton::setBorder(Side side, int border)

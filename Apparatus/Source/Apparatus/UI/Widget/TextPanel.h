@@ -8,7 +8,10 @@ class TextPanel : public BoxModelPanel
 {
 public:
 	virtual void init() override;
-	virtual void refresh() override;
+	virtual bool refresh() override;
+
+	// Returns the actual size of the text
+	virtual glm::ivec2 getGlobalSize() const override;
 
 	virtual void render(SpriteRenderer* renderer) override;
 
