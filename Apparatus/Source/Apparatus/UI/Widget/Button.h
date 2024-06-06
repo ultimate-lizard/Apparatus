@@ -24,7 +24,7 @@ public:
 	// void addPanelForState(ImagePanel* idleState, ButtonState state);
 	// void addLabel(TextPanel* textPanel);
 
-	virtual glm::ivec2 getGlobalSize() const override;
+	//virtual glm::ivec2 getGlobalSize() const override;
 	virtual void refresh() override;
 
 	virtual void render(SpriteRenderer* renderer) override;

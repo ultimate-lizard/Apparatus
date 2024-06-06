@@ -132,6 +132,8 @@ void EditorLocalClient::createUI()
 	topPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
 
 	Button* fileButton = uiContext.createNinePatchButton("Button_File", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "File", 16);
+	fileButton->setSizeToContentEnabled(true);
+
 	Button* editButton = uiContext.createNinePatchButton("Button_Edit", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Edit", 16);
 
 	HorizontalPanel* topHorizontalPanel = uiContext.createWidget<HorizontalPanel>("HorizontalPanel_Top");

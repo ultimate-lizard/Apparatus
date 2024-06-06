@@ -77,10 +77,26 @@ void Button::setButtonState(ButtonState state)
 	invalidate();
 }
 
-glm::ivec2 Button::getGlobalSize() const
-{
-	return size;
-}
+//glm::ivec2 Button::getGlobalSize() const
+//{
+//	if (sizeToContent)
+//	{
+//		glm::ivec2 maxSize(0);
+//
+//		for (Widget* child : children)
+//		{
+//			const glm::ivec2 childSize = child->getGlobalSize();
+//			if (glm::all(glm::greaterThan(childSize, maxSize)))
+//			{
+//				maxSize = childSize;
+//			}
+//		}
+//
+//		return maxSize;
+//	}
+//
+//	return size;
+//}
 
 void Button::refresh()
 {

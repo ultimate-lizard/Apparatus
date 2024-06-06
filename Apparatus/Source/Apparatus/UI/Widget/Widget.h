@@ -39,6 +39,8 @@ public:
 	virtual glm::ivec2 getGlobalPosition() const;
 	virtual glm::ivec2 getGlobalSize() const = 0;
 
+	virtual const glm::ivec2& getSize() const = 0;
+
 	virtual void render(SpriteRenderer* renderer) {}
 
 	void setName(const std::string& name);

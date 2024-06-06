@@ -150,7 +150,6 @@ Button* UIContext::createNinePatchButton(const std::string& name, const std::str
 		TextPanel* label = createWidget<TextPanel>(name + "TextPanel_Label");
 		label->setText(labelText);
 		label->setFontSize(fontSize);
-
 		button->addChild(label);
 	}
 
