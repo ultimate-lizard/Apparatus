@@ -33,26 +33,29 @@ bool TextPanel::refresh()
         invalidated = false;
     }
 
+    if (sizeToContent)
+    {
+        contentSize = textBlock->getDimensions();
+    }
+
     return wasInvalidated;
 }
 
-glm::ivec2 TextPanel::getGlobalSize() const
-{
-    // Force update text boundaries before calculating the dimensions
-    textBlock->setSize(getSize());
-
-    glm::ivec2 dimensions = textBlock->getDimensions();
-    
-    if (horizontalAlignment != Alignment::Fill && verticalAlignment != Alignment::Fill)
-    {
-        dimensions.x += getMargin(Widget::Side::Left);
-        dimensions.x += getMargin(Widget::Side::Right);
-        dimensions.y += getMargin(Widget::Side::Top);
-        dimensions.y += getMargin(Widget::Side::Bottom);
-    }
-
-    return dimensions;
-}
+//glm::ivec2 TextPanel::getGlobalSize() const
+//{
+//    if (sizeToContent)
+//    {
+//        if (horizontalAlignment != Alignment::Fill && verticalAlignment != Alignment::Fill)
+//        {
+//            dimensions.x += getMargin(Widget::Side::Left);
+//            dimensions.x += getMargin(Widget::Side::Right);
+//            dimensions.y += getMargin(Widget::Side::Top);
+//            dimensions.y += getMargin(Widget::Side::Bottom);
+//        }
+//    }
+//
+//    return dimensions;
+//}
 
 void TextPanel::render(SpriteRenderer* renderer)
 {
