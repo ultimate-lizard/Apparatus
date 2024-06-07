@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <array>
 
 #include <glm/glm.hpp>
 
@@ -36,10 +37,11 @@ public:
 	virtual void init() {}
 	virtual bool refresh();
 
-	virtual glm::ivec2 getGlobalPosition() const;
-	virtual glm::ivec2 getGlobalSize() const = 0;
+	virtual glm::ivec2 getGlobalPosition();
+	virtual glm::ivec2 getGlobalSize();
 
-	virtual const glm::ivec2& getSize() const = 0;
+	void setSize(const glm::ivec2& size);
+	virtual const glm::ivec2& getSize() const;
 
 	virtual void render(SpriteRenderer* renderer) {}
 
@@ -57,6 +59,13 @@ public:
 	void setHorizontalAlignment(Alignment alignment);
 	void setVerticalAlignment(Alignment alignment);
 
+	void setMargin(Widget::Side side, int margin);
+	void setMargin(int margin);
+	int getMargin(Widget::Side side) const;
+
+	void setSizeToContentEnabled(bool enabled);
+	bool isSizeToContentEnabled() const;
+
 	void invalidate();
 
 	void setMouseCaptureEnabled(bool enabled);
@@ -71,7 +80,7 @@ public:
 	virtual void onMouseLeave() {}
 	virtual bool onKeyInput(InputKey key, KeyEventType type) { return false; }
 
-	bool isContaining(const glm::ivec2& coordiante) const;
+	bool isContaining(const glm::ivec2& coordiante);
 
 protected:
 	std::string name;
@@ -80,9 +89,15 @@ protected:
 	Widget* parent;
 
 	glm::ivec2 position;
+	glm::ivec2 size;
 
 	Alignment horizontalAlignment;
 	Alignment verticalAlignment;
+
+	std::array<int, 4> margins;
+
+	bool sizeToContent;
+	glm::ivec2 contentSize;
 
 	bool invalidated;
 	

@@ -5,6 +5,12 @@
 #include "../../Rendering/Material.h"
 #include "../../Core/AssetManager/AssetManager.h"
 
+TextPanel::TextPanel()
+{
+    sizeToContent = true;
+    size = { 32, 32 };
+}
+
 void TextPanel::init()
 {
     if (textBlock = std::make_unique<TextBlock>())
@@ -22,40 +28,56 @@ bool TextPanel::refresh()
 {
     bool wasInvalidated = Widget::refresh();
 
-    if (wasInvalidated && textBlock)
+    if (wasInvalidated)
     {
         textBlock->setPosition(getGlobalPosition());
-        // Size is boundaries of the text. If 0, no boundaries are set.
-        // Global size is the actual size of the text
-        textBlock->setSize(getSize());
+
+        // A small hack to keep the original size instead of content size
+        if (sizeToContent)
+        {
+            sizeToContent = false;
+            textBlock->setSize(Widget::getGlobalSize());
+            sizeToContent = true;
+        }
+        else
+        {
+            textBlock->setSize(Widget::getGlobalSize());
+        }
+
         textBlock->rebuildMesh();
 
-        invalidated = false;
-    }
+        if (sizeToContent)
+        {
+            contentSize = textBlock->getDimensions();
+        }
 
-    if (sizeToContent)
-    {
-        contentSize = textBlock->getDimensions();
+        invalidated = false;
     }
 
     return wasInvalidated;
 }
 
-//glm::ivec2 TextPanel::getGlobalSize() const
-//{
-//    if (sizeToContent)
-//    {
-//        if (horizontalAlignment != Alignment::Fill && verticalAlignment != Alignment::Fill)
-//        {
-//            dimensions.x += getMargin(Widget::Side::Left);
-//            dimensions.x += getMargin(Widget::Side::Right);
-//            dimensions.y += getMargin(Widget::Side::Top);
-//            dimensions.y += getMargin(Widget::Side::Bottom);
-//        }
-//    }
-//
-//    return dimensions;
-//}
+glm::ivec2 TextPanel::getGlobalSize()
+{
+    if (sizeToContent)
+    {
+        // A small hack to keep the original size instead of content size
+        sizeToContent = false;
+        textBlock->setSize(Widget::getGlobalSize());
+        sizeToContent = true;
+
+        glm::ivec2 dimensions = textBlock->getDimensions();
+
+        dimensions.x += getMargin(Widget::Side::Left);
+        dimensions.x += getMargin(Widget::Side::Right);
+        dimensions.y += getMargin(Widget::Side::Top);
+        dimensions.y += getMargin(Widget::Side::Bottom);
+
+        return dimensions;
+    }
+
+    return Widget::getGlobalSize();
+}
 
 void TextPanel::render(SpriteRenderer* renderer)
 {

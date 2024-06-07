@@ -56,6 +56,8 @@ void TextBlock::rebuildMesh()
     std::stringstream textStream(text);
     for (std::string line; std::getline(textStream, line);)
     {
+        size_t wordsOnLine = 0;
+
         // Iterate over each word
         std::stringstream lineStream(line);
         while (lineStream)
@@ -76,7 +78,7 @@ void TextBlock::rebuildMesh()
             // Constraint the text in its size dimensions
             const float wordLength = calculateWordLength(word);
 
-            if (size.x != 0 && wordLength + x >= size.x + position.x)
+            if (size.x != 0 && wordLength + x >= size.x + position.x && wordsOnLine >= 1)
             {
                 y += currentCharacterSet->textureSize;
                 x = xstart;
@@ -129,6 +131,8 @@ void TextBlock::rebuildMesh()
                 textVertices.insert(textVertices.end(), glyphVertices.begin(), glyphVertices.end());
 
                 x += (character.advance.x >> 6);
+
+                wordsOnLine++;
             }
         }
     }
@@ -208,6 +212,7 @@ glm::ivec2 TextBlock::getDimensions() const
     std::stringstream textStream(text);
     for (std::string line; std::getline(textStream, line);)
     {
+        size_t wordsOnLine = 0;
         // Iterate over each word
         std::stringstream lineStream(line);
         while (lineStream)
@@ -228,7 +233,7 @@ glm::ivec2 TextBlock::getDimensions() const
             // Constraint the text in its size dimensions
             const float wordLength = calculateWordLength(word);
 
-            if (size.x != 0 && wordLength + x >= size.x + position.x)
+            if (size.x != 0 && wordLength + x >= size.x + position.x && wordsOnLine >= 1)
             {
                 y += currentCharacterSet->textureSize;
                 x = xstart;
@@ -258,6 +263,8 @@ glm::ivec2 TextBlock::getDimensions() const
                 }
 
                 x += (character.advance.x >> 6);
+
+                wordsOnLine++;
 
                 if (x > dimensions.x)
                 {

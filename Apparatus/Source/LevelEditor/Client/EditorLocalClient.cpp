@@ -133,25 +133,25 @@ void EditorLocalClient::createUI()
 
 	Button* fileButton = uiContext.createNinePatchButton("Button_File", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "File", 16);
 	Button* editButton = uiContext.createNinePatchButton("Button_Edit", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Edit", 16);
+	Button* windowButton = uiContext.createNinePatchButton("Button_Window", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Window", 16);
+	Button* helpButton = uiContext.createNinePatchButton("Button_Help", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Help", 16);
 
 	HorizontalPanel* topHorizontalPanel = uiContext.createWidget<HorizontalPanel>("HorizontalPanel_Top");
 	topHorizontalPanel->addChild(fileButton);
 	topHorizontalPanel->addChild(editButton);
+	topHorizontalPanel->addChild(windowButton);
+	topHorizontalPanel->addChild(helpButton);
 	topHorizontalPanel->setPosition({ 4, 4 });
 
 	NinePatchPanel* testPanel = uiContext.createWidget<NinePatchPanel>("NinePatchPanel_Test");
 	testPanel->setPosition({ 256, 256 });
 	testPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
-	testPanel->setSize({ 256, 256 });
-	testPanel->setSizeToContentEnabled(true);
+	testPanel->setSize({ 128, 64 });
+	testPanel->setSizeToContentEnabled(false);
 
 	TextPanel* testText = uiContext.createWidget<TextPanel>("TextPanel_Test");
-	testText->setText("This is a very long and cool text. It should not fit into the parent rectangle");
-	testText->setSize({ 64, 64 });
-	//testText->setHorizontalAlignment(Widget::Alignment::Fill);
-	//testText->setVerticalAlignment(Widget::Alignment::Fill);
+	testText->setText("This is a very long and cool text. It should fit into the parent rectangle");
+	testText->setSize({ 2, 256 });
 
-	// TODO: Work out the word wrapping. It should work with the above options but it in fact doesn't
-	
 	testPanel->addChild(testText);
 }

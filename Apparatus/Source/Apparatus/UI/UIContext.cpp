@@ -154,11 +154,11 @@ Button* UIContext::createNinePatchButton(const std::string& name, const std::str
 		label->setFontSize(fontSize);
 
 		glm::ivec2 textSize = label->getGlobalSize();
-
 		label->setMargin(Widget::Side::Top, textSize.y * 0.25f);
 		label->setMargin(Widget::Side::Bottom, textSize.y * 0.75f);
 		label->setMargin(Widget::Side::Left, 4);
 		label->setMargin(Widget::Side::Right, 8);
+
 		button->addChild(label);
 	}
 

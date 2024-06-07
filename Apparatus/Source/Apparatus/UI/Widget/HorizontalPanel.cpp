@@ -2,7 +2,7 @@
 
 void HorizontalPanel::addChild(Widget* child)
 {
-    std::unique_ptr<BoxModelPanel> childContainer = std::make_unique<BoxModelPanel>();
+    std::unique_ptr<Widget> childContainer = std::make_unique<Widget>();
     childContainer->addChild(child);
     childContainers.push_back(std::move(childContainer));
     child->invalidate();
@@ -12,12 +12,12 @@ void HorizontalPanel::addChild(Widget* child)
     // children.push_back(child);
 }
 
-glm::ivec2 HorizontalPanel::getGlobalSize() const
+glm::ivec2 HorizontalPanel::getGlobalSize()
 {
     glm::ivec2 size(0);
     int maxHeight = 0;
 
-    for (const std::unique_ptr<BoxModelPanel>& childContainer : childContainers)
+    for (const std::unique_ptr<Widget>& childContainer : childContainers)
     {
         if (Widget* child = childContainer->getChild(0))
         {
@@ -42,7 +42,7 @@ bool HorizontalPanel::refresh()
 {
     bool wasInvalidated = invalidated;
 
-    for (const std::unique_ptr<BoxModelPanel>& childContainer : childContainers)
+    for (const std::unique_ptr<Widget>& childContainer : childContainers)
     {
         if (childContainer)
         {
@@ -57,7 +57,7 @@ bool HorizontalPanel::refresh()
     {
         float offset = 0.0f;
 
-        for (const std::unique_ptr<BoxModelPanel>& childContainer : childContainers)
+        for (const std::unique_ptr<Widget>& childContainer : childContainers)
         {
             if (Widget* child = childContainer->getChild(0))
             {

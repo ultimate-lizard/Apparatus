@@ -1,17 +1,19 @@
 #pragma once
 
-#include "BoxModelPanel.h"
+#include "Widget.h"
 
 #include "../../Rendering/Sprite/TextBlock.h"
 
-class TextPanel : public BoxModelPanel
+class TextPanel : public Widget
 {
 public:
+	TextPanel();
+
 	virtual void init() override;
 	virtual bool refresh() override;
 
 	// Returns the actual size of the text
-	// virtual glm::ivec2 getGlobalSize() const override;
+	virtual glm::ivec2 getGlobalSize();
 
 	virtual void render(SpriteRenderer* renderer) override;
 

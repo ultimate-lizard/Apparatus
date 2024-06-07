@@ -1,10 +1,10 @@
 #pragma once
 
-#include "BoxModelPanel.h"
+#include "Widget.h"
 
 #include "../../Rendering/Sprite/Sprite.h"
 
-class ImagePanel : public BoxModelPanel
+class ImagePanel : public Widget
 {
 public:
 	virtual void init() override;

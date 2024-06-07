@@ -21,7 +21,7 @@ void ImagePanel::init()
 
 bool ImagePanel::refresh()
 {
-    bool wasInvalidated = BoxModelPanel::refresh();
+    bool wasInvalidated = Widget::refresh();
 
     if (wasInvalidated)
     {

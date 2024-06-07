@@ -1,13 +1,13 @@
 #pragma once
 
-#include "BoxModelPanel.h"
+#include "Widget.h"
 
 class ImagePanel;
 class TextPanel;
 class Sprite;
 class Texture;
 
-class Button : public BoxModelPanel
+class Button : public Widget
 {
 public:
 	enum class ButtonState

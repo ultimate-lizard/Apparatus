@@ -100,7 +100,7 @@ void Button::setButtonState(ButtonState state)
 
 bool Button::refresh()
 {
-	bool wasInvalidated = BoxModelPanel::refresh();
+	bool wasInvalidated = Widget::refresh();
 
 	if (wasInvalidated)
 	{
