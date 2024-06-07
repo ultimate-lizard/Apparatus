@@ -1,11 +1,11 @@
-#include "HorizontalPanel.h"
+#include "VerticalPanel.h"
 
-HorizontalPanel::HorizontalPanel() :
-    interval(0)
+VerticalPanel::VerticalPanel() :
+    offset(0)
 {
 }
 
-void HorizontalPanel::addChild(Widget* child)
+void VerticalPanel::addChild(Widget* child)
 {
     std::unique_ptr<Widget> childContainer = std::make_unique<Widget>();
     childContainer->addChild(child);
@@ -14,10 +14,10 @@ void HorizontalPanel::addChild(Widget* child)
     invalidate();
 }
 
-glm::ivec2 HorizontalPanel::getGlobalSize()
+glm::ivec2 VerticalPanel::getGlobalSize()
 {
     glm::ivec2 size(0);
-    int maxHeight = 0;
+    int maxWidth = 0;
 
     for (const std::unique_ptr<Widget>& childContainer : childContainers)
     {
@@ -25,22 +25,22 @@ glm::ivec2 HorizontalPanel::getGlobalSize()
         {
             // Accumulate the overall X size
             const glm::ivec2 childSize = child->getGlobalSize();
-            size.x += childSize.x;
+            size.y += childSize.y;
 
             // Find the largest in Y widget
-            if (childSize.y > maxHeight)
+            if (childSize.x > maxWidth)
             {
-                maxHeight = childSize.y;
+                maxWidth = childSize.x;
             }
         }
     }
 
-    size.y = maxHeight;
+    size.x = maxWidth;
 
     return size;
 }
 
-bool HorizontalPanel::refresh()
+bool VerticalPanel::refresh()
 {
     bool wasInvalidated = invalidated;
 
@@ -64,9 +64,9 @@ bool HorizontalPanel::refresh()
             if (Widget* child = childContainer->getChild(0))
             {
                 childContainer->setSize(child->getGlobalSize());
-                childContainer->setPosition(getGlobalPosition() + glm::ivec2(offset, 0));
+                childContainer->setPosition(getGlobalPosition() + glm::ivec2(0, offset));
 
-                offset += childContainer->getGlobalSize().x;
+                offset += childContainer->getGlobalSize().y;
             }
         }
 
@@ -76,7 +76,7 @@ bool HorizontalPanel::refresh()
     return wasInvalidated;
 }
 
-void HorizontalPanel::setInterval(int offset)
+void VerticalPanel::setOffset(int offset)
 {
-    this->interval = interval;
+    this->offset = offset;
 }

@@ -10,6 +10,7 @@
 #include <Apparatus/Components/LightComponent.h>
 #include <Apparatus/Rendering/Sprite/Sprite.h>
 #include <Apparatus/UI/Widget/HorizontalPanel.h>
+#include <Apparatus/UI/Widget/VerticalPanel.h>
 #include <Apparatus/UI/Widget/TextPanel.h>
 #include <Apparatus/UI/Widget/Button.h>
 
@@ -131,10 +132,28 @@ void EditorLocalClient::createUI()
 	topPanel->setHorizontalAlignment(Widget::Alignment::Fill);
 	topPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
 
+	ImagePanel* fileMenu = uiContext.createWidget<ImagePanel>("Panel_Context");
+	fileMenu->setSize({ 128, 256 });
+	fileMenu->setPosition({ 0, 40 });
+	fileMenu->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
+	fileMenu->setVisibility(false);
+
 	Button* fileButton = uiContext.createNinePatchButton("Button_File", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "File", 16);
 	Button* editButton = uiContext.createNinePatchButton("Button_Edit", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Edit", 16);
 	Button* windowButton = uiContext.createNinePatchButton("Button_Window", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Window", 16);
 	Button* helpButton = uiContext.createNinePatchButton("Button_Help", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Help", 16);
+
+	Button* exitButton = uiContext.createNinePatchButton("Button_Exit", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Exit", 16);
+	exitButton->setSize({ 128, 40 });
+	exitButton->setSizeToContentEnabled(false);
+
+	VerticalPanel* verticalPanel = uiContext.createWidget<VerticalPanel>("VerticalPanel_Context");
+	verticalPanel->addChild(exitButton);
+
+	fileMenu->addChild(verticalPanel);
+
+	glm::ivec2 menuSize = fileMenu->getSize();
+	fileMenu->setSize({ menuSize.x, verticalPanel->getGlobalSize().y });
 
 	HorizontalPanel* topHorizontalPanel = uiContext.createWidget<HorizontalPanel>("HorizontalPanel_Top");
 	topHorizontalPanel->addChild(fileButton);

@@ -190,6 +190,8 @@ void Widget::addChild(Widget* child)
         child->parent = this;
         child->invalidate();
         invalidate();
+
+        child->setVisibility(isVisible());
     }
 }
 
@@ -286,6 +288,11 @@ bool Widget::isMouseCaptureEnabled() const
 void Widget::setVisibility(bool visible)
 {
     this->visible = visible;
+
+    for (Widget* child : children)
+    {
+        child->setVisibility(visible);
+    }
 }
 
 bool Widget::isVisible() const
