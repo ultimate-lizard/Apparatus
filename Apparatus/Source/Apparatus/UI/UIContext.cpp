@@ -141,7 +141,7 @@ Button* UIContext::createNinePatchButton(const std::string& name, const std::str
 	button->setPressTexture(assetManager->findAsset<Texture>(pressTextureName));
 
 	// TODO: This should be found automatically?
-	button->setSize({ 40, 32 });
+	// button->setSize({ 40, 32 });
 	button->setBorder(border);
 
 	if (!labelText.empty())
@@ -149,6 +149,7 @@ Button* UIContext::createNinePatchButton(const std::string& name, const std::str
 		TextPanel* label = createWidget<TextPanel>(name + "TextPanel_Label");
 		label->setText(labelText);
 		label->setFontSize(fontSize);
+		label->setHorizontalAlignment(Widget::Alignment::Fill);
 
 		glm::ivec2 textSize = label->getGlobalSize();
 		label->setMargin(Widget::Side::Top, textSize.y * 0.25f);

@@ -152,7 +152,7 @@ void EditorLocalClient::createTopPanel()
 	TopPanelMenuBuilder::TopPanelMenuParams params;
 	params.buttonBorder = 6;
 	params.buttonFontSize = 16;
-	params.buttonSize = { 128, 40 };
+	params.buttonSize = { 128, 32 };
 	params.idleButtonTextureName = "Texture_Panel";
 	params.hoverButtonTextureName = "Texture_PanelInner";
 	params.pressButtonTextureName = "Texture_PanelInnerPressed";
@@ -164,35 +164,44 @@ void EditorLocalClient::createTopPanel()
 	menuBuilder.setParams(params);
 	menuBuilder.setTopPanel(topPanel);
 	menuBuilder.setTopPanelMenuItem(fileButton);
-	
 	Button* exitButton = menuBuilder.addButton("Exit");
-
 	Widget* fileMenu = menuBuilder.build();
 
-	menuBuilder.setName("File_Edit");
+	menuBuilder.setName("Edit_Menu");
 	menuBuilder.setTopPanelMenuItem(editButton);
 	Button* undoButton = menuBuilder.addButton("Undo");
 	Button* redoButton = menuBuilder.addButton("Redo");
 	Widget* editMenu = menuBuilder.build();
 
-	fileButton->setCallback([editMenu, fileMenu]() {
+	menuBuilder.setName("Window_Menu");
+	menuBuilder.setTopPanelMenuItem(windowButton);
+	params.buttonSize = { 200, 32 };
+	menuBuilder.setParams(params);
+	Button* fullscreenButton = menuBuilder.addButton("Toggle fullscreen");
+	Widget* windowMenu = menuBuilder.build();
+
+	fileButton->setCallback([editMenu, fileMenu, windowMenu]() {
 		fileMenu->setVisibility(!fileMenu->isVisible());
 		editMenu->setVisibility(false);
+		windowMenu->setVisibility(false);
 		});
 
-	editButton->setCallback([editMenu, fileMenu]() {
+	editButton->setCallback([editMenu, fileMenu, windowMenu]() {
 		fileMenu->setVisibility(false);
 		editMenu->setVisibility(!editMenu->isVisible());
+		windowMenu->setVisibility(false);
 		});
 
-	windowButton->setCallback([editMenu, fileMenu]() {
+	windowButton->setCallback([editMenu, fileMenu, windowMenu]() {
 		fileMenu->setVisibility(false);
 		editMenu->setVisibility(false);
+		windowMenu->setVisibility(!windowMenu->isVisible());
 		});
 
-	helpButton->setCallback([editMenu, fileMenu]() {
+	helpButton->setCallback([editMenu, fileMenu, windowMenu]() {
 		fileMenu->setVisibility(false);
 		editMenu->setVisibility(false);
+		windowMenu->setVisibility(false);
 		});
 
 	exitButton->setCallback([]() {

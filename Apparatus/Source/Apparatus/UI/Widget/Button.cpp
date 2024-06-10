@@ -214,11 +214,6 @@ bool Button::onKeyInput(InputKey key, KeyEventType type)
 
 		invalidate();
 
-		if (type == KeyEventType::Press)
-		{
-			LOG("Click!", LogLevel::Trace);
-		}
-
 		return true;
 	}
 
