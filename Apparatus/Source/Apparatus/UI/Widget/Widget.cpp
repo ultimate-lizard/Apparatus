@@ -191,7 +191,7 @@ void Widget::addChild(Widget* child)
         child->invalidate();
         invalidate();
 
-        child->setVisibility(isVisible());
+        // child->setVisibility(isVisible() ? true : false);
     }
 }
 

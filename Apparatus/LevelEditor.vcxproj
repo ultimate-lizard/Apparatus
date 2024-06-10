@@ -156,6 +156,7 @@
     <ClCompile Include="Source\LevelEditor\Editor\Editor.cpp" />
     <ClCompile Include="Source\LevelEditor\Entry.cpp" />
     <ClCompile Include="Source\LevelEditor\Server\EditorLocalServer.cpp" />
+    <ClCompile Include="Source\LevelEditor\UI\TopPanelMenuBuilder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\LevelEditor\Client\EditorController.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Source\LevelEditor\Components\GizmoComponent\SnappingData.h" />
     <ClInclude Include="Source\LevelEditor\Editor\Editor.h" />
     <ClInclude Include="Source\LevelEditor\Server\EditorLocalServer.h" />
+    <ClInclude Include="Source\LevelEditor\UI\TopPanelMenuBuilder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

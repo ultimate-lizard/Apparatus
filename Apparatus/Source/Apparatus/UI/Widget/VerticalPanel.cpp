@@ -64,10 +64,10 @@ bool VerticalPanel::refresh()
 
         for (const std::unique_ptr<Widget>& childContainer : childContainers)
         {
-            childContainer->setVisibility(isVisible());
-
             if (Widget* child = childContainer->getChild(0))
             {
+                childContainer->setVisibility(isVisible());
+
                 childContainer->setSize(child->getGlobalSize());
                 childContainer->setPosition(getGlobalPosition() + glm::ivec2(0, offset));
 

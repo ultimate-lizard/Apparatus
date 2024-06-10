@@ -25,6 +25,8 @@ protected:
 
 	void createUIAssets();
 	void createUI();
+	void createTopPanel();
+	ImagePanel* createTopPanelContextMenu(const std::string& name, Button* button);
 
 	bool inEditMode;
 };

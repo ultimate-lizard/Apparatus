@@ -3,7 +3,7 @@
 #include "Client/EditorLocalClient.h"
 #include "Editor/Editor.h"
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
 	Editor app("Apparatus Editor");
 

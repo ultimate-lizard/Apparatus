@@ -17,6 +17,7 @@
 #include "EditorController.h"
 #include "../Components/SelectableComponent.h"
 #include "../Server/EditorLocalServer.h"
+#include "../UI/TopPanelMenuBuilder.h"
 
 EditorLocalClient::EditorLocalClient(Renderer* renderer, SpriteRenderer* spriteRenderer) :
 	LocalClient(renderer, spriteRenderer),
@@ -121,11 +122,13 @@ void EditorLocalClient::createUIAssets()
 
 void EditorLocalClient::createUI()
 {
+	createTopPanel();
+}
+
+void EditorLocalClient::createTopPanel()
+{
 	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
-	if (!assetManager)
-	{
-		return;
-	}
+	assert(assetManager);
 
 	ImagePanel* topPanel = uiContext.createWidget<ImagePanel>("Panel_Top");
 	topPanel->setSize({ 40, 40 });
@@ -133,48 +136,10 @@ void EditorLocalClient::createUI()
 	topPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
 	topPanel->setMouseCaptureEnabled(true);
 
-	ImagePanel* fileMenu = uiContext.createWidget<ImagePanel>("Panel_Context");
-	fileMenu->setSize({ 128, 256 });
-	fileMenu->setPosition({ 0, 40 });
-	fileMenu->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
-	fileMenu->setVisibility(false);
-
 	Button* fileButton = uiContext.createNinePatchButton("Button_File", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "File", 16);
 	Button* editButton = uiContext.createNinePatchButton("Button_Edit", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Edit", 16);
 	Button* windowButton = uiContext.createNinePatchButton("Button_Window", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Window", 16);
 	Button* helpButton = uiContext.createNinePatchButton("Button_Help", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Help", 16);
-
-	Button* exitButton = uiContext.createNinePatchButton("Button_Exit", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Exit", 16);
-	exitButton->setSize({ 128, 40 });
-	exitButton->setSizeToContentEnabled(false);
-
-	VerticalPanel* verticalPanel = uiContext.createWidget<VerticalPanel>("VerticalPanel_Context");
-	verticalPanel->addChild(exitButton);
-
-	fileMenu->addChild(verticalPanel);
-
-	fileButton->setCallback([fileMenu]() {
-		fileMenu->setVisibility(!fileMenu->isVisible());
-		});
-
-	editButton->setCallback([fileMenu]() {
-		fileMenu->setVisibility(false);
-		});
-
-	windowButton->setCallback([fileMenu]() {
-		fileMenu->setVisibility(false);
-		});
-
-	helpButton->setCallback([fileMenu]() {
-		fileMenu->setVisibility(false);
-		});
-
-	exitButton->setCallback([]() {
-		Apparatus::get().quit();
-		});
-
-	glm::ivec2 menuSize = fileMenu->getSize();
-	fileMenu->setSize({ menuSize.x, verticalPanel->getGlobalSize().y });
 
 	HorizontalPanel* topHorizontalPanel = uiContext.createWidget<HorizontalPanel>("HorizontalPanel_Top");
 	topHorizontalPanel->addChild(fileButton);
@@ -182,16 +147,82 @@ void EditorLocalClient::createUI()
 	topHorizontalPanel->addChild(windowButton);
 	topHorizontalPanel->addChild(helpButton);
 	topHorizontalPanel->setPosition({ 4, 4 });
+	topHorizontalPanel->refresh();
 
-	NinePatchPanel* testPanel = uiContext.createWidget<NinePatchPanel>("NinePatchPanel_Test");
-	testPanel->setPosition({ 256, 256 });
-	testPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
-	testPanel->setSize({ 128, 64 });
-	testPanel->setSizeToContentEnabled(true);
+	TopPanelMenuBuilder::TopPanelMenuParams params;
+	params.buttonBorder = 6;
+	params.buttonFontSize = 16;
+	params.buttonSize = { 128, 40 };
+	params.idleButtonTextureName = "Texture_Panel";
+	params.hoverButtonTextureName = "Texture_PanelInner";
+	params.pressButtonTextureName = "Texture_PanelInnerPressed";
+	params.menuBackgroundTextureName = "Texture_Panel";
 
-	TextPanel* testText = uiContext.createWidget<TextPanel>("TextPanel_Test");
-	testText->setText("This is a very long and cool text. It should fit into the parent rectangle");
-	testText->setSize({ 2, 256 });
+	TopPanelMenuBuilder menuBuilder;
+	menuBuilder.setContext(&uiContext);
+	menuBuilder.setName("File_Menu");
+	menuBuilder.setParams(params);
+	menuBuilder.setTopPanel(topPanel);
+	menuBuilder.setTopPanelMenuItem(fileButton);
+	
+	Button* exitButton = menuBuilder.addButton("Exit");
 
-	testPanel->addChild(testText);
+	Widget* fileMenu = menuBuilder.build();
+	topPanel->addChild(fileMenu);
+
+	menuBuilder.setName("File_Edit");
+	menuBuilder.setTopPanelMenuItem(editButton);
+	Button* undoButton = menuBuilder.addButton("Undo");
+	Button* redoButton = menuBuilder.addButton("Redo");
+	Widget* editMenu = menuBuilder.build();
+
+	//Button* exitButton = uiContext.createNinePatchButton("Button_Exit", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Exit", 16);
+	//exitButton->setSize({ 128, 40 });
+	//exitButton->setSizeToContentEnabled(false);
+
+	//VerticalPanel* fileMenuVerticalPanel = uiContext.createWidget<VerticalPanel>("VerticalPanel_Context");
+	//fileMenuVerticalPanel->addChild(exitButton);
+
+	// fileMenu->addChild(fileMenuVerticalPanel);
+
+	fileButton->setCallback([editMenu, fileMenu]() {
+		fileMenu->setVisibility(!fileMenu->isVisible());
+		editMenu->setVisibility(false);
+		});
+
+	editButton->setCallback([editMenu, fileMenu]() {
+		fileMenu->setVisibility(false);
+		editMenu->setVisibility(!editMenu->isVisible());
+		});
+
+	windowButton->setCallback([editMenu, fileMenu]() {
+		fileMenu->setVisibility(false);
+		editMenu->setVisibility(false);
+		});
+
+	helpButton->setCallback([editMenu, fileMenu]() {
+		fileMenu->setVisibility(false);
+		editMenu->setVisibility(false);
+		});
+
+	exitButton->setCallback([]() {
+		Apparatus::get().quit();
+		});
+
+	//glm::ivec2 menuSize = fileMenu->getSize();
+	//fileMenu->setSize({ menuSize.x, fileMenuVerticalPanel->getGlobalSize().y });
+}
+
+ImagePanel* EditorLocalClient::createTopPanelContextMenu(const std::string& name, Button* button)
+{
+	AssetManager* assetManager = Apparatus::findEngineSystem<AssetManager>();
+	assert(assetManager);
+
+	ImagePanel* fileMenu = uiContext.createWidget<ImagePanel>("Panel_Context");
+	fileMenu->setSize({ 128, 256 });
+	fileMenu->setPosition({ 0, 40 });
+	fileMenu->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
+	fileMenu->setVisibility(false);
+
+	return nullptr;
 }

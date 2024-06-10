@@ -130,7 +130,7 @@ bool Button::refresh()
 			}
 			else
 			{
-				child->setPosition(glm::ivec2(0));
+				//child->setPosition(glm::ivec2(0));
 			}
 		}
 
@@ -186,6 +186,11 @@ void Button::onMouseLeave()
 
 bool Button::onKeyInput(InputKey key, KeyEventType type)
 {
+	if (key == InputKey::MouseLeftButton && type == KeyEventType::Release && buttonState == ButtonState::Press && hovered)
+	{
+		execute();
+	}
+
 	if (!Widget::onKeyInput(key, type))
 	{
 		return false;
@@ -196,7 +201,6 @@ bool Button::onKeyInput(InputKey key, KeyEventType type)
 		if (type == KeyEventType::Press && hovered)
 		{
 			setButtonState(Button::ButtonState::Press);
-			execute();
 		}
 		else
 		{

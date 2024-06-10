@@ -142,6 +142,7 @@ int Apparatus::initEngineInternal()
 {
 	Logger::open("../Logs/");
 
+	SDL_SetMainReady();
 	if (SDL_Init(SDL_INIT_VIDEO))
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Unable to initialize SDL!", nullptr);
