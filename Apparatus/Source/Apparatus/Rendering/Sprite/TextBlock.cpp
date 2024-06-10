@@ -10,7 +10,7 @@ static const int textBufferSize = 4000 * 6 * 5 * sizeof(float); // chars * verti
 TextBlock::TextBlock() :
     font(nullptr),
     fontSize(14),
-    justification(TextBlock::Justification::Left)
+    cachedDimensions(0)
 {
     color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -177,18 +177,15 @@ unsigned int TextBlock::getFontSize()
     return fontSize;
 }
 
-void TextBlock::setJustification(TextBlock::Justification justification)
+glm::ivec2 TextBlock::getDimensions()
 {
-    this->justification = justification;
-}
+    if (text == cachedText)
+    {
+        return cachedDimensions;
+    }
 
-TextBlock::Justification TextBlock::getJustification() const
-{
-    return justification;
-}
+    cachedText = text;
 
-glm::ivec2 TextBlock::getDimensions() const
-{
     if (!font)
     {
         return size;
@@ -277,6 +274,8 @@ glm::ivec2 TextBlock::getDimensions() const
     dimensions.y = y;
     dimensions.x -= originalPosition.x;
     dimensions.y -= originalPosition.y;
+
+    cachedDimensions = dimensions;
 
     return dimensions;
 }

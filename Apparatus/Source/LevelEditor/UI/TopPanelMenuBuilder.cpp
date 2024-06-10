@@ -44,6 +44,7 @@ Button* TopPanelMenuBuilder::addButton(const std::string& label)
 
     newButton->setSize(params.buttonSize);
     newButton->setSizeToContentEnabled(false);
+    newButton->setExecutedOnReleaseEnabled(true);
 
     buttons.push_back(newButton);
 

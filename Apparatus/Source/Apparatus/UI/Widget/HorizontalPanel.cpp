@@ -48,10 +48,7 @@ bool HorizontalPanel::refresh()
     {
         if (childContainer)
         {
-            if (childContainer->refresh())
-            {
-                wasInvalidated = true;
-            }
+            childContainer->refresh();
         }
     }
 

@@ -45,6 +45,9 @@ public:
 	void setCallback(std::function<void()> callback);
 	void execute();
 
+	void setExecutedOnReleaseEnabled(bool enabled);
+	bool isExecutedOnReleaseEnabled() const;
+
 protected:
 	virtual void initMaterial();
 	virtual void refreshSprite();
@@ -68,4 +71,5 @@ protected:
 	int childClickOffset;
 
 	std::function<void()> callback;
+	bool executedOnReleaseEnabled;
 };

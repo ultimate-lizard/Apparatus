@@ -17,7 +17,8 @@ Button::Button() :
 	currentSprite(nullptr),
 	buttonState(ButtonState::Idle),
 	hovered(false),
-	childClickOffset(2)
+	childClickOffset(2),
+	executedOnReleaseEnabled(false)
 {
 	mouseCaptureEnabled = true;
 }
@@ -186,7 +187,7 @@ void Button::onMouseLeave()
 
 bool Button::onKeyInput(InputKey key, KeyEventType type)
 {
-	if (key == InputKey::MouseLeftButton && type == KeyEventType::Release && buttonState == ButtonState::Press && hovered)
+	if (isExecutedOnReleaseEnabled() && key == InputKey::MouseLeftButton && type == KeyEventType::Release && buttonState == ButtonState::Press && hovered)
 	{
 		execute();
 	}
@@ -201,6 +202,10 @@ bool Button::onKeyInput(InputKey key, KeyEventType type)
 		if (type == KeyEventType::Press && hovered)
 		{
 			setButtonState(Button::ButtonState::Press);
+			if (!isExecutedOnReleaseEnabled())
+			{
+				execute();
+			}
 		}
 		else
 		{
@@ -254,6 +259,16 @@ void Button::execute()
 	{
 		callback();
 	}
+}
+
+void Button::setExecutedOnReleaseEnabled(bool enabled)
+{
+	this->executedOnReleaseEnabled = enabled;
+}
+
+bool Button::isExecutedOnReleaseEnabled() const
+{
+	return executedOnReleaseEnabled == true;
 }
 
 void Button::initMaterial()

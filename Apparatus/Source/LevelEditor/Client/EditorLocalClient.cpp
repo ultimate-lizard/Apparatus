@@ -168,22 +168,12 @@ void EditorLocalClient::createTopPanel()
 	Button* exitButton = menuBuilder.addButton("Exit");
 
 	Widget* fileMenu = menuBuilder.build();
-	topPanel->addChild(fileMenu);
 
 	menuBuilder.setName("File_Edit");
 	menuBuilder.setTopPanelMenuItem(editButton);
 	Button* undoButton = menuBuilder.addButton("Undo");
 	Button* redoButton = menuBuilder.addButton("Redo");
 	Widget* editMenu = menuBuilder.build();
-
-	//Button* exitButton = uiContext.createNinePatchButton("Button_Exit", "Texture_Panel", "Texture_PanelInner", "Texture_PanelInnerPressed", 6, "Exit", 16);
-	//exitButton->setSize({ 128, 40 });
-	//exitButton->setSizeToContentEnabled(false);
-
-	//VerticalPanel* fileMenuVerticalPanel = uiContext.createWidget<VerticalPanel>("VerticalPanel_Context");
-	//fileMenuVerticalPanel->addChild(exitButton);
-
-	// fileMenu->addChild(fileMenuVerticalPanel);
 
 	fileButton->setCallback([editMenu, fileMenu]() {
 		fileMenu->setVisibility(!fileMenu->isVisible());
@@ -208,9 +198,6 @@ void EditorLocalClient::createTopPanel()
 	exitButton->setCallback([]() {
 		Apparatus::get().quit();
 		});
-
-	//glm::ivec2 menuSize = fileMenu->getSize();
-	//fileMenu->setSize({ menuSize.x, fileMenuVerticalPanel->getGlobalSize().y });
 }
 
 ImagePanel* EditorLocalClient::createTopPanelContextMenu(const std::string& name, Button* button)

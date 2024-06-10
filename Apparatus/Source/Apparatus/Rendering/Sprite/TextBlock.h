@@ -30,17 +30,16 @@ public:
 	void setFontSize(unsigned int fontScale);
 	unsigned int getFontSize();
 
-	void setJustification(TextBlock::Justification justification);
-	TextBlock::Justification getJustification() const;
-
-	glm::ivec2 getDimensions() const;
+	glm::ivec2 getDimensions();
 
 protected:
 	float calculateWordLength(const std::string& word) const;
 
 	std::string text;
+	std::string cachedText;
+
 	Font* font;
 	unsigned int fontSize;
 
-	TextBlock::Justification justification;
+	glm::ivec2 cachedDimensions;
 };
