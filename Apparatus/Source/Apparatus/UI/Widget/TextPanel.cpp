@@ -81,7 +81,7 @@ glm::ivec2 TextPanel::getGlobalSize()
 
 void TextPanel::render(SpriteRenderer* renderer)
 {
-    if (renderer)
+    if (renderer && isVisible())
     {
         renderer->push(textBlock.get());
     }

@@ -8,6 +8,9 @@ VerticalPanel::VerticalPanel() :
 void VerticalPanel::addChild(Widget* child)
 {
     std::unique_ptr<Widget> childContainer = std::make_unique<Widget>();
+
+    childContainer->setVisibility(isVisible());
+
     childContainer->addChild(child);
     childContainers.push_back(std::move(childContainer));
     child->invalidate();
@@ -61,6 +64,8 @@ bool VerticalPanel::refresh()
 
         for (const std::unique_ptr<Widget>& childContainer : childContainers)
         {
+            childContainer->setVisibility(isVisible());
+
             if (Widget* child = childContainer->getChild(0))
             {
                 childContainer->setSize(child->getGlobalSize());

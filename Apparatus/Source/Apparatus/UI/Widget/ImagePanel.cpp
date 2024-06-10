@@ -40,7 +40,7 @@ bool ImagePanel::refresh()
 
 void ImagePanel::render(SpriteRenderer* renderer)
 {
-    if (renderer)
+    if (renderer && isVisible())
     {
         renderer->push(sprite.get());
     }

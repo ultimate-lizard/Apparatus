@@ -144,11 +144,19 @@ bool Button::refresh()
 
 void Button::render(SpriteRenderer* renderer)
 {
-	renderer->push(currentSprite);
+	if (renderer && isVisible())
+	{
+		renderer->push(currentSprite);
+	}
 }
 
 void Button::onMouseEnter()
 {
+	if (!isVisible())
+	{
+		return;
+	}
+
 	if (buttonState != Button::ButtonState::Press)
 	{
 		setButtonState(Button::ButtonState::Hover);
@@ -161,6 +169,11 @@ void Button::onMouseEnter()
 
 void Button::onMouseLeave()
 {
+	if (!isVisible())
+	{
+		return;
+	}
+
 	if (buttonState == Button::ButtonState::Hover)
 	{
 		setButtonState(Button::ButtonState::Idle);
@@ -173,8 +186,7 @@ void Button::onMouseLeave()
 
 bool Button::onKeyInput(InputKey key, KeyEventType type)
 {
-	const glm::ivec2 cursorPosition = Apparatus::getWindow().getMouseCursorPosition();
-	if (!isContaining(cursorPosition))
+	if (!Widget::onKeyInput(key, type))
 	{
 		return false;
 	}
@@ -184,6 +196,7 @@ bool Button::onKeyInput(InputKey key, KeyEventType type)
 		if (type == KeyEventType::Press && hovered)
 		{
 			setButtonState(Button::ButtonState::Press);
+			execute();
 		}
 		else
 		{
@@ -224,6 +237,19 @@ void Button::setPressTexture(Texture* texture)
 void Button::setLabelClickOffset(int offset)
 {
 	this->childClickOffset = offset;
+}
+
+void Button::setCallback(std::function<void()> callback)
+{
+	this->callback = callback;
+}
+
+void Button::execute()
+{
+	if (callback)
+	{
+		callback();
+	}
 }
 
 void Button::initMaterial()

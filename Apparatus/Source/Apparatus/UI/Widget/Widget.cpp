@@ -293,6 +293,8 @@ void Widget::setVisibility(bool visible)
     {
         child->setVisibility(visible);
     }
+
+    invalidate();
 }
 
 bool Widget::isVisible() const
@@ -320,6 +322,12 @@ void Widget::onMouseMove(const glm::ivec2& cursorPosition)
             // LOG("On mouse leave " + getName(), LogLevel::Info);
         }
     }
+}
+
+bool Widget::onKeyInput(InputKey key, KeyEventType type)
+{
+    const glm::ivec2 cursorPosition = Apparatus::getWindow().getMouseCursorPosition();
+    return isContaining(cursorPosition) && mouseCaptureEnabled && isVisible() && key == InputKey::MouseLeftButton;
 }
 
 bool Widget::isContaining(const glm::ivec2& coordiante)

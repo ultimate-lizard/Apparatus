@@ -131,6 +131,7 @@ void EditorLocalClient::createUI()
 	topPanel->setSize({ 40, 40 });
 	topPanel->setHorizontalAlignment(Widget::Alignment::Fill);
 	topPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
+	topPanel->setMouseCaptureEnabled(true);
 
 	ImagePanel* fileMenu = uiContext.createWidget<ImagePanel>("Panel_Context");
 	fileMenu->setSize({ 128, 256 });
@@ -152,6 +153,26 @@ void EditorLocalClient::createUI()
 
 	fileMenu->addChild(verticalPanel);
 
+	fileButton->setCallback([fileMenu]() {
+		fileMenu->setVisibility(!fileMenu->isVisible());
+		});
+
+	editButton->setCallback([fileMenu]() {
+		fileMenu->setVisibility(false);
+		});
+
+	windowButton->setCallback([fileMenu]() {
+		fileMenu->setVisibility(false);
+		});
+
+	helpButton->setCallback([fileMenu]() {
+		fileMenu->setVisibility(false);
+		});
+
+	exitButton->setCallback([]() {
+		Apparatus::get().quit();
+		});
+
 	glm::ivec2 menuSize = fileMenu->getSize();
 	fileMenu->setSize({ menuSize.x, verticalPanel->getGlobalSize().y });
 
@@ -166,7 +187,7 @@ void EditorLocalClient::createUI()
 	testPanel->setPosition({ 256, 256 });
 	testPanel->setTexture(assetManager->findAsset<Texture>("Texture_Panel"));
 	testPanel->setSize({ 128, 64 });
-	testPanel->setSizeToContentEnabled(false);
+	testPanel->setSizeToContentEnabled(true);
 
 	TextPanel* testText = uiContext.createWidget<TextPanel>("TextPanel_Test");
 	testText->setText("This is a very long and cool text. It should fit into the parent rectangle");

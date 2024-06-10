@@ -77,10 +77,7 @@ void UIContext::renderContext(SpriteRenderer* renderer)
 	{
 		if (Widget* widget = iter->get())
 		{
-			if (widget->isVisible())
-			{
-				widget->render(renderer);
-			}
+			widget->render(renderer);
 		}
 	}
 }
@@ -94,9 +91,9 @@ bool UIContext::handleKeyInput(InputKey key, KeyEventType type)
 
 	if (key == InputKey::MouseLeftButton)
 	{
-		for (auto& widget : spawnedWidgets)
+		for (auto iter = spawnedWidgets.rbegin(); iter != spawnedWidgets.rend(); ++iter)
 		{
-			if (widget)
+			if (Widget* widget = iter->get())
 			{
 				if (widget->onKeyInput(key, type) && type != KeyEventType::Release && widget->isMouseCaptureEnabled())
 				{

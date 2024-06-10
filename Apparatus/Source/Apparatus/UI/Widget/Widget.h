@@ -78,7 +78,7 @@ public:
 
 	virtual void onMouseEnter() {}
 	virtual void onMouseLeave() {}
-	virtual bool onKeyInput(InputKey key, KeyEventType type) { return false; }
+	virtual bool onKeyInput(InputKey key, KeyEventType type);
 
 	bool isContaining(const glm::ivec2& coordiante);
 

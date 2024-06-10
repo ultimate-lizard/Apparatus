@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "Widget.h"
 
 class ImagePanel;
@@ -40,10 +42,13 @@ public:
 	void setButtonState(ButtonState state);
 	void setLabelClickOffset(int offset);
 
+	void setCallback(std::function<void()> callback);
+	void execute();
+
 protected:
 	virtual void initMaterial();
 	virtual void refreshSprite();
-	
+
 	std::unique_ptr<Sprite> idleSprite;
 	std::unique_ptr<Sprite> hoverSprite;
 	std::unique_ptr<Sprite> pressSprite;
@@ -61,4 +66,6 @@ protected:
 	bool hovered;
 
 	int childClickOffset;
+
+	std::function<void()> callback;
 };
